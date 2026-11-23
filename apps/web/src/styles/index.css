@@ -1,0 +1,119 @@
+@import 'tailwindcss';
+
+/*
+ * Jetons du design system « Billets en đồng » (voir DESIGN.md).
+ *
+ * Tailwind v4 lit ce bloc @theme : chaque variable devient une classe utilitaire
+ * (`--color-laque` → `bg-laque`, `text-laque`, `border-laque`…). Les composants n'utilisent
+ * QUE ces noms de rôle, jamais de valeurs en dur : le mode sombre (plus tard) consistera à
+ * redéfinir ces variables, sans toucher aux composants.
+ */
+@theme {
+  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+
+  /* Marque */
+  --color-laque: #a8322d; /* rouge laque : en-têtes, action principale, sélection */
+  --color-laque-deep: #86231f; /* état pressé, texte rouge sur fond clair */
+  --color-laque-tint: #fbeae8; /* fond léger d'un élément sélectionné */
+  --color-on-laque: #ffffff;
+  --color-on-laque-muted: #f8dedb; /* texte secondaire posé sur la laque */
+  --color-curcuma: #e0a526; /* jaune : uniquement le « maintenant » (créneau en cours) */
+  --color-curcuma-tint: #fdf6e3;
+  --color-curcuma-ink: #7a5a12; /* texte posé sur le fond curcuma clair (contraste AA) */
+
+  /* Neutres (pierre, légèrement chauds mais jamais crème) */
+  --color-ground: #f5f5f4; /* fond de l'application */
+  --color-surface: #ffffff; /* cartes, listes, barres */
+  --color-line: #e7e5e4; /* filets */
+  --color-line-soft: #f0eeec; /* séparateurs internes */
+  --color-ink: #1c1917; /* texte principal */
+  --color-ink-soft: #44403c; /* texte appuyé secondaire */
+  --color-muted: #57534e; /* libellés, métadonnées (7:1 sur blanc) */
+
+  /* États */
+  --color-success: #2f6b45;
+
+  /*
+   * Catégories de dépenses : teintes empruntées aux billets polymères en đồng.
+   * Elles diffèrent aussi en luminosité, pour rester distinguables sans voir les couleurs.
+   */
+  --color-cat-food: #2f6b45; /* vert, billet de 100 000 */
+  --color-cat-transport: #2b57a0; /* bleu, billet de 20 000 */
+  --color-cat-activities: #b5487e; /* rose, billet de 50 000 */
+  --color-cat-shopping: #9a6b12; /* ocre, billet de 10 000 */
+  --color-cat-accommodation: #1d6f74; /* sarcelle, billet de 500 000 */
+  --color-cat-other: #78716c;
+
+  --radius-card: 16px;
+  --shadow-raised: 0 1px 2px rgb(28 25 23 / 0.06), 0 8px 24px rgb(28 25 23 / 0.08);
+  --shadow-fab: 0 2px 4px rgb(134 35 31 / 0.25), 0 10px 24px rgb(134 35 31 / 0.25);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    background: var(--color-ground);
+    color: var(--color-ink);
+    -webkit-tap-highlight-color: transparent;
+    /* Le texte reste à la taille choisie par l'utilisateur quand on tourne le téléphone. */
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    caret-color: var(--color-laque);
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    background: var(--color-laque-tint);
+    color: var(--color-laque-deep);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-laque);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Champs à 16 px minimum : en dessous, le navigateur zoome à la saisie sur mobile. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  a {
+    text-underline-offset: 3px;
+  }
+
+  /* Pas de délai de « double tap pour zoomer » sur les commandes, et pas de sélection de
+     texte par appui long sur un bouton (seulement sur les commandes, jamais sur le texte). */
+  button,
+  a,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+  button {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  * {
+    scrollbar-color: var(--color-line) transparent;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Marges de sécurité (encoche, barre gestuelle Android) pour l'appli installée. */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}

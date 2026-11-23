@@ -1,0 +1,67 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Về Quê — fichiers à ne jamais versionner
+# Règle générale : on versionne les SOURCES, jamais ce qui se régénère
+# (dépendances, builds, caches) ni ce qui est propre à une machine ou secret.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Dépendances (pnpm crée un node_modules par paquet du monorepo)
+node_modules/
+.pnpm-store/
+
+# Builds et fichiers générés
+dist/
+dev-dist/
+*.tsbuildinfo
+*.local
+
+# Tests et couverture
+coverage/
+playwright-report/
+test-results/
+
+# Caches d'outils
+.eslintcache
+.vite/
+.vitest/
+
+# Journaux
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets et environnement (le jour où le backend arrive : clés, URL de base de données…)
+.env
+.env.*
+!.env.example
+
+# Hébergement
+.vercel/
+
+# Éditeurs : on garde les recommandations d'extensions partagées, pas les réglages perso
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+
+# Systèmes d'exploitation
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Claude : les skills du projet sont versionnés (.claude/skills/),
+# les réglages personnels de chaque machine ne le sont pas.
+.claude/settings.local.json
+
+# Impeccable : PRODUCT.md, DESIGN.md, .impeccable/design.json, .impeccable/config.json
+# et les briefs .impeccable/surfaces/ sont versionnés ; ses dossiers de travail ne le sont pas.
+**/.impeccable/review/
+**/.impeccable/mocks/
+**/.impeccable/questions/
+**/.impeccable/tmp/
+**/.impeccable/config.local.json

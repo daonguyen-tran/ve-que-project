@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover : l'appli installée s'étend sous l'encoche ; les marges de sécurité
+         sont gérées en CSS avec env(safe-area-inset-*).
+         interactive-widget=resizes-content : sur Chrome Android, le clavier réduit la zone
+         visible, ce qui garde les champs du bas (saisie d'une dépense) au-dessus du clavier.
+         Le zoom n'est jamais bloqué (accessibilité). -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="theme-color" content="#A8322D" />
+    <meta
+      name="description"
+      content="Préparer et vivre un voyage au Vietnam : itinéraire, idées, dépenses."
+    />
+    <!-- Favicon, icône Apple et theme-color sont injectés au build par vite-plugin-pwa
+         (pwaAssets), à partir de public/icon.svg. -->
+    <title>Về Quê</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

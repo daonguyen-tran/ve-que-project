@@ -1,0 +1,490 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-23T13:52:13.074963Z",
+  "title": "Design System: Về Quê",
+  "extensions": {
+    "colorMeta": {
+      "laque": {
+        "role": "primary",
+        "displayName": "Rouge laque",
+        "canonical": "#A8322D",
+        "tonalRamp": [
+          "#370000",
+          "#5C0306",
+          "#821C1A",
+          "#A9342F",
+          "#C9635A",
+          "#E88F85",
+          "#FFBCB2",
+          "#FFDDD5"
+        ]
+      },
+      "laque-deep": {
+        "role": "primary",
+        "displayName": "Laque profonde",
+        "canonical": "#86231F",
+        "tonalRamp": [
+          "#370000",
+          "#5B0507",
+          "#801F1C",
+          "#9D433C",
+          "#BC6D64",
+          "#DA978F",
+          "#F8C2BB",
+          "#FFE3DD"
+        ]
+      },
+      "laque-tint": {
+        "role": "primary",
+        "displayName": "Teinte laque",
+        "canonical": "#FBEAE8",
+        "tonalRamp": [
+          "#171615",
+          "#302D2D",
+          "#4B4646",
+          "#686161",
+          "#8D8483",
+          "#B4A8A6",
+          "#DCCDCB",
+          "#FBEAE8"
+        ]
+      },
+      "on-laque": {
+        "role": "primary",
+        "displayName": "Texte sur laque",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#161616",
+          "#2E2E2E",
+          "#484848",
+          "#636363",
+          "#868686",
+          "#ABABAB",
+          "#D1D1D1",
+          "#EEEEEE"
+        ]
+      },
+      "on-laque-muted": {
+        "role": "primary",
+        "displayName": "Texte secondaire sur laque",
+        "canonical": "#F8DEDB",
+        "tonalRamp": [
+          "#181515",
+          "#312C2C",
+          "#4D4645",
+          "#6B605F",
+          "#918280",
+          "#B9A6A3",
+          "#E2CBC8",
+          "#FFE8E5"
+        ]
+      },
+      "curcuma": {
+        "role": "secondary",
+        "displayName": "Jaune curcuma",
+        "canonical": "#E0A526",
+        "tonalRamp": [
+          "#211300",
+          "#3F2900",
+          "#5F4200",
+          "#815C05",
+          "#AC7D15",
+          "#D9A024",
+          "#FCC867",
+          "#FFE794"
+        ]
+      },
+      "curcuma-tint": {
+        "role": "secondary",
+        "displayName": "Fond curcuma",
+        "canonical": "#FDF6E3",
+        "tonalRamp": [
+          "#171614",
+          "#2F2E2B",
+          "#494843",
+          "#66635C",
+          "#8A867C",
+          "#AFAB9E",
+          "#D7D1C1",
+          "#F5EEDC"
+        ]
+      },
+      "curcuma-ink": {
+        "role": "secondary",
+        "displayName": "Encre curcuma",
+        "canonical": "#7A5A12",
+        "tonalRamp": [
+          "#231200",
+          "#3F2900",
+          "#5E4200",
+          "#7D5D19",
+          "#9E824D",
+          "#BFA77C",
+          "#E2CEAB",
+          "#FDEDD0"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Pierre",
+        "canonical": "#F5F5F4",
+        "tonalRamp": [
+          "#161616",
+          "#2E2E2E",
+          "#484847",
+          "#636363",
+          "#868686",
+          "#ABABAA",
+          "#D1D1D0",
+          "#EEEEED"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#161616",
+          "#2E2E2E",
+          "#484848",
+          "#636363",
+          "#868686",
+          "#ABABAB",
+          "#D1D1D1",
+          "#EEEEEE"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Filet",
+        "canonical": "#E7E5E4",
+        "tonalRamp": [
+          "#161616",
+          "#2E2E2D",
+          "#484747",
+          "#646362",
+          "#878685",
+          "#ACAAAA",
+          "#D2D0CF",
+          "#F0EEED"
+        ]
+      },
+      "line-soft": {
+        "role": "neutral",
+        "displayName": "Filet doux",
+        "canonical": "#F0EEEC",
+        "tonalRamp": [
+          "#161616",
+          "#2E2E2D",
+          "#484747",
+          "#646362",
+          "#878685",
+          "#ACAAA9",
+          "#D2D0CF",
+          "#F0EEEC"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Encre",
+        "canonical": "#1C1917",
+        "tonalRamp": [
+          "#181513",
+          "#302D2B",
+          "#4A4745",
+          "#656361",
+          "#888684",
+          "#ACAAA9",
+          "#D2D1D0",
+          "#EFEEEE"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Encre douce",
+        "canonical": "#44403C",
+        "tonalRamp": [
+          "#181513",
+          "#312D2A",
+          "#4B4743",
+          "#66625F",
+          "#898582",
+          "#ADAAA8",
+          "#D2D0CE",
+          "#F0EEEC"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Gris libellé",
+        "canonical": "#57534E",
+        "tonalRamp": [
+          "#181613",
+          "#302D2A",
+          "#4B4742",
+          "#66635E",
+          "#898581",
+          "#ADAAA7",
+          "#D3D0CD",
+          "#F0EEEC"
+        ]
+      },
+      "success": {
+        "role": "success",
+        "displayName": "Jade",
+        "canonical": "#2F6B45",
+        "tonalRamp": [
+          "#001D08",
+          "#08381D",
+          "#1E5433",
+          "#38714C",
+          "#639372",
+          "#8EB699",
+          "#BADBC3",
+          "#DCF6E3"
+        ]
+      },
+      "cat-food": {
+        "role": "data",
+        "displayName": "Nourriture (100 000)",
+        "canonical": "#2F6B45",
+        "tonalRamp": [
+          "#001D08",
+          "#08381D",
+          "#1E5433",
+          "#38714C",
+          "#639372",
+          "#8EB699",
+          "#BADBC3",
+          "#DCF6E3"
+        ]
+      },
+      "cat-transport": {
+        "role": "data",
+        "displayName": "Transport (20 000)",
+        "canonical": "#2B57A0",
+        "tonalRamp": [
+          "#00123C",
+          "#0A2B60",
+          "#1E4586",
+          "#3762A8",
+          "#6086C5",
+          "#8BACE1",
+          "#B8D2FE",
+          "#DAF0FF"
+        ]
+      },
+      "cat-activities": {
+        "role": "data",
+        "displayName": "Activités (50 000)",
+        "canonical": "#B5487E",
+        "tonalRamp": [
+          "#30001A",
+          "#520F33",
+          "#76244E",
+          "#9C3A6B",
+          "#C55E8F",
+          "#E58AB2",
+          "#FFB7D7",
+          "#FFD9F4"
+        ]
+      },
+      "cat-shopping": {
+        "role": "data",
+        "displayName": "Shopping (10 000)",
+        "canonical": "#9A6B12",
+        "tonalRamp": [
+          "#251000",
+          "#432700",
+          "#634000",
+          "#845A03",
+          "#AA7D34",
+          "#CBA46A",
+          "#ECCB9C",
+          "#FFEAC2"
+        ]
+      },
+      "cat-accommodation": {
+        "role": "data",
+        "displayName": "Hébergement (500 000)",
+        "canonical": "#1D6F74",
+        "tonalRamp": [
+          "#001C1F",
+          "#00363A",
+          "#045256",
+          "#1F7075",
+          "#549296",
+          "#83B5B9",
+          "#B1DADC",
+          "#D5F6F8"
+        ]
+      },
+      "cat-other": {
+        "role": "data",
+        "displayName": "Autre",
+        "canonical": "#78716C",
+        "tonalRamp": [
+          "#181513",
+          "#312D2A",
+          "#4C4743",
+          "#68625D",
+          "#8B8580",
+          "#AFA9A5",
+          "#D5D0CC",
+          "#F2EDEA"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display-amount": {
+        "displayName": "Montant",
+        "purpose": "Le montant en poche, un seul par écran."
+      },
+      "title": {
+        "displayName": "Titre",
+        "purpose": "Date ou titre d'écran."
+      },
+      "heading": {
+        "displayName": "Section",
+        "purpose": "Titres de section."
+      },
+      "body": {
+        "displayName": "Corps",
+        "purpose": "Contenu des listes."
+      },
+      "label": {
+        "displayName": "Libellé",
+        "purpose": "Créneaux, métadonnées, légendes."
+      },
+      "nav": {
+        "displayName": "Navigation",
+        "purpose": "Libellés de la barre d'onglets."
+      }
+    },
+    "shadows": [
+      {
+        "name": "raised",
+        "value": "0 1px 2px rgb(28 25 23 / 0.06), 0 8px 24px rgb(28 25 23 / 0.08)",
+        "purpose": "La carte qui chevauche le bandeau ; une seule par écran."
+      },
+      {
+        "name": "fab",
+        "value": "0 2px 4px rgb(134 35 31 / 0.25), 0 10px 24px rgb(134 35 31 / 0.25)",
+        "purpose": "Bouton « + Dépense »."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Retour tactile des boutons (150 ms, compression à 97 %)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale d'un écran.",
+      "html": "<button class=\"ds-btn-primary\">Préparer mon voyage</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:0;border-radius:12px;background:#A8322D;color:#fff;font:600 15px/1 'Be Vietnam Pro',system-ui,sans-serif;transition:transform .15s cubic-bezier(.16,1,.3,1),background-color .15s}.ds-btn-primary:hover{background:#86231F}.ds-btn-primary:active{transform:scale(.97)}.ds-btn-primary:focus-visible{outline:2px solid #A8322D;outline-offset:2px}"
+    },
+    {
+      "name": "Bouton discret",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Action secondaire.",
+      "html": "<button class=\"ds-btn-quiet\">Plus tard</button>",
+      "css": ".ds-btn-quiet{min-height:44px;padding:0 16px;border:0;border-radius:12px;background:none;color:#A8322D;font:600 15px/1 'Be Vietnam Pro',system-ui,sans-serif}.ds-btn-quiet:hover{background:#FBEAE8}.ds-btn-quiet:focus-visible{outline:2px solid #A8322D;outline-offset:2px}"
+    },
+    {
+      "name": "Bouton + Dépense",
+      "kind": "button",
+      "refersTo": "fab-expense",
+      "description": "Saisie rapide, présent sur tous les écrans.",
+      "html": "<button class=\"ds-fab\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Dépense</button>",
+      "css": ".ds-fab{display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 20px 0 16px;border:0;border-radius:999px;background:#A8322D;color:#fff;font:600 16px/1 'Be Vietnam Pro',system-ui,sans-serif;box-shadow:0 2px 4px rgb(134 35 31/.25),0 10px 24px rgb(134 35 31/.25);transition:transform .15s cubic-bezier(.16,1,.3,1)}.ds-fab:hover{background:#86231F}.ds-fab:active{transform:scale(.96)}"
+    },
+    {
+      "name": "Montant valeur faciale",
+      "kind": "custom",
+      "refersTo": "display-amount",
+      "description": "Signature : le montant en poche lisible d'un coup d'œil.",
+      "html": "<span class=\"ds-amount\"><span class=\"ds-amount-n\">1 240 000</span><span class=\"ds-amount-s\">₫</span><span class=\"ds-amount-eur\">≈ 45,93 €</span></span>",
+      "css": ".ds-amount{display:inline-flex;align-items:baseline;gap:6px;font-family:'Be Vietnam Pro',system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#1C1917}.ds-amount-n{font-size:40px;line-height:1;font-weight:700;letter-spacing:-.02em}.ds-amount-s{font-size:20px;font-weight:600;color:#A8322D}.ds-amount-eur{margin-left:12px;font-size:15px;color:#57534E}"
+    },
+    {
+      "name": "Barre du jour",
+      "kind": "custom",
+      "refersTo": "card-raised",
+      "description": "Dépensé aujourd'hui par catégorie, aux couleurs des billets.",
+      "html": "<div class=\"ds-daybar\"><span style=\"width:25.8%;background:#2F6B45\"></span><span style=\"width:10.8%;background:#2B57A0\"></span><span style=\"width:26.7%;background:#B5487E\"></span></div>",
+      "css": ".ds-daybar{display:flex;gap:2px;width:320px;height:12px;border-radius:6px;overflow:hidden;background:#E7E5E4}"
+    },
+    {
+      "name": "Créneau en cours",
+      "kind": "custom",
+      "refersTo": "slot-now",
+      "description": "Le maintenant, seul usage du curcuma.",
+      "html": "<div class=\"ds-slot\"><span class=\"ds-slot-k\">Après-midi</span><span class=\"ds-slot-t\">Temps libre</span><span class=\"ds-slot-p\">En cours</span></div>",
+      "css": ".ds-slot{display:grid;grid-template-columns:92px 1fr auto;align-items:center;gap:12px;padding:14px 16px;background:#FDF6E3;font-family:'Be Vietnam Pro',system-ui,sans-serif;width:340px}.ds-slot-k{font-size:13px;font-weight:600;color:#7A5A12}.ds-slot-t{font-size:15px;font-weight:500;color:#1C1917}.ds-slot-p{font-size:12px;font-weight:600;color:#7A5A12;border:1px solid #E0A526;border-radius:999px;padding:3px 9px}"
+    },
+    {
+      "name": "Barre d'onglets",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Navigation mobile à cinq onglets.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab is-active\">Aujourd'hui</a><a class=\"ds-tab\">Planning</a><a class=\"ds-tab\">Idées</a><a class=\"ds-tab\">Dépenses</a><a class=\"ds-tab\">Plus</a></nav>",
+      "css": ".ds-tabs{display:grid;grid-template-columns:repeat(5,1fr);width:390px;height:68px;background:#fff;border-top:1px solid #E7E5E4;font-family:'Be Vietnam Pro',system-ui,sans-serif}.ds-tab{display:flex;align-items:center;justify-content:center;font-size:12px;color:#57534E;text-decoration:none}.ds-tab.is-active{color:#A8322D;font-weight:600}.ds-tab:focus-visible{outline:2px solid #A8322D}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Billets en đồng",
+    "overview": "Un outil de terrain dont l'identité tient en une coque rouge laque, des surfaces blanches et un montant lisible comme la valeur faciale d'un billet. Les couleurs des billets codent les catégories de dépenses ; le curcuma marque uniquement le maintenant.",
+    "keyCharacteristics": [
+      "Coque rouge laque",
+      "Montant valeur faciale",
+      "Catégories aux couleurs des billets",
+      "Curcuma réservé au maintenant",
+      "Be Vietnam Pro, chiffres tabulaires"
+    ],
+    "rules": [
+      {
+        "name": "La règle du maintenant",
+        "body": "Le curcuma ne marque que ce qui se passe en ce moment.",
+        "section": "colors"
+      },
+      {
+        "name": "Jamais la couleur seule",
+        "body": "Un dépassement s'annonce par une icône et une phrase.",
+        "section": "colors"
+      },
+      {
+        "name": "Milliers lisibles",
+        "body": "En grand corps, espace insécable normale entre les groupes de chiffres.",
+        "section": "typography"
+      },
+      {
+        "name": "Une seule élévation",
+        "body": "Seule la carte qui chevauche le bandeau et le bouton flottant portent une ombre.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Afficher chaque montant avec sa devise et ses séparateurs.",
+      "Écrire des états vides qui disent quoi faire."
+    ],
+    "donts": [
+      "Utiliser le curcuma pour décorer.",
+      "Imiter le décor d'un billet (guillochis, filigrane).",
+      "Ajouter surtitres, dégradés, verre dépoli ou emojis."
+    ]
+  }
+}

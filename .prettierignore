@@ -1,0 +1,6 @@
+.claude/
+.impeccable/
+pnpm-lock.yaml
+dist/
+dev-dist/
+docs/cahier-des-charges.md
