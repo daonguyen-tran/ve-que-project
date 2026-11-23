@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import { Link } from 'react-router';
 import { cn } from '@/shared/lib/cn';
 
-type Variant = 'primary' | 'quiet';
+type Variant = 'primary' | 'quiet' | 'secondary' | 'danger';
 
 /*
  * Retour tactile : légère compression au toucher (`active:scale`), sans délai, avec une
@@ -15,6 +15,10 @@ const BASE =
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-laque text-on-laque hover:bg-laque-deep',
   quiet: 'text-laque hover:bg-laque-tint',
+  secondary: 'border border-line bg-surface text-ink hover:border-muted',
+  // Destructif : laque profonde + libellé explicite (« Supprimer le voyage ») ; la couleur
+  // seule ne suffit pas à signaler le danger, puisque le rouge est aussi la couleur de marque.
+  danger: 'bg-laque-deep text-on-laque hover:bg-ink',
 };
 
 export function Button({

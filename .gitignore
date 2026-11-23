@@ -8,6 +8,11 @@
 node_modules/
 .pnpm-store/
 
+# Ce projet utilise pnpm (pnpm-lock.yaml) : les fichiers de verrouillage des autres
+# gestionnaires ne doivent pas être versionnés, ils créeraient des versions divergentes.
+package-lock.json
+yarn.lock
+
 # Builds et fichiers générés
 dist/
 dev-dist/

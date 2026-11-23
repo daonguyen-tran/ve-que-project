@@ -24,10 +24,19 @@ colors:
   cat-shopping: "#9A6B12"
   cat-accommodation: "#1D6F74"
   cat-other: "#78716C"
+  stop-city: "#23467F"
+  stop-village: "#4E9A62"
+  stop-island: "#8CCFCB"
 typography:
   display-amount:
     fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
     fontSize: "40px"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "-0.02em"
+  date-block:
+    fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
+    fontSize: "22px"
     fontWeight: 700
     lineHeight: 1
     letterSpacing: "-0.02em"
@@ -59,8 +68,10 @@ typography:
     fontWeight: 500
     lineHeight: 1.2
 rounded:
+  focus: "6px"
   control: "12px"
   card: "16px"
+  sheet: "20px"
   pill: "999px"
 spacing:
   xs: "4px"
@@ -130,6 +141,9 @@ Ce que le système refuse : le tableau de bord de cartes identiques à accent un
 
 - `ground` (#F5F5F4) pour le fond de l'appli, `surface` (#FFFFFF) pour les cartes et listes, `line` / `line-soft` pour les filets, `ink` / `ink-soft` / `muted` pour le texte (muted ≥ 7:1 sur blanc).
 
+### Types d'étape
+Frise des nuits : ville indigo foncé (`stop-city`), village jade moyen (`stop-village`, la famille), île sarcelle claire (`stop-island`). Trois luminosités nettement différentes, plus une icône par type dans la légende et dans chaque ligne.
+
 ### Data (catégories de dépenses)
 
 Teintes des billets : nourriture vert (100 000), transport bleu (20 000), activités rose (50 000), shopping et cadeaux ocre (10 000), hébergement sarcelle (500 000), autre gris. Elles diffèrent aussi en luminosité et sont toujours accompagnées d'un libellé.
@@ -147,6 +161,7 @@ Teintes des billets : nourriture vert (100 000), transport bleu (20 000), activi
 
 - `display-amount` 40 px / 700 : le montant en poche, seul élément de cette taille à l'écran.
 - `title` 28 px / 700 : la date ou le titre d'écran.
+- `date-block` 22 px / 700 : le numéro du jour dans le bloc calendrier des étapes.
 - `heading` 18 px / 600 : titres de section.
 - `body` 15 px / 400–500 : contenu des listes.
 - `label` 13 px : créneaux, métadonnées, légendes.
@@ -175,7 +190,7 @@ Une seule élévation, réservée à ce qui flotte réellement : la carte qui ch
 
 ## Shapes
 
-Rayons doux mais fermes : 12 px pour les commandes, 16 px pour les cartes et listes groupées, pilule pour les étiquettes et le bouton flottant. Pas de bordure d'un seul côté : un élément mis en avant prend un fond teinté et un contour complet.
+Rayons doux mais fermes : 6 px pour l'anneau de focus, 12 px pour les commandes et champs, 16 px pour les cartes et listes groupées, 20 px pour les panneaux modaux (`Sheet`, arrondis en haut seulement sur mobile), pilule pour les étiquettes et le bouton flottant. Pas de bordure d'un seul côté : un élément mis en avant prend un fond teinté et un contour complet.
 
 ## Components
 
@@ -186,6 +201,14 @@ Principal laque plein, discret (texte laque) ; hauteur minimale 44 px ; compress
 ### Navigation
 
 Barre d'onglets à cinq entrées (Aujourd'hui, Planning, Idées, Dépenses, Plus), icônes au trait 1,9, onglet actif en laque et en gras. Sur PC, le même menu devient un rail laque, l'entrée active est une pilule blanche à texte laque profonde.
+
+### Inputs / Fields
+
+Champs de 48 px de haut, texte à 16 px (pas de zoom à la saisie sur mobile), libellé au-dessus, aide ou erreur en dessous. Erreur : contour laque profonde, icône et phrase qui dit quoi corriger ; jamais la couleur seule. Dates : champ natif (calendrier du système sur Android).
+
+### Panneau modal (Sheet)
+
+`<dialog>` natif : feuille qui monte du bas sur mobile, fenêtre centrée sur PC, fond assombri, en-tête titre + fermer, actions principales dans le pied. Les actions destructrices passent par `ConfirmSheet`, dont le bouton nomme l'action.
 
 ### Cards / Containers
 
@@ -198,6 +221,12 @@ Pilule laque de 52 px, fixée au-dessus de la barre d'onglets côté pouce droit
 ### Montant « valeur faciale » (signature)
 
 `Amount` : chiffres `display-amount`, symbole de devise plus petit en laque, libellé accessible complet (« 1 240 000 ₫ »). Accompagné de la **barre du jour** : segments aux couleurs des billets, proportionnels au budget du jour, la partie grise étant ce qui reste.
+
+### Frise des nuits (signature du planning)
+Une case par nuit du voyage, colorée selon le type d'étape ; une marge plus large marque le passage d'une étape à l'autre ; les nuits sans étape sont des cases vides à contour pointillé. Même grammaire que la barre du jour : des segments lus d'un coup d'œil.
+
+### Ligne d'étape
+Bloc calendrier à gauche (jour abrégé, numéro en `date-block`, mois), nom sur deux lignes au plus, nom vietnamien en gris, puis étiquette de type et « 4 nuits · jusqu'au 14 juil. ». Les nuits sans étape apparaissent entre les lignes dans un cadre pointillé avec « Ajouter une étape ici ».
 
 ### Créneau en cours
 

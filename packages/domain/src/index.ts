@@ -13,10 +13,12 @@ export * from './money/format';
 export * from './money/exchange';
 
 export * from './trip/trip';
+export * from './trip/trip-rules';
 
 export * from './itinerary/itinerary';
 export * from './itinerary/idea';
 export * from './itinerary/days';
+export * from './itinerary/stop-rules';
 
 export * from './expenses/expense';
 

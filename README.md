@@ -73,14 +73,27 @@ ve-que/
 4. **Aucun texte en dur** dans les composants : tout passe par `shared/i18n/fr.ts`.
 5. **Aucune couleur en dur** : uniquement les jetons de `styles/index.css` (`bg-laque`, `text-muted`…).
 
-### Ajouter une fonctionnalité (exemple : les étapes, phase 1)
+### Ajouter une fonctionnalité : suivre le modèle « voyages »
 
-1. Le schéma `stopSchema` existe déjà dans `packages/domain/src/itinerary/itinerary.ts`.
-   Ajoute-y les règles métier manquantes, avec leurs tests.
-2. Crée `apps/web/src/features/planning/` : `components/`, `hooks/` (ex. `useStops(tripId)`
-   avec `useLiveQuery`), et l'écran.
-3. Ajoute les textes dans `fr.ts` et, si besoin, la route dans `app/router.tsx`.
-4. `pnpm check`.
+`apps/web/src/features/trips/` est **l'exemple de référence**. Une nouvelle fonctionnalité
+(étapes, idées, dépenses…) reprend la même structure :
+
+| Fichier                   | Rôle                                                             | Exemple                                                 |
+| ------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| `packages/domain/src/…`   | Schéma de l'entité et **règles pures**, testées                  | `trip/trip-rules.ts` (`buildNewTrip`, `pickActiveTrip`) |
+| `services/<x>-service.ts` | **Cas d'usage** : orchestre domaine + repositories, transactions | `TripService.createTrip`                                |
+| `hooks/use-<x>.ts`        | Lecture **en direct** (`useLiveQuery`) et accès au service       | `useTrip`, `useMembers`, `useTripService`               |
+| `<x>-form-schemas.ts`     | Schémas Zod **de formulaire** et messages d'erreur               | `newTripFormSchema`                                     |
+| `components/`             | Morceaux d'écran réutilisables, panneaux (`Sheet`)               | `MembersSection`, `EditTripSheet`                       |
+| `pages/`                  | Écrans branchés sur une route                                    | `NewTripPage`, `TripDetailPage`                         |
+| `*.test.ts(x)`            | Tests du service (base en mémoire) et du formulaire              | `trip-service.test.ts`                                  |
+
+Puis : textes dans `shared/i18n/fr.ts`, route dans `app/router.tsx`, et `pnpm check`.
+
+Composants partagés disponibles : `TextField`, `DateField`, `SelectField`
+(`shared/ui/form/fields.tsx`), `Sheet` (panneau modal), `ConfirmSheet`, `Button` /
+`ButtonLink`, `PageHeader`, `BrandHeader`, `EmptyState`, `Amount`. Le voyage affiché se lit
+avec `useActiveTrip()`, et ce que sait faire l'appareil avec `useCapabilities()`.
 
 ## Déployer sur Vercel
 

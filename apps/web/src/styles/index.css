@@ -44,6 +44,28 @@
   --color-cat-accommodation: #1d6f74; /* sarcelle, billet de 500 000 */
   --color-cat-other: #78716c;
 
+  /*
+   * Types d'étape dans la frise des nuits : trois luminosités bien distinctes (foncé, moyen,
+   * clair) pour rester lisibles sans voir les couleurs ; la légende ajoute les icônes.
+   */
+  --color-stop-city: #23467f; /* ville : indigo foncé */
+  --color-stop-village: #4e9a62; /* village (la famille) : jade moyen */
+  --color-stop-island: #8ccfcb; /* île : sarcelle claire */
+
+  /* Membres du voyage : pastille teintée + initiale foncée (contraste AA). */
+  --color-member-laque: #86231f;
+  --color-member-laque-tint: #fbeae8;
+  --color-member-jade: #245437;
+  --color-member-jade-tint: #e5f1e9;
+  --color-member-indigo: #23467f;
+  --color-member-indigo-tint: #e6edf8;
+  --color-member-ocre: #6e4c0c;
+  --color-member-ocre-tint: #f9efd9;
+  --color-member-prune: #7e2f57;
+  --color-member-prune-tint: #f7e6ef;
+  --color-member-sarcelle: #165559;
+  --color-member-sarcelle-tint: #e0f0f0;
+
   --radius-card: 16px;
   --shadow-raised: 0 1px 2px rgb(28 25 23 / 0.06), 0 8px 24px rgb(28 25 23 / 0.08);
   --shadow-fab: 0 2px 4px rgb(134 35 31 / 0.25), 0 10px 24px rgb(134 35 31 / 0.25);
@@ -103,6 +125,58 @@
 
   * {
     scrollbar-color: var(--color-line) transparent;
+  }
+}
+
+/*
+ * Panneau modal (<dialog class="sheet">) : feuille qui monte du bas sur mobile, fenêtre
+ * centrée sur PC. L'animation utilise @starting-style (état de départ à l'ouverture) et
+ * `allow-discrete` pour animer aussi la fermeture d'un élément qui passe en display: none.
+ */
+@layer components {
+  dialog.sheet {
+    margin: auto auto 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 20px 20px 0 0;
+    background: var(--color-surface);
+    color: var(--color-ink);
+    box-shadow: 0 -8px 32px rgb(28 25 23 / 0.16);
+    opacity: 0;
+    translate: 0 32px;
+    transition:
+      translate 280ms var(--ease-out-expo),
+      opacity 200ms ease-out,
+      overlay 280ms allow-discrete,
+      display 280ms allow-discrete;
+  }
+  dialog.sheet[open] {
+    opacity: 1;
+    translate: 0 0;
+  }
+  @starting-style {
+    dialog.sheet[open] {
+      opacity: 0;
+      translate: 0 32px;
+    }
+  }
+  dialog.sheet::backdrop {
+    background: rgb(28 25 23 / 0.45);
+  }
+  @media (min-width: 1024px) {
+    dialog.sheet {
+      margin: auto;
+      max-width: 32rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow-raised);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    dialog.sheet {
+      transition: none;
+    }
   }
 }
 

@@ -13,6 +13,7 @@ import type {
 } from '@ve-que/domain';
 import type { VeQueDatabase } from '../db/database';
 import { DexieRepository, DexieTripScopedRepository } from './dexie-repository';
+import { createSettingsStore, type SettingsStore } from './settings-store';
 
 /** Ensemble des repositories de l'application, typés par leur contrat du domaine. */
 export interface Repositories {
@@ -26,6 +27,13 @@ export interface Repositories {
   expenses: TripScopedRepository<Expense>;
   wallets: TripScopedRepository<Wallet>;
   walletMovements: TripScopedRepository<WalletMovement>;
+  settings: SettingsStore;
+  /**
+   * Exécute plusieurs écritures **tout ou rien** (pattern *Unit of Work*).
+   * Exemple : créer un voyage et ses membres. Si une écriture échoue, aucune n'est conservée ;
+   * sans transaction, une erreur au milieu laisserait un voyage sans membre « Moi ».
+   */
+  transaction<T>(work: () => Promise<T>): Promise<T>;
 }
 
 /**
@@ -44,5 +52,9 @@ export function createRepositories(db: VeQueDatabase): Repositories {
     expenses: new DexieTripScopedRepository(db.expenses),
     wallets: new DexieTripScopedRepository(db.wallets),
     walletMovements: new DexieTripScopedRepository(db.walletMovements),
+    settings: createSettingsStore(db),
+    // Dexie rattache automatiquement à la transaction toutes les opérations lancées depuis
+    // `work`, même à travers nos repositories : il suffit d'y lister les tables concernées.
+    transaction: (work) => db.transaction('rw', db.tables, work),
   };
 }
