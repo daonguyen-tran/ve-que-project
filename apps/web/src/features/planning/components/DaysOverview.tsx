@@ -4,15 +4,18 @@ import { planningProgress, summarizeDay, tripToday, type Trip } from '@ve-que/do
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { dateParts } from '@/shared/lib/format-date';
+import { usePlanningEditMode } from '../edit-mode';
 import { usePlannedItems, useTripCalendar } from '../hooks/use-day-plan';
 import { StopChip } from './DayHeading';
 import { SlotMeter, SlotMeterLegend } from './SlotMeter';
 
 /**
  * Vue « jour par jour » du planning : chaque jour avec son étape et ce qui est prévu dans ses
- * trois créneaux. On voit d'un coup d'œil les jours encore vides (objectif O3).
+ * trois créneaux. En édition, la progression (« 5 jours préparés sur 21 ») montre ce qu'il
+ * reste à organiser (objectif O3) ; en lecture, elle disparaît : la liste est un récapitulatif.
  */
 export function DaysOverview({ trip }: { trip: Trip }) {
+  const { editing } = usePlanningEditMode();
   const calendar = useTripCalendar(trip);
   const items = usePlannedItems(trip.id);
   if (!calendar || !items) return null;
@@ -27,23 +30,31 @@ export function DaysOverview({ trip }: { trip: Trip }) {
   return (
     <section aria-labelledby="days-title" className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 px-1">
-        <h2 id="days-title" className="m-0 text-lg font-semibold tracking-[-0.01em]">
-          {t.plan.progress(plannedDays, totalDays)}
-        </h2>
-        <div
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={totalDays}
-          aria-valuenow={plannedDays}
-          aria-label={t.plan.progress(plannedDays, totalDays)}
-          className="bg-line h-1.5 overflow-hidden rounded-full"
-        >
-          <div
-            className="bg-laque h-full rounded-full"
-            style={{ width: `${totalDays ? (plannedDays / totalDays) * 100 : 0}%` }}
-          />
-        </div>
-        <p className="text-muted m-0 text-[13px]">{t.plan.progressHint}</p>
+        {editing ? (
+          <>
+            <h2 id="days-title" className="m-0 text-lg font-semibold tracking-[-0.01em]">
+              {t.plan.progress(plannedDays, totalDays)}
+            </h2>
+            <div
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={totalDays}
+              aria-valuenow={plannedDays}
+              aria-label={t.plan.progress(plannedDays, totalDays)}
+              className="bg-line h-1.5 overflow-hidden rounded-full"
+            >
+              <div
+                className="bg-laque h-full rounded-full"
+                style={{ width: `${totalDays ? (plannedDays / totalDays) * 100 : 0}%` }}
+              />
+            </div>
+            <p className="text-muted m-0 text-[13px]">{t.plan.progressHint}</p>
+          </>
+        ) : (
+          <h2 id="days-title" className="m-0 text-lg font-semibold tracking-[-0.01em]">
+            {t.plan.daysTitle(totalDays)}
+          </h2>
+        )}
         <SlotMeterLegend />
       </div>
 

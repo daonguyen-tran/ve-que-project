@@ -38,6 +38,7 @@ export function EditTripSheet({
   };
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -91,7 +92,7 @@ export function EditTripSheet({
         onSubmit={(event) => void onSubmit(event)}
         className="flex flex-col gap-4"
       >
-        <TripInfoFields register={register} errors={errors} />
+        <TripInfoFields register={register} control={control} errors={errors} />
         {saveError && (
           <p role="alert" className="text-laque-deep m-0 text-[15px] font-medium">
             {t.validation.saveFailed}

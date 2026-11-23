@@ -1,17 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { toLocalDate, type LocalDate, type Stop, type Trip } from '@ve-que/domain';
+import { useController, useForm } from 'react-hook-form';
+import {
+  daysBetween,
+  stopAvailability,
+  toLocalDate,
+  type LocalDate,
+  type Stop,
+  type Trip,
+} from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { Button } from '@/shared/ui/Button';
 import { ConfirmSheet } from '@/shared/ui/ConfirmSheet';
-import { DateField, FieldGroupError, TextField } from '@/shared/ui/form/fields';
+import { DateRangeField } from '@/shared/ui/calendar';
+import { TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useStopService } from '../hooks/use-stops';
 import { makeStopFormSchema, type StopFormValues } from '../stop-form-schema';
-import { STOP_KIND_OPTIONS } from '../stop-style';
+import { STOP_KIND_OPTIONS, STOP_KIND_STYLE } from '../stop-style';
 
 /** Ce que le panneau doit faire : créer (avec des dates proposées) ou modifier une étape. */
 export type StopSheetTarget =
@@ -58,10 +66,16 @@ export function StopSheet({
 }) {
   const stopService = useStopService();
   const formId = useId();
-  const datesErrorId = useId();
   const [saveError, setSaveError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const editing = target?.mode === 'edit' ? target.stop : undefined;
+
+  // Nuits déjà prises par les autres étapes : le calendrier les grise et les colore.
+  const availability = useMemo(
+    () => stopAvailability(trip, stops, editing?.id),
+    [trip, stops, editing?.id],
+  );
+  const hasOtherStops = stops.some((stop) => stop.id !== editing?.id);
 
   // Le schéma dépend du voyage et des autres étapes : on le recalcule quand ils changent.
   const schema = useMemo(
@@ -70,6 +84,7 @@ export function StopSheet({
   );
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
@@ -77,6 +92,9 @@ export function StopSheet({
     resolver: zodResolver(schema),
     defaultValues: initialValues({ mode: 'create' }),
   });
+  // Les deux dates sont pilotées par le calendrier (composant contrôlé), pas par un <input>.
+  const arrival = useController({ control, name: 'arrivalDate' });
+  const departure = useController({ control, name: 'departureDate' });
 
   useEffect(() => {
     if (target) reset(initialValues(target));
@@ -138,34 +156,34 @@ export function StopSheet({
             options={STOP_KIND_OPTIONS}
             {...register('kind')}
           />
-          <div className="flex flex-col gap-1.5">
-            <div className="grid grid-cols-2 gap-3">
-              <DateField
-                label={t.stops.arrivalLabel}
-                min={trip.startDate}
-                max={trip.endDate}
-                error={errors.arrivalDate?.message}
-                externalErrorId={datesErrorId}
-                {...register('arrivalDate')}
-              />
-              <DateField
-                label={t.stops.departureLabel}
-                min={trip.startDate}
-                max={trip.endDate}
-                error={errors.departureDate?.message}
-                externalErrorId={datesErrorId}
-                {...register('departureDate')}
-              />
-            </div>
-            {errors.arrivalDate || errors.departureDate ? (
-              <FieldGroupError
-                id={datesErrorId}
-                messages={[errors.arrivalDate?.message, errors.departureDate?.message]}
-              />
-            ) : (
-              <p className="text-muted m-0 text-[13px]">{t.stops.datesHint}</p>
-            )}
-          </div>
+          <DateRangeField
+            label={t.stops.datesLabel}
+            startLabel={t.stops.arrivalLabel}
+            endLabel={t.stops.departureLabel}
+            value={{ start: arrival.field.value, end: departure.field.value }}
+            onChange={({ start, end }) => {
+              arrival.field.onChange(start ?? '');
+              departure.field.onChange(end ?? '');
+            }}
+            rules={{ canStart: availability.canArrive, canEnd: availability.canDepart }}
+            summary={(start, end) => t.stops.nights(daysBetween(start, end))}
+            hint={t.stops.datesHint}
+            errors={[errors.arrivalDate?.message, errors.departureDate?.message]}
+            min={trip.startDate}
+            max={trip.endDate}
+            decorate={(date) => {
+              const other = availability.takenBy(date);
+              return other
+                ? {
+                    className: STOP_KIND_STYLE[other.kind].tint,
+                    description: t.stops.takenNight(other.name),
+                  }
+                : undefined;
+            }}
+            footer={
+              hasOtherStops && <p className="text-muted m-0 text-[13px]">{t.stops.takenLegend}</p>
+            }
+          />
           <TextField
             label={t.stops.vietnameseLabel}
             labelAside={t.common.optional}

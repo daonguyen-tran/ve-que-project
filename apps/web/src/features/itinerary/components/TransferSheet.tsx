@@ -1,14 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useMemo, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-import { toLocalDate, type Stop, type Transfer, type Trip } from '@ve-que/domain';
+import { useController, useForm, useWatch } from 'react-hook-form';
+import { isLocalDate, toLocalDate, type Stop, type Transfer, type Trip } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { moneyFromField, moneyToField } from '@/shared/lib/money-field';
 import { Button } from '@/shared/ui/Button';
 import { ConfirmSheet } from '@/shared/ui/ConfirmSheet';
 import { AmountField } from '@/shared/ui/form/AmountField';
-import { DateField, FieldGroupError, TextField } from '@/shared/ui/form/fields';
+import { DateField } from '@/shared/ui/calendar';
+import { FieldGroupError, TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useTransferService } from '../hooks/use-itinerary';
@@ -72,6 +73,9 @@ export function TransferSheet({
     resolver: zodResolver(schema),
     defaultValues: initialValues(null),
   });
+  // Dates pilotées par le calendrier maison (composant contrôlé).
+  const departDate = useController({ control, name: 'departDate' });
+  const arriveDate = useController({ control, name: 'arriveDate' });
 
   useEffect(() => {
     if (target) reset(initialValues(target));
@@ -151,7 +155,9 @@ export function TransferSheet({
                 max={trip.endDate}
                 error={errors.departDate?.message}
                 externalErrorId={datesErrorId}
-                {...register('departDate')}
+                value={departDate.field.value}
+                onChange={departDate.field.onChange}
+                panelClassName="col-span-full row-start-2"
               />
               <TextField
                 label={t.transfers.departTimeLabel}
@@ -164,9 +170,16 @@ export function TransferSheet({
                 label={t.transfers.arriveDateLabel}
                 min={trip.startDate}
                 max={trip.endDate}
+                // On n'arrive pas avant d'être parti : les jours d'avant sont grisés.
+                isPickable={(day) => !departDate.field.value || day >= departDate.field.value}
+                defaultFocus={
+                  isLocalDate(departDate.field.value) ? departDate.field.value : undefined
+                }
                 error={errors.arriveDate?.message}
                 externalErrorId={datesErrorId}
-                {...register('arriveDate')}
+                value={arriveDate.field.value}
+                onChange={arriveDate.field.onChange}
+                panelClassName="col-span-full row-start-2"
               />
               <TextField
                 label={t.transfers.arriveTimeLabel}

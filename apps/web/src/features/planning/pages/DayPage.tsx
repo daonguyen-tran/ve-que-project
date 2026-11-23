@@ -11,8 +11,10 @@ import { ButtonLink } from '@/shared/ui/Button';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { DayBoard } from '../components/DayBoard';
+import { DayRecap } from '../components/DayRecap';
 import { StopChip } from '../components/DayHeading';
 import { PlannedItemSheet } from '../components/PlannedItemSheet';
+import { EditModeToggle, usePlanningEditMode } from '../edit-mode';
 import { usePlannedItems, useTripCalendar } from '../hooks/use-day-plan';
 import type { PlannedItemSheetTarget } from '../planned-item-form';
 
@@ -21,8 +23,13 @@ const BACK = '/planning?vue=jours';
 /**
  * Programme d'un jour (F-2.10, vue « détail d'un jour »). Sur PC, trois jours côte à côte :
  * on voit la suite du voyage et on peut glisser un élément d'un jour à l'autre (NF-4).
+ *
+ * En lecture, `DayRecap` n'affiche que ce qui est prévu ; en édition, `DayBoard` ajoute les
+ * créneaux vides, les ajouts rapides et le glisser-déposer. Les deux reçoivent les mêmes
+ * données : seul le rendu change.
  */
 export function DayPage() {
+  const { editing } = usePlanningEditMode();
   const { date } = useParams();
   const { activeTrip, isLoading } = useActiveTrip();
   const calendar = useTripCalendar(activeTrip);
@@ -86,15 +93,29 @@ export function DayPage() {
         }
       />
       <div className={cn('mx-auto px-4 py-4 pb-28', span > 1 ? 'max-w-6xl' : 'max-w-3xl')}>
-        <DayBoard
-          trip={activeTrip}
-          calendar={calendar}
-          days={visible}
-          items={items}
-          transfers={transfers}
-          showDayHeadings={span > 1}
-          onOpenSheet={setSheet}
-        />
+        <div className="mb-5 flex justify-end">
+          <EditModeToggle />
+        </div>
+        {editing ? (
+          <DayBoard
+            trip={activeTrip}
+            calendar={calendar}
+            days={visible}
+            items={items}
+            transfers={transfers}
+            showDayHeadings={span > 1}
+            onOpenSheet={setSheet}
+          />
+        ) : (
+          <DayRecap
+            calendar={calendar}
+            days={visible}
+            items={items}
+            transfers={transfers}
+            showDayHeadings={span > 1}
+            onOpenSheet={setSheet}
+          />
+        )}
       </div>
       <PlannedItemSheet
         trip={activeTrip}

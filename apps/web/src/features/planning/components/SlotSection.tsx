@@ -7,11 +7,13 @@ import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui/Button';
 import type { ContainerId } from '../plan-board';
-import { KIND_STYLE, SLOT_ICON } from '../plan-style';
+import { KIND_STYLE } from '../plan-style';
 import { PlanItemCard } from './PlanItemCard';
+import { SlotTitle } from './SlotTitle';
 
 /**
- * Un créneau : titre, éléments réordonnables, et ajouts rapides quand il est vide. Toute la
+ * Un créneau en mode édition : titre, éléments réordonnables, et ajouts rapides quand il est
+ * vide (en lecture, c'est `DayRecap` qui affiche le programme). Toute la
  * liste est une zone de dépôt, y compris vide : on peut y glisser un élément d'un autre créneau.
  */
 export function SlotSection({
@@ -35,19 +37,12 @@ export function SlotSection({
   onOpen: (item: PlannedItem) => void;
 }) {
   const { setNodeRef } = useDroppable({ id });
-  const Icon = SLOT_ICON[slot];
   const headingId = `${id}-title`;
 
   return (
     <section aria-labelledby={headingId} className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2 pl-1">
-        <h3
-          id={headingId}
-          className="text-ink-soft m-0 flex items-center gap-2 text-[15px] font-semibold"
-        >
-          <Icon className="text-muted size-[18px]" strokeWidth={1.9} aria-hidden="true" />
-          {t.slots[slot]}
-        </h3>
+        <SlotTitle id={headingId} slot={slot} />
         <Button
           variant="quiet"
           onClick={onAdd}

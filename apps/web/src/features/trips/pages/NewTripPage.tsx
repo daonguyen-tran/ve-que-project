@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, X } from 'lucide-react';
 import { useState } from 'react';
-import { useFieldArray, useForm, type UseFormRegister } from 'react-hook-form';
+import { useFieldArray, useForm, type Control, type UseFormRegister } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { toLocalDate } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
@@ -75,8 +75,9 @@ export function NewTripPage() {
       >
         <TripInfoFields
           // Les champs communs sont un sous-ensemble de ce formulaire : le typage plus large
-          // de `register` ne peut pas être prouvé par TypeScript, d'où cette conversion.
+          // de `register` et `control` ne peut pas être prouvé par TypeScript, d'où cette conversion.
           register={register as unknown as UseFormRegister<TripInfoFormValues>}
+          control={control as unknown as Control<TripInfoFormValues>}
           errors={errors}
         />
 

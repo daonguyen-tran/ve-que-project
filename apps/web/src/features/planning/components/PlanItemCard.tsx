@@ -12,6 +12,7 @@ import { formatCost, KIND_STYLE } from '../plan-style';
  *
  * La poignée est un bouton à part, seul déclencheur du glisser : on peut ainsi faire défiler la
  * page en touchant la carte sans la déplacer par mégarde, et toucher la carte ouvre l'édition.
+ * Elle n'apparaît qu'en mode édition (quand `handleProps` est fourni) et sous le doigt.
  */
 export function PlanItemCard({
   item,
@@ -28,6 +29,7 @@ export function PlanItemCard({
   lifted?: boolean;
   ghost?: boolean;
 }) {
+  const draggable = handleProps !== undefined || lifted;
   const style = KIND_STYLE[item.kind];
   const Icon = style.icon;
   const cancelled = item.status === 'cancelled';
@@ -47,23 +49,28 @@ export function PlanItemCard({
         ghost && 'opacity-40',
       )}
     >
-      <button
-        ref={handleRef}
-        type="button"
-        aria-label={t.plan.dragHandle(item.title)}
-        className={cn(
-          'text-muted flex w-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-l-xl',
-          'hover:text-ink focus-visible:outline-laque focus-visible:outline-2 focus-visible:-outline-offset-2',
-          lifted && 'cursor-grabbing',
-        )}
-        {...handleProps}
-      >
-        <GripVertical className="size-[18px]" strokeWidth={1.9} aria-hidden="true" />
-      </button>
+      {draggable && (
+        <button
+          ref={handleRef}
+          type="button"
+          aria-label={t.plan.dragHandle(item.title)}
+          className={cn(
+            'text-muted flex w-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-l-xl',
+            'hover:text-ink focus-visible:outline-laque focus-visible:outline-2 focus-visible:-outline-offset-2',
+            lifted && 'cursor-grabbing',
+          )}
+          {...handleProps}
+        >
+          <GripVertical className="size-[18px]" strokeWidth={1.9} aria-hidden="true" />
+        </button>
+      )}
       <button
         type="button"
         onClick={onOpen}
-        className="focus-visible:outline-laque flex min-w-0 flex-1 items-center gap-3 rounded-r-xl py-2.5 pr-3 text-left focus-visible:outline-2 focus-visible:-outline-offset-2"
+        className={cn(
+          'focus-visible:outline-laque flex min-w-0 flex-1 items-center gap-3 py-2.5 pr-3 text-left focus-visible:outline-2 focus-visible:-outline-offset-2',
+          draggable ? 'rounded-r-xl' : 'rounded-xl pl-3.5',
+        )}
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span

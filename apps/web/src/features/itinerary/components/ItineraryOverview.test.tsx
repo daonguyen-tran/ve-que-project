@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { toLocalDate as d, type Trip } from '@ve-que/domain';
@@ -40,7 +40,7 @@ describe('ItineraryOverview', () => {
     expect(await screen.findByText('Aucune étape pour l’instant')).toBeTruthy();
   });
 
-  it('montre les étapes, les nuits sans étape et le changement d’étape', async () => {
+  it('relie les étapes comme une feuille de route, la frise montrant les nuits libres', async () => {
     const { repositories, trip } = await setup();
     const stops = new StopService(repositories);
     const base = { kind: 'city' as const, vietnameseName: '', notes: '' };
@@ -59,12 +59,15 @@ describe('ItineraryOverview', () => {
 
     expect(await screen.findByRole('link', { name: /Hoi An/ })).toBeTruthy();
     expect(screen.getByText('7 nuits sur 20 ont une étape')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Ajouter le trajet vers Hoi An' })).toBeTruthy();
-    expect(screen.getByText(/13 nuits sans étape/)).toBeTruthy();
+    // Trajet manquant : proposé discrètement sur la route entre les deux étapes.
+    expect(screen.getByRole('button', { name: 'Trajet vers Hoi An' })).toBeTruthy();
+    // Les nuits libres ne sont plus répétées dans la liste : la frise suffit.
+    expect(screen.queryByText(/13 nuits sans étape/)).toBeNull();
     expect(screen.getAllByText('Aucun hébergement')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Ajouter une étape' })).toBeTruthy();
   });
 
-  it('pré-remplit le trou et refuse un chevauchement avec un message sous le champ', async () => {
+  it('propose les premières nuits libres et grise celles des autres étapes', async () => {
     const { repositories, trip } = await setup();
     await new StopService(repositories).createStop(trip, {
       name: 'Saigon',
@@ -75,18 +78,32 @@ describe('ItineraryOverview', () => {
       notes: '',
     });
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Ajouter une étape ici' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Ajouter une étape' }));
     const dialog = screen.getByRole('dialog');
-    expect((within(dialog).getByLabelText('Arrivée') as HTMLInputElement).value).toBe('2027-07-04');
+    // Dates proposées : du 4 (départ de Saigon) au retour.
+    expect(within(dialog).getByText('dim. 4 juil. 2027')).toBeTruthy();
+    expect(within(dialog).getByText('17 nuits')).toBeTruthy();
 
+    // Les nuits de Saigon sont grisées ; le 4, jour de transition, reste libre.
+    const taken = within(dialog).getByRole('button', {
+      name: 'vendredi 2 juillet 2027, nuit déjà prévue à Saigon, indisponible',
+    });
+    expect(taken.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(taken);
+    expect(within(dialog).getByText('dim. 4 juil. 2027')).toBeTruthy();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'mercredi 7 juillet 2027' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'samedi 10 juillet 2027' }));
     fireEvent.change(within(dialog).getByLabelText('Nom'), { target: { value: 'Hue' } });
-    fireEvent.change(within(dialog).getByLabelText('Arrivée'), { target: { value: '2027-07-02' } });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
 
-    expect(
-      await within(dialog).findByText('Ces dates chevauchent l’étape « Saigon »'),
-    ).toBeTruthy();
-    expect(await repositories.stops.listByTrip(trip.id)).toHaveLength(1);
+    await waitFor(async () => {
+      const saved = await repositories.stops.listByTrip(trip.id);
+      expect(saved.find((stop) => stop.name === 'Hue')).toMatchObject({
+        arrivalDate: '2027-07-07',
+        departureDate: '2027-07-10',
+      });
+    });
   });
 });
 
@@ -108,15 +125,15 @@ describe('trajets', () => {
       departureDate: d('2027-07-08'),
     });
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Ajouter le trajet vers Hanoi' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Trajet vers Hanoi' }));
     const dialog = screen.getByRole('dialog');
     fireEvent.click(within(dialog).getByLabelText('Bus de nuit'));
-    fireEvent.change(within(dialog).getByLabelText('Départ le'), {
-      target: { value: '2027-07-04' },
-    });
-    fireEvent.change(within(dialog).getByLabelText('Arrivée le'), {
-      target: { value: '2027-07-05' },
-    });
+    // Départ proposé le jour où l'on quitte Hoi An (le 4) ; on choisit l'arrivée au calendrier.
+    expect(within(dialog).getByLabelText('Départ le').textContent).toContain('dim. 4 juil. 2027');
+    fireEvent.click(within(dialog).getByLabelText('Arrivée le'));
+    const before = within(dialog).getByRole('button', { name: /^samedi 3 juillet 2027/ });
+    expect(before.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'lundi 5 juillet 2027' }));
     fireEvent.change(within(dialog).getByLabelText(/Prix total/), { target: { value: '450k' } });
     expect(
       within(dialog).getByText((text) => text.replace(/\u202f|\u00a0/g, ' ') === '= 450 000 ₫'),

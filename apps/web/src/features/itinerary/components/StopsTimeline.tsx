@@ -1,72 +1,43 @@
-import { BedDouble, ChevronRight, CircleAlert, Plus } from 'lucide-react';
+import { BedDouble, ChevronRight, CircleAlert } from 'lucide-react';
 import { Link } from 'react-router';
 import {
   findStopOverlaps,
-  findUncoveredNights,
   primaryAccommodation,
+  sortStops,
   stopNights,
   stopTransitions,
   type Accommodation,
   type Stop,
   type Transfer,
-  type Trip,
-  type UncoveredNights,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
-import { dateParts, formatDateRange, formatShortDate } from '@/shared/lib/format-date';
-import { Button } from '@/shared/ui/Button';
+import { dateParts, formatShortDate } from '@/shared/lib/format-date';
 import { STOP_KIND_STYLE } from '../stop-style';
 import { BookingBadge } from './BookingBadge';
-import type { StopSheetTarget } from './StopSheet';
 import type { TransferSheetTarget } from './TransferSheet';
-import { TransferSlot } from './TransferSlot';
-
-type TimelineEntry = { type: 'stop'; stop: Stop } | { type: 'gap'; gap: UncoveredNights };
+import { RouteLeg } from './RouteLeg';
 
 /**
- * Fusionne étapes et trous en une seule liste chronologique. Les deux sont déjà triés ; on
- * les entrelace par date de début (comme l'étape de fusion d'un tri fusion).
- */
-function buildTimeline(stops: Stop[], gaps: UncoveredNights[]): TimelineEntry[] {
-  const entries: TimelineEntry[] = [];
-  let i = 0;
-  let j = 0;
-  while (i < stops.length || j < gaps.length) {
-    const stop = stops[i];
-    const gap = gaps[j];
-    if (stop && (!gap || stop.arrivalDate <= gap.from)) {
-      entries.push({ type: 'stop', stop });
-      i++;
-    } else if (gap) {
-      entries.push({ type: 'gap', gap });
-      j++;
-    }
-  }
-  return entries;
-}
-
-/**
- * Liste chronologique des étapes. Entre deux étapes : le trajet (ou un bouton pour l'ajouter) ;
- * là où des nuits n'ont pas d'étape : un cadre pour en ajouter une avec les bonnes dates.
+ * Les étapes du voyage, reliées comme sur une feuille de route : une ligne pointillée descend
+ * d'une étape à la suivante, et le trajet est posé dessus (`RouteLeg`). Un trajet manquant
+ * reste proposé, mais discrètement, sur la ligne elle-même.
+ *
+ * Les nuits sans étape ne sont pas répétées ici : la frise au-dessus les montre déjà. Seul un
+ * chevauchement (possible avec des données importées) est signalé, car c'est une erreur.
  */
 export function StopsTimeline({
-  trip,
   stops,
   accommodations,
   transfers,
-  onCreateStop,
   onOpenTransfer,
 }: {
-  trip: Trip;
   stops: Stop[];
   accommodations: Accommodation[];
   transfers: Transfer[];
-  onCreateStop: (target: StopSheetTarget) => void;
   onOpenTransfer: (target: TransferSheetTarget) => void;
 }) {
   const overlaps = findStopOverlaps(stops);
-  const timeline = buildTimeline(stops, findUncoveredNights(trip, stops));
   // Le trajet qui mène à chaque étape, indexé par l'étape d'arrivée.
   const incoming = new Map(
     stopTransitions(stops, transfers).map((transition) => [transition.to.id, transition]),
@@ -90,32 +61,16 @@ export function StopsTimeline({
       ))}
 
       <ol className="m-0 flex list-none flex-col p-0">
-        {timeline.map((entry) => {
-          if (entry.type === 'gap') {
-            return (
-              <li key={`gap-${entry.gap.from}`} className="py-1.5">
-                <GapRow
-                  gap={entry.gap}
-                  onFill={() =>
-                    onCreateStop({
-                      mode: 'create',
-                      arrivalDate: entry.gap.from,
-                      departureDate: entry.gap.to,
-                    })
-                  }
-                />
-              </li>
-            );
-          }
-          const transition = incoming.get(entry.stop.id);
-          const stopAccommodations = accommodations.filter((a) => a.stopId === entry.stop.id);
+        {sortStops(stops).map((stop) => {
+          const transition = incoming.get(stop.id);
+          const stopAccommodations = accommodations.filter((a) => a.stopId === stop.id);
           return (
-            <li key={entry.stop.id} className="flex flex-col">
+            <li key={stop.id} className="flex flex-col">
               {transition && (
-                <TransferSlot
-                  from={transition.from}
+                <RouteLeg
                   to={transition.to}
                   transfer={transition.transfer}
+                  editLabel={t.transfers.edit(transition.from.name, transition.to.name)}
                   onOpen={() =>
                     onOpenTransfer({
                       from: transition.from,
@@ -125,7 +80,7 @@ export function StopsTimeline({
                   }
                 />
               )}
-              <StopRow stop={entry.stop} accommodation={primaryAccommodation(stopAccommodations)} />
+              <StopRow stop={stop} accommodation={primaryAccommodation(stopAccommodations)} />
             </li>
           );
         })}
@@ -134,6 +89,10 @@ export function StopsTimeline({
   );
 }
 
+/**
+ * Carte d'une étape. L'absence d'hébergement est rappelée en gris clair, sans insister : le
+ * détail se règle sur la fiche de l'étape.
+ */
 function StopRow({
   stop,
   accommodation,
@@ -146,7 +105,7 @@ function StopRow({
   return (
     <Link
       to={`/planning/etapes/${stop.id}`}
-      className="border-line bg-surface hover:border-muted my-1.5 flex min-h-[76px] w-full items-center gap-3.5 rounded-[var(--radius-card)] border px-3.5 py-3 text-inherit no-underline transition-colors"
+      className="border-line bg-surface hover:border-muted flex min-h-[76px] w-full items-center gap-3.5 rounded-[var(--radius-card)] border px-3.5 py-3 text-inherit no-underline transition-colors"
     >
       <span
         className="border-line-soft flex w-12 shrink-0 flex-col items-center border-r pr-3.5"
@@ -178,33 +137,24 @@ function StopRow({
           </span>
           {t.stops.nights(stopNights(stop))} · {t.stops.until(formatShortDate(stop.departureDate))}
         </span>
-        <span className="text-ink-soft flex min-w-0 items-center gap-1.5 text-[13px]">
-          <BedDouble className="text-muted size-4 shrink-0" strokeWidth={1.9} aria-hidden="true" />
-          {accommodation ? (
-            <>
-              <span className="truncate">{accommodation.name}</span>
-              <BookingBadge status={accommodation.status} />
-            </>
-          ) : (
-            <span className="text-muted">{t.accommodations.none}</span>
-          )}
-        </span>
+        {accommodation ? (
+          <span className="text-ink-soft flex min-w-0 items-center gap-1.5 text-[13px]">
+            <BedDouble
+              className="text-muted size-4 shrink-0"
+              strokeWidth={1.9}
+              aria-hidden="true"
+            />
+            <span className="truncate">{accommodation.name}</span>
+            <BookingBadge status={accommodation.status} />
+          </span>
+        ) : (
+          <span className="text-muted/80 flex items-center gap-1.5 text-[13px]">
+            <BedDouble className="size-4 shrink-0" strokeWidth={1.7} aria-hidden="true" />
+            {t.accommodations.none}
+          </span>
+        )}
       </span>
       <ChevronRight className="text-muted size-5 shrink-0" aria-hidden="true" />
     </Link>
-  );
-}
-
-function GapRow({ gap, onFill }: { gap: UncoveredNights; onFill: () => void }) {
-  return (
-    <div className="border-muted/50 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[var(--radius-card)] border border-dashed px-4 py-2.5">
-      <span className="text-ink-soft tabular text-sm">
-        {t.stops.gap(t.stops.nights(gap.nights), formatDateRange(gap.from, gap.to))}
-      </span>
-      <Button variant="quiet" onClick={onFill} className="-mr-2 px-2">
-        <Plus className="size-[18px]" strokeWidth={2} aria-hidden="true" />
-        {t.stops.fillGap}
-      </Button>
-    </div>
   );
 }

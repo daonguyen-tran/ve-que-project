@@ -6,7 +6,13 @@ import { cn } from '@/shared/lib/cn';
  * Bascule Itinéraire / Jour par jour. Ce sont des liens (la vue vit dans l'URL), présentés
  * comme un contrôle segmenté ; `aria-current` indique la vue affichée.
  */
-export function PlanningViewSwitch({ view }: { view: 'itinerary' | 'days' }) {
+export function PlanningViewSwitch({
+  view,
+  className,
+}: {
+  view: 'itinerary' | 'days';
+  className?: string;
+}) {
   const entries = [
     { key: 'itinerary', to: '/planning', label: t.plan.views.itinerary },
     { key: 'days', to: '/planning?vue=jours', label: t.plan.views.days },
@@ -14,7 +20,10 @@ export function PlanningViewSwitch({ view }: { view: 'itinerary' | 'days' }) {
   return (
     <nav
       aria-label={t.plan.views.label}
-      className="bg-ground border-line grid grid-cols-2 gap-1 rounded-xl border p-1"
+      className={cn(
+        'bg-ground border-line grid grid-cols-2 gap-1 rounded-xl border p-1',
+        className,
+      )}
     >
       {entries.map((entry) => {
         const active = entry.key === view;

@@ -11,12 +11,16 @@ import { ButtonLink } from '@/shared/ui/Button';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { DaysOverview } from '../components/DaysOverview';
+import { EditModeToggle } from '../edit-mode';
 import { PlanningViewSwitch } from '../components/PlanningViewSwitch';
 
 /**
  * Planning du voyage actif, en deux vues : l'itinéraire (étapes, hébergements, trajets) et le
  * détail jour par jour. La vue choisie est dans l'URL (`?vue=jours`) : le bouton retour d'un
  * jour ramène à la bonne vue, et l'on peut partager le lien.
+ *
+ * L'itinéraire montre toujours son bouton « Ajouter une étape ». La vue jour par jour s'ouvre
+ * en lecture ; son bouton « Modifier » fait apparaître les outils d'ajout et de réorganisation.
  */
 export function PlanningPage() {
   const { activeTrip, isLoading } = useActiveTrip();
@@ -82,7 +86,11 @@ export function PlanningPage() {
           </span>
         </Link>
 
-        <PlanningViewSwitch view={view} />
+        <div className="flex items-center gap-2">
+          <PlanningViewSwitch view={view} className="flex-1" />
+          {/* Le mode édition ne concerne que les jours : l'itinéraire a son propre bouton d'ajout. */}
+          {view === 'days' && <EditModeToggle />}
+        </div>
         {view === 'days' ? (
           <DaysOverview trip={activeTrip} />
         ) : (

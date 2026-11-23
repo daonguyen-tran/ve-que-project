@@ -1,6 +1,7 @@
 import { CircleAlert } from 'lucide-react';
 import { useId, type ComponentProps, type ReactNode } from 'react';
 import { cn } from '@/shared/lib/cn';
+import { controlClass, describedBy, type FieldChrome } from './field-chrome';
 
 /*
  * Champs de formulaire du design system.
@@ -14,34 +15,7 @@ import { cn } from '@/shared/lib/cn';
  * jusqu'à l'élément `<input>`.
  */
 
-interface FieldChrome {
-  label: string;
-  hint?: string;
-  error?: string;
-  /**
-   * Identifiant d'un message d'erreur affiché **ailleurs** (ex. sous deux dates côte à côte,
-   * sur toute la largeur). Le champ garde son style d'erreur et reste relié au message, mais ne
-   * l'affiche pas lui-même.
-   */
-  externalErrorId?: string;
-  /** Contenu affiché à droite du libellé (ex. « facultatif »). */
-  labelAside?: ReactNode;
-}
-
-const CONTROL =
-  'bg-surface text-ink placeholder:text-muted min-h-12 w-full rounded-xl border px-3.5 text-base transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-0';
-
-function controlClass(hasError: boolean, extra?: string) {
-  return cn(
-    CONTROL,
-    hasError
-      ? 'border-laque-deep focus-visible:outline-laque-deep'
-      : 'border-line hover:border-muted focus-visible:outline-laque',
-    extra,
-  );
-}
-
-function FieldFrame({
+export function FieldFrame({
   id,
   label,
   hint,
@@ -76,16 +50,6 @@ function FieldFrame({
       )}
     </div>
   );
-}
-
-function describedBy(
-  id: string,
-  { hint, error, externalErrorId }: Pick<FieldChrome, 'hint' | 'error' | 'externalErrorId'>,
-) {
-  if (error && externalErrorId) return externalErrorId;
-  if (error) return `${id}-error`;
-  if (hint) return `${id}-hint`;
-  return undefined;
 }
 
 export function TextField({
@@ -144,11 +108,6 @@ export function FieldGroupError({
       ))}
     </div>
   );
-}
-
-/** Champ date natif : sur Android, il ouvre le calendrier du système, le plus ergonomique. */
-export function DateField(props: FieldChrome & Omit<ComponentProps<'input'>, 'type'>) {
-  return <TextField type="date" {...props} className={cn('tabular', props.className)} />;
 }
 
 export function SelectField({

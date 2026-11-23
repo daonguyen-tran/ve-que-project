@@ -11,7 +11,14 @@ import { StopSheet, type StopSheetTarget } from './StopSheet';
 import { StopsTimeline } from './StopsTimeline';
 import { TransferSheet, type TransferSheetTarget } from './TransferSheet';
 
-/** Itinéraire du voyage : frise des nuits, étapes, hébergements et trajets. */
+/**
+ * Itinéraire du voyage : frise des nuits, puis les étapes reliées comme sur une feuille de
+ * route, avec leurs trajets.
+ *
+ * Les nuits sans étape ne sont signalées que par la frise : la liste reste un récapitulatif.
+ * Pour en ajouter une, « Ajouter une étape » (en bas) ouvre la fiche sur les premières nuits
+ * libres, et son calendrier grise les nuits déjà prises.
+ */
 export function ItineraryOverview({ trip }: { trip: Trip }) {
   const stops = useStops(trip.id);
   const accommodations = useAccommodations(trip.id);
@@ -37,11 +44,9 @@ export function ItineraryOverview({ trip }: { trip: Trip }) {
         <>
           <NightsStrip trip={trip} stops={stops} />
           <StopsTimeline
-            trip={trip}
             stops={stops}
             accommodations={accommodations}
             transfers={transfers}
-            onCreateStop={setStopTarget}
             onOpenTransfer={setTransferTarget}
           />
           <Button variant="secondary" onClick={openCreate} className="self-start">

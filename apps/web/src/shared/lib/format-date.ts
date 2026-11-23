@@ -62,6 +62,52 @@ export function dateParts(date: LocalDate): { day: number; month: string; weekda
   };
 }
 
+const fullFormat = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const monthYearFormat = new Intl.DateTimeFormat('fr-FR', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+const weekdayLongFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', timeZone: 'UTC' });
+
+const mediumFormat = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+/** « jeu. 4 juil. 2027 » : valeur affichée dans un champ de date. */
+export function formatMediumDate(date: LocalDate): string {
+  return mediumFormat.format(toUtcDate(date));
+}
+
+/** « jeudi 4 juillet 2027 » : libellé complet d'un jour du calendrier, pour les lecteurs d'écran. */
+export function formatFullDate(date: LocalDate): string {
+  return fullFormat.format(toUtcDate(date));
+}
+
+/** « juillet 2027 » (`month` de 1 à 12). */
+export function formatMonthYear(year: number, month: number): string {
+  return monthYearFormat.format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
+/** Jours de la semaine, du lundi au dimanche : « lun. » et « lundi ». */
+export function weekdayNames(): Array<{ short: string; long: string }> {
+  // Le 4 janvier 2027 est un lundi : on énumère les 7 jours qui suivent.
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(Date.UTC(2027, 0, 4 + index));
+    return { short: weekdayShortFormat.format(date), long: weekdayLongFormat.format(date) };
+  });
+}
+
 const relative = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });
 const dateTime = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
 

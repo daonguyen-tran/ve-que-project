@@ -12,17 +12,19 @@ const ROW =
 
 /**
  * Trajets qui partent ou arrivent ce jour-là, rappelés en tête du programme : ils dictent
- * l'heure à laquelle la journée commence ou s'arrête. Un jour de changement d'étape sans
- * trajet saisi le signale, avec un lien pour l'ajouter sur la fiche de l'étape.
+ * l'heure à laquelle la journée commence ou s'arrête. En édition (`showMissing`), un jour de
+ * changement d'étape sans trajet saisi le signale, avec un lien vers la fiche de l'étape.
  */
 export function TransferNote({
   day,
   transfers,
   calendar,
+  showMissing,
 }: {
   day: TripDay;
   transfers: Transfer[];
   calendar: TripCalendar;
+  showMissing: boolean;
 }) {
   const todays = transfers.filter(
     (transfer) => transfer.departDate === day.date || transfer.arriveDate === day.date,
@@ -30,7 +32,7 @@ export function TransferNote({
   const stopName = (id: string) => calendar.stopsById.get(id)?.name ?? '';
 
   if (todays.length === 0) {
-    if (!day.isTransition || !day.stopId) return null;
+    if (!showMissing || !day.isTransition || !day.stopId) return null;
     return (
       <Link to={`/planning/etapes/${day.stopId}`} className={ROW}>
         <Route className="text-muted size-5 shrink-0" strokeWidth={1.9} aria-hidden="true" />

@@ -36,6 +36,7 @@ export const fr = {
     create: 'Créer le voyage',
     nameLabel: 'Nom du voyage',
     namePlaceholder: 'Ex. : Vietnam 2027',
+    datesLabel: 'Dates du voyage',
     startLabel: 'Départ',
     endLabel: 'Retour',
     datesHint: 'Tu pourras les changer quand tes billets seront réservés.',
@@ -106,6 +107,9 @@ export const fr = {
     vietnameseHint: 'Avec les accents, pour le montrer à un chauffeur ou sur un panneau.',
     kindLabel: 'Type',
     kinds: { city: 'Ville', village: 'Village', island: 'Île' },
+    datesLabel: 'Dates',
+    takenNight: (stop: string) => `nuit déjà prévue à ${stop}`,
+    takenLegend: 'Les jours colorés sont déjà pris par une autre étape.',
     arrivalLabel: 'Arrivée',
     departureLabel: 'Départ',
     datesHint: 'Le jour du départ, tu peux arriver à l’étape suivante.',
@@ -175,6 +179,7 @@ export const fr = {
     deleteMessage: (name: string) => `« ${name} » sera supprimé de cette étape.`,
   },
   transfers: {
+    toStop: (to: string) => `Trajet vers ${to}`,
     title: 'Trajets',
     arrivalTitle: 'Pour arriver',
     departureTitle: 'Pour repartir',
@@ -386,8 +391,24 @@ export const fr = {
       `« ${title} » est planifiée : J${day}, ${slot.toLowerCase()}.`,
     seeDay: 'Voir le jour',
   },
+  calendar: {
+    previousMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
+    unavailable: 'indisponible',
+    choose: 'Choisir une date',
+    pickStart: (label: string) => `Touche le jour : ${label.toLowerCase()}.`,
+    pickEnd: (label: string) => `Touche maintenant le jour : ${label.toLowerCase()}.`,
+  },
   plan: {
     views: { label: 'Affichage du planning', itinerary: 'Itinéraire', days: 'Jour par jour' },
+    edit: {
+      start: 'Modifier',
+      done: 'Terminé',
+      announceOn: 'Mode édition : les ajouts et les déplacements sont disponibles.',
+      announceOff: 'Mode lecture.',
+    },
+    emptyDay: 'Rien de prévu ce jour-là.',
+    daysTitle: (n: number) => (n > 1 ? `${n} jours` : '1 jour'),
     progress: (planned: number, total: number) =>
       `${planned} ${planned > 1 ? 'jours préparés' : 'jour préparé'} sur ${total}`,
     progressHint:

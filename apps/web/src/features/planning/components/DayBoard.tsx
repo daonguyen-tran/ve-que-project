@@ -194,7 +194,7 @@ export function DayBoard({
           return (
             <div key={day.date} className="flex min-w-0 flex-col gap-5">
               {showDayHeadings && <DayHeading day={day} total={calendar.days.length} stop={stop} />}
-              <TransferNote day={day} transfers={transfers} calendar={calendar} />
+              <TransferNote day={day} transfers={transfers} calendar={calendar} showMissing />
               {TIME_SLOTS.map((slot) => {
                 const key: ContainerId = containerId(day.date, slot);
                 const slotItemsList = idsIn(columns, key)
