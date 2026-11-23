@@ -50,6 +50,8 @@ describe('DayPage', () => {
   it('propose « En famille » au village et l’ajoute en un geste', async () => {
     const { repositories, trip } = await renderDay('2027-07-09');
     expect(await screen.findByText('Jour 9 sur 21')).toBeTruthy();
+    // Les étapes arrivent un instant après le voyage : on attend que le jour soit rattaché.
+    expect(await screen.findByText('Village de Bà Nội')).toBeTruthy();
 
     const morning = screen.getByRole('region', { name: 'Matin' });
     fireEvent.click(within(morning).getByRole('button', { name: 'En famille' }));

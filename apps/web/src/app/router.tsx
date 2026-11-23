@@ -3,7 +3,7 @@ import { DataPage } from '@/features/data/pages/DataPage';
 import { DesignPreviewPage } from '@/features/design-preview/DesignPreviewPage';
 import { ExpensesPage } from '@/features/expenses/ExpensesPage';
 import { QuickExpensePage } from '@/features/expenses/QuickExpensePage';
-import { IdeasPage } from '@/features/ideas/IdeasPage';
+import { IdeasPage } from '@/features/ideas/pages/IdeasPage';
 import { StopDetailPage } from '@/features/itinerary/pages/StopDetailPage';
 import { MorePage } from '@/features/more/MorePage';
 import { DayPage } from '@/features/planning/pages/DayPage';

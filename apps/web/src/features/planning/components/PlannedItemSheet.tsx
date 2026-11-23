@@ -2,17 +2,29 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { slotForTime, toLocalDate, type Trip } from '@ve-que/domain';
+import {
+  cityKey,
+  groupCost,
+  plannedByIdea,
+  slotForTime,
+  sortIdeas,
+  toLocalDate,
+  type Idea,
+  type Trip,
+} from '@ve-que/domain';
+import { useIdeas } from '@/features/ideas/hooks/use-ideas';
+import { CATEGORY_ICON } from '@/features/ideas/idea-style';
+import { useMembers } from '@/features/trips/hooks/use-trips';
 import { t } from '@/shared/i18n';
 import { formatDuration, formatShortDate } from '@/shared/lib/format-date';
-import { moneyFromField } from '@/shared/lib/money-field';
+import { moneyFromField, moneyToField } from '@/shared/lib/money-field';
 import { Button } from '@/shared/ui/Button';
 import { ConfirmSheet } from '@/shared/ui/ConfirmSheet';
 import { AmountField } from '@/shared/ui/form/AmountField';
 import { SelectField, TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
-import { usePlannedItemService, type TripCalendar } from '../hooks/use-day-plan';
+import { usePlannedItems, usePlannedItemService, type TripCalendar } from '../hooks/use-day-plan';
 import { DURATION_OPTIONS, KIND_OPTIONS, SLOT_OPTIONS, STATUS_OPTIONS } from '../plan-style';
 import {
   initialPlannedItemValues,
@@ -67,7 +79,35 @@ export function PlannedItemSheet({
 
   const kind = useWatch({ control, name: 'kind' });
   const cost = useWatch({ control, name: 'cost' });
+  const date = useWatch({ control, name: 'date' });
+  const ideaId = useWatch({ control, name: 'ideaId' });
   const isActivity = kind === 'activity';
+
+  // « Depuis tes idées » (F-2.6) : à l'ajout d'une activité, les idées pas encore planifiées
+  // de la ville du jour choisi, incontournables d'abord.
+  const ideas = useIdeas(trip.id);
+  const items = usePlannedItems(trip.id);
+  const travellers = useMembers(trip.id)?.length ?? 1;
+  const dayStop = calendar.days.find((day) => day.date === date)?.stopId;
+  const dayCity = dayStop ? calendar.stopsById.get(dayStop)?.name : undefined;
+  const suggestions =
+    !editing && isActivity && dayCity && ideas && items
+      ? sortIdeas(
+          ideas.filter(
+            (idea) => cityKey(idea.city) === cityKey(dayCity) && !plannedByIdea(items).has(idea.id),
+          ),
+          'priority',
+        ).slice(0, 6)
+      : [];
+
+  const applyIdea = (idea: Idea) => {
+    setValue('ideaId', idea.id);
+    setValue('title', idea.title, { shouldValidate: true });
+    setValue('duration', String(idea.durationMinutes));
+    setValue('cost', moneyToField(groupCost(idea.pricePerPerson, travellers), 'VND'));
+    setValue('address', idea.place.address);
+    setValue('vietnameseAddress', idea.place.vietnamese);
+  };
 
   const close = () => {
     setSaveError(false);
@@ -90,6 +130,7 @@ export function PlannedItemSheet({
       vietnameseAddress: values.kind === 'free_time' ? '' : values.vietnameseAddress,
       status: values.status,
       notes: values.notes,
+      ideaId: values.kind === 'activity' && values.ideaId ? values.ideaId : null,
     };
     if (input.kind === 'free_time') input.estimatedCost = null;
     try {
@@ -139,6 +180,36 @@ export function PlannedItemSheet({
             columns={3}
             {...register('kind')}
           />
+          {suggestions.length > 0 && dayCity && (
+            <div role="group" aria-label={t.plan.fromIdeas} className="flex flex-col gap-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-ink-soft text-sm font-medium">{t.plan.fromIdeas}</span>
+                <span className="text-muted text-[13px]">{t.plan.fromIdeasHint(dayCity)}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {suggestions.map((idea) => {
+                  const Icon = CATEGORY_ICON[idea.category];
+                  const chosen = ideaId === idea.id;
+                  return (
+                    <button
+                      key={idea.id}
+                      type="button"
+                      aria-pressed={chosen}
+                      onClick={() => applyIdea(idea)}
+                      className={
+                        chosen
+                          ? 'border-laque bg-laque-tint text-laque-deep flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-sm font-medium'
+                          : 'border-line bg-surface text-ink-soft hover:border-muted flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-sm font-medium'
+                      }
+                    >
+                      <Icon className="size-4 shrink-0" strokeWidth={1.9} aria-hidden="true" />
+                      <span className="max-w-[14rem] truncate">{idea.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           <TextField
             label={t.plan.titleLabel}
             labelAside={isActivity ? undefined : t.common.optional}

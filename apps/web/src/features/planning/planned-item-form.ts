@@ -26,6 +26,8 @@ export const plannedItemFormSchema = z
     vietnameseAddress: z.string().trim().max(200, t.validation.maxLength(200)),
     status: plannedItemStatusSchema,
     notes: z.string().trim().max(500, t.validation.maxLength(500)),
+    /** Idée choisie dans « Depuis tes idées » (champ caché), vide sinon. */
+    ideaId: z.string(),
   })
   .superRefine((values, ctx) => {
     if (values.kind === 'activity' && values.title === '') {
@@ -52,6 +54,7 @@ export function initialPlannedItemValues(target: PlannedItemSheetTarget): Planne
       vietnameseAddress: '',
       status: 'planned',
       notes: '',
+      ideaId: '',
     };
   }
   const { item } = target;
@@ -67,5 +70,6 @@ export function initialPlannedItemValues(target: PlannedItemSheetTarget): Planne
     vietnameseAddress: item.place?.vietnamese ?? '',
     status: item.status,
     notes: item.notes,
+    ideaId: item.ideaId ?? '',
   };
 }

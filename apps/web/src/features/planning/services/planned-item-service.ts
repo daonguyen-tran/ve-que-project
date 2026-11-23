@@ -30,6 +30,8 @@ export interface PlannedItemInput {
   estimatedCost: Money | null;
   status: PlannedItemStatus;
   notes: string;
+  /** Idée de la banque d'idées dont l'élément est issu (F-3.3), à l'ajout seulement. */
+  ideaId?: string | null;
 }
 
 /**
@@ -54,7 +56,7 @@ export class PlannedItemService {
         createEntity<PlannedItem>(
           {
             tripId: trip.id,
-            ideaId: null,
+            ideaId: input.ideaId ?? null,
             ...this.content(input, null),
             date: input.date,
             slot: input.slot,

@@ -247,6 +247,10 @@ Entre deux étapes de la liste : pastille ronde avec l'icône du moyen de transp
 
 Trois créneaux, chacun annoncé par son icône (lever de soleil, soleil, lune) et son nom. Les éléments sont des cartes avec une **poignée** à gauche, seule zone qui déclenche le glisser (on fait défiler la page en touchant la carte, et la toucher ouvre l'édition). L'heure précise, quand il y en a une, précède le titre en chiffres tabulaires (« 19 h 30 »). « Prévu » est l'état normal et n'a pas de pastille ; « Réservé » est en jade avec une coche, « À confirmer » et « Annulé » en contour neutre. Le **temps libre** est une carte « en creux » (fond du jour, bord pointillé) : un espace laissé vide exprès ; les moments **en famille** prennent le jade clair des villages. Un créneau vide est une zone pointillée qui porte directement deux ajouts en un geste (temps libre, activité ; « en famille » d'abord au village). Pendant le glisser, la carte d'origine reste en fantôme et une copie ombrée suit le pointeur ; sur PC, trois jours côte à côte permettent de glisser d'un jour à l'autre.
 
+### Banque d'idées
+
+Filtres en **pastilles** à choix unique (villes avec leur nombre d'idées, statut de planification) qui défilent horizontalement, puis deux listes déroulantes compactes (catégorie, tri). Pastille active : encre pleine, texte clair. Carte d'idée : tuile d'icône de catégorie (laque claire), titre, pastille « Incontournable » en laque pleine (le seul plein rouge de la carte), ligne de méta (catégorie · durée · prix par personne). L'action principale « Planifier » est un bouton secondaire à part ; une idée planifiée la remplace par un lien vert « Prévu J5 · après-midi » vers le jour. Un lieu fermé au moment choisi est signalé dans un encadré laque claire, sans bloquer. Les jours d'ouverture sont sept cases L M M J V S D sur toute la largeur.
+
 ### Jauge des créneaux (vue jour par jour)
 
 Trois segments arrondis par jour : laque pleine si quelque chose est prévu, laque claire en pointillé pour un temps libre, gris si rien. Une légende est affichée une fois au-dessus de la liste, et le libellé accessible dit la même chose en mots.
