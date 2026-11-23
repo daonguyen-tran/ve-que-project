@@ -46,12 +46,15 @@ export function StopSheet({
   stops,
   target,
   onClose,
+  onDeleted,
 }: {
   trip: Trip;
   stops: Stop[];
   /** `null` : panneau fermé. */
   target: StopSheetTarget | null;
   onClose: () => void;
+  /** Appelé après la suppression (ex. pour quitter la fiche de l'étape supprimée). */
+  onDeleted?: () => void;
 }) {
   const stopService = useStopService();
   const formId = useId();
@@ -209,7 +212,10 @@ export function StopSheet({
           title={t.stops.deleteTitle}
           message={t.stops.deleteMessage(editing.name)}
           confirmLabel={t.stops.delete}
-          onConfirm={() => stopService.deleteStop(editing)}
+          onConfirm={async () => {
+            await stopService.deleteStop(editing);
+            onDeleted?.();
+          }}
         />
       )}
     </>

@@ -142,6 +142,7 @@ Ce que le système refuse : le tableau de bord de cartes identiques à accent un
 - `ground` (#F5F5F4) pour le fond de l'appli, `surface` (#FFFFFF) pour les cartes et listes, `line` / `line-soft` pour les filets, `ink` / `ink-soft` / `muted` pour le texte (muted ≥ 7:1 sur blanc).
 
 ### Types d'étape
+
 Frise des nuits : ville indigo foncé (`stop-city`), village jade moyen (`stop-village`, la famille), île sarcelle claire (`stop-island`). Trois luminosités nettement différentes, plus une icône par type dans la légende et dans chaque ligne.
 
 ### Data (catégories de dépenses)
@@ -206,6 +207,14 @@ Barre d'onglets à cinq entrées (Aujourd'hui, Planning, Idées, Dépenses, Plus
 
 Champs de 48 px de haut, texte à 16 px (pas de zoom à la saisie sur mobile), libellé au-dessus, aide ou erreur en dessous. Erreur : contour laque profonde, icône et phrase qui dit quoi corriger ; jamais la couleur seule. Dates : champ natif (calendrier du système sur Android).
 
+### Champ montant (AmountField)
+
+Saisie « à la vietnamienne » (`50k`, `1,2M`, `350 000`) avec bascule ₫ / € à droite, et l'aperçu du montant complet juste en dessous (« = 2 400 000 ₫ »), mis à jour à chaque frappe. Clavier texte sur mobile (il faut pouvoir taper `k`). C'est le composant de saisie de toutes les dépenses à venir.
+
+### Statut de réservation (BookingBadge)
+
+« Réservé » : fond jade clair, coche, texte jade foncé. « Envisagé » : contour neutre. « Annulé » : contour neutre, texte barré. Le mot porte toujours l'information.
+
 ### Panneau modal (Sheet)
 
 `<dialog>` natif : feuille qui monte du bas sur mobile, fenêtre centrée sur PC, fond assombri, en-tête titre + fermer, actions principales dans le pied. Les actions destructrices passent par `ConfirmSheet`, dont le bouton nomme l'action.
@@ -223,10 +232,16 @@ Pilule laque de 52 px, fixée au-dessus de la barre d'onglets côté pouce droit
 `Amount` : chiffres `display-amount`, symbole de devise plus petit en laque, libellé accessible complet (« 1 240 000 ₫ »). Accompagné de la **barre du jour** : segments aux couleurs des billets, proportionnels au budget du jour, la partie grise étant ce qui reste.
 
 ### Frise des nuits (signature du planning)
+
 Une case par nuit du voyage, colorée selon le type d'étape ; une marge plus large marque le passage d'une étape à l'autre ; les nuits sans étape sont des cases vides à contour pointillé. Même grammaire que la barre du jour : des segments lus d'un coup d'œil.
 
 ### Ligne d'étape
+
 Bloc calendrier à gauche (jour abrégé, numéro en `date-block`, mois), nom sur deux lignes au plus, nom vietnamien en gris, puis étiquette de type et « 4 nuits · jusqu'au 14 juil. ». Les nuits sans étape apparaissent entre les lignes dans un cadre pointillé avec « Ajouter une étape ici ».
+
+### Emplacement de trajet
+
+Entre deux étapes de la liste : pastille ronde avec l'icône du moyen de transport, « Avion · 4 juil. · 10:30 → 11:50 », lune et « arrivée le 8 juil. » pour un trajet de nuit, puis le statut. Sans trajet : un lien discret « + Ajouter le trajet vers Hoi An ».
 
 ### Créneau en cours
 

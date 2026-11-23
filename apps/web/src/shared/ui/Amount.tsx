@@ -1,5 +1,6 @@
 import { CURRENCIES, formatMoney, type Money } from '@ve-que/domain';
 import { cn } from '@/shared/lib/cn';
+import { withReadableGroups } from '@/shared/lib/readable-number';
 
 type AmountSize = 'display' | 'lg' | 'md';
 
@@ -14,15 +15,6 @@ const SYMBOL_SIZE: Record<AmountSize, string> = {
   lg: 'text-base font-semibold',
   md: 'text-[15px] font-semibold',
 };
-
-/**
- * `Intl` (fr-FR) sépare les milliers par une espace fine insécable (U+202F). En grand corps,
- * avec un interlettrage serré, elle disparaît presque : « 1 240 000 » se lirait « 1240000 ».
- * On la remplace par une espace insécable normale (U+00A0), deux fois plus large.
- */
-function withReadableGroups(formatted: string): string {
-  return formatted.replace(/\u202f/g, '\u00a0');
-}
 
 /**
  * Montant « valeur faciale » : la signature visuelle de Về Quê.

@@ -4,20 +4,25 @@ import { suggestStopDates, type Trip } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { Button } from '@/shared/ui/Button';
 import { EmptyState } from '@/shared/ui/EmptyState';
+import { useAccommodations, useTransfers } from '../hooks/use-itinerary';
 import { useStops } from '../hooks/use-stops';
 import { NightsStrip } from './NightsStrip';
 import { StopSheet, type StopSheetTarget } from './StopSheet';
 import { StopsTimeline } from './StopsTimeline';
+import { TransferSheet, type TransferSheetTarget } from './TransferSheet';
 
-/** Itinéraire du voyage : frise des nuits, liste des étapes et panneau de saisie. */
+/** Itinéraire du voyage : frise des nuits, étapes, hébergements et trajets. */
 export function ItineraryOverview({ trip }: { trip: Trip }) {
   const stops = useStops(trip.id);
-  const [target, setTarget] = useState<StopSheetTarget | null>(null);
+  const accommodations = useAccommodations(trip.id);
+  const transfers = useTransfers(trip.id);
+  const [stopTarget, setStopTarget] = useState<StopSheetTarget | null>(null);
+  const [transferTarget, setTransferTarget] = useState<TransferSheetTarget | null>(null);
 
-  if (stops === undefined) return null;
+  if (stops === undefined || accommodations === undefined || transfers === undefined) return null;
 
   // « Ajouter » propose directement les premières nuits encore libres.
-  const openCreate = () => setTarget({ mode: 'create', ...suggestStopDates(trip, stops) });
+  const openCreate = () => setStopTarget({ mode: 'create', ...suggestStopDates(trip, stops) });
 
   return (
     <>
@@ -31,14 +36,27 @@ export function ItineraryOverview({ trip }: { trip: Trip }) {
       ) : (
         <>
           <NightsStrip trip={trip} stops={stops} />
-          <StopsTimeline trip={trip} stops={stops} onOpen={setTarget} />
+          <StopsTimeline
+            trip={trip}
+            stops={stops}
+            accommodations={accommodations}
+            transfers={transfers}
+            onCreateStop={setStopTarget}
+            onOpenTransfer={setTransferTarget}
+          />
           <Button variant="secondary" onClick={openCreate} className="self-start">
             <Plus className="size-5" strokeWidth={2} aria-hidden="true" />
             {t.stops.add}
           </Button>
         </>
       )}
-      <StopSheet trip={trip} stops={stops} target={target} onClose={() => setTarget(null)} />
+      <StopSheet
+        trip={trip}
+        stops={stops}
+        target={stopTarget}
+        onClose={() => setStopTarget(null)}
+      />
+      <TransferSheet trip={trip} target={transferTarget} onClose={() => setTransferTarget(null)} />
     </>
   );
 }

@@ -3,6 +3,7 @@ import { DesignPreviewPage } from '@/features/design-preview/DesignPreviewPage';
 import { ExpensesPage } from '@/features/expenses/ExpensesPage';
 import { QuickExpensePage } from '@/features/expenses/QuickExpensePage';
 import { IdeasPage } from '@/features/ideas/IdeasPage';
+import { StopDetailPage } from '@/features/itinerary/pages/StopDetailPage';
 import { MorePage } from '@/features/more/MorePage';
 import { PlanningPage } from '@/features/planning/PlanningPage';
 import { TodayPage } from '@/features/today/TodayPage';
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <TodayPage /> },
       { path: 'planning', element: <PlanningPage /> },
+      { path: 'planning/etapes/:stopId', element: <StopDetailPage /> },
       { path: 'idees', element: <IdeasPage /> },
       { path: 'depenses', element: <ExpensesPage /> },
       { path: 'depenses/nouvelle', element: <QuickExpensePage /> },
