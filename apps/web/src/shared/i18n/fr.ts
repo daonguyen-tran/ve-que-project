@@ -215,6 +215,80 @@ export const fr = {
       outsideTrip: (range: string) => `Le trajet doit avoir lieu pendant le voyage (${range})`,
     },
   },
+  data: {
+    title: 'Sauvegarde et transfert',
+    howTitle: 'Passer du PC au téléphone',
+    howSteps: [
+      'Sur le PC, exporte tes voyages.',
+      'Envoie-toi le fichier : Drive, mail ou messagerie.',
+      'Sur le téléphone, ouvre cet écran et importe le fichier.',
+    ],
+    exportTitle: 'Exporter',
+    exportScope: 'Contenu',
+    allTrips: 'Tous les voyages',
+    share: 'Partager le fichier',
+    download: 'Télécharger le fichier',
+    exported: (name: string) => `Fichier « ${name} » prêt.`,
+    lastExport: (when: string) => `Dernière sauvegarde : ${when}`,
+    neverExported: 'Aucune sauvegarde pour l’instant.',
+    dueShort: 'À faire',
+    reminder:
+      'Tes données ne sont que sur cet appareil. Une sauvegarde régulière évite de tout perdre si le téléphone est perdu ou réinitialisé.',
+    importTitle: 'Importer',
+    importBody:
+      'Choisis un fichier exporté depuis Về Quê. Tu verras ce qui va changer avant de confirmer.',
+    chooseFile: 'Choisir un fichier',
+    fileFrom: (date: string) => `Fichier exporté le ${date}`,
+    tripStatus: {
+      new: 'Nouveau',
+      updated: 'Mis à jour',
+      unchanged: 'Déjà à jour',
+      deleted: 'Supprimé',
+    },
+    summary: {
+      created: (n: number) => (n > 1 ? `${n} éléments ajoutés` : `${n} élément ajouté`),
+      updated: (n: number) => (n > 1 ? `${n} éléments mis à jour` : `${n} élément mis à jour`),
+      deleted: (n: number) => (n > 1 ? `${n} éléments supprimés` : `${n} élément supprimé`),
+      skipped: (n: number) =>
+        n > 1
+          ? `${n} éléments déjà à jour ou plus récents ici`
+          : `${n} élément déjà à jour ou plus récent ici`,
+      nothing: 'Rien à changer : cet appareil est déjà à jour.',
+    },
+    modeLabel: 'Mode d’import',
+    modes: { merge: 'Fusionner', replace: 'Tout remplacer' },
+    modeHint: {
+      merge:
+        'Recommandé. Pour chaque élément, la version la plus récente est gardée : rien de ce que tu as modifié ici depuis ne sera écrasé.',
+      replace:
+        'Toutes les données de cet appareil sont effacées et remplacées par le contenu du fichier.',
+    },
+    confirmImport: 'Importer',
+    replaceTitle: 'Tout remplacer ?',
+    replaceMessage:
+      'Tous les voyages de cet appareil seront effacés et remplacés par ceux du fichier. Ce que tu n’as pas exporté sera perdu.',
+    replaceConfirm: 'Effacer et remplacer',
+    imported: 'Import terminé.',
+    seeTrips: 'Voir mes voyages',
+    nothingToExport:
+      'Aucun voyage sur cet appareil pour l’instant. Si tes voyages sont sur un autre appareil, importe-les ci-dessous.',
+    errors: {
+      not_json:
+        'Ce fichier n’est pas lisible. Vérifie que c’est bien un fichier .json exporté par Về Quê.',
+      not_a_backup: 'Ce fichier n’est pas une sauvegarde Về Quê.',
+      too_new:
+        'Ce fichier vient d’une version plus récente de Về Quê. Mets l’appli à jour, puis réessaie.',
+      invalid: 'Ce fichier est abîmé ou a été modifié : il n’a pas été importé, rien n’a changé.',
+      failed: 'L’opération a échoué ; aucune donnée n’a été modifiée. Réessaie.',
+    },
+    protectionTitle: 'Protection sur cet appareil',
+    persisted: 'Le navigateur ne supprimera pas tes données, même si l’appareil manque de place.',
+    notPersisted:
+      'Le navigateur pourrait effacer tes données si l’appareil manque de place. Installe l’appli sur l’écran d’accueil, puis active la protection.',
+    protect: 'Protéger mes données',
+    unsupported:
+      'Ce navigateur ne permet pas de protéger les données : pense à exporter régulièrement.',
+  },
   stopDetail: {
     showLocal: 'À montrer sur place',
     notes: 'Notes',

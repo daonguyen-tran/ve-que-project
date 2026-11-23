@@ -243,6 +243,10 @@ Bloc calendrier à gauche (jour abrégé, numéro en `date-block`, mois), nom su
 
 Entre deux étapes de la liste : pastille ronde avec l'icône du moyen de transport, « Avion · 4 juil. · 10:30 → 11:50 », lune et « arrivée le 8 juil. » pour un trajet de nuit, puis le statut. Sans trajet : un lien discret « + Ajouter le trajet vers Hoi An ».
 
+### Écran de réglage en sections (Sauvegarde et transfert)
+
+Titre de section sur le fond, puis une carte blanche qui regroupe l'action (`DataSection`). Un seul bouton principal par carte ; l'action destructive (« Effacer et remplacer ») prend la variante danger et passe par une confirmation qui nomme ce qui sera perdu. Les statuts (« Nouveau », « Déjà à jour », « À faire ») sont des pastilles arrondies : laque claire quand il y a quelque chose à faire, gris quand il n'y a rien. Les messages de résultat sont en texte coloré sous les boutons (succès en vert, erreur en laque profonde), jamais en toast qui disparaît.
+
 ### Créneau en cours
 
 Ligne de liste sur fond `curcuma-tint`, libellé et détail en `curcuma-ink`, pastille « En cours » à contour curcuma.

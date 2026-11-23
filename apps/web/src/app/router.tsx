@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router';
+import { DataPage } from '@/features/data/pages/DataPage';
 import { DesignPreviewPage } from '@/features/design-preview/DesignPreviewPage';
 import { ExpensesPage } from '@/features/expenses/ExpensesPage';
 import { QuickExpensePage } from '@/features/expenses/QuickExpensePage';
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
       { path: 'depenses', element: <ExpensesPage /> },
       { path: 'depenses/nouvelle', element: <QuickExpensePage /> },
       { path: 'plus', element: <MorePage /> },
+      { path: 'plus/donnees', element: <DataPage /> },
       { path: 'voyages', element: <TripsPage /> },
       { path: 'voyages/nouveau', element: <NewTripPage /> },
       { path: 'voyages/:tripId', element: <TripDetailPage /> },

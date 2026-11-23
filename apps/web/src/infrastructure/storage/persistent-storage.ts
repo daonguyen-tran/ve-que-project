@@ -13,3 +13,9 @@ export async function requestPersistentStorage(): Promise<PersistenceStatus> {
   if (await navigator.storage.persisted()) return 'persisted';
   return (await navigator.storage.persist()) ? 'persisted' : 'best-effort';
 }
+
+/** État actuel, sans rien demander. */
+export async function getPersistenceStatus(): Promise<PersistenceStatus> {
+  if (typeof navigator === 'undefined' || !navigator.storage?.persisted) return 'unsupported';
+  return (await navigator.storage.persisted()) ? 'persisted' : 'best-effort';
+}

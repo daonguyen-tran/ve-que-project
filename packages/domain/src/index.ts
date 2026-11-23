@@ -23,4 +23,6 @@ export * from './itinerary/transfer-rules';
 
 export * from './expenses/expense';
 
+export * from './backup/backup';
+
 export * from './repository';

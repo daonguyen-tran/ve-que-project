@@ -61,3 +61,17 @@ export function dateParts(date: LocalDate): { day: number; month: string; weekda
     weekday: weekdayShortFormat.format(utc),
   };
 }
+
+const relative = new Intl.RelativeTimeFormat('fr-FR', { numeric: 'auto' });
+const dateTime = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+
+/** « aujourd’hui », « hier », « il y a 3 jours » : pour dater une action passée. */
+export function formatDaysAgo(instant: string, now: Date = new Date()): string {
+  const days = Math.floor((now.getTime() - new Date(instant).getTime()) / 86_400_000);
+  return relative.format(-days, 'day');
+}
+
+/** « 23 novembre 2026 à 14:02 », dans le fuseau de l'appareil (c'est un instant, pas une date locale). */
+export function formatDateTime(instant: string): string {
+  return dateTime.format(new Date(instant));
+}

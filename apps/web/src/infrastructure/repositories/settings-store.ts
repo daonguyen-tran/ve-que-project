@@ -4,6 +4,8 @@ import type { VeQueDatabase } from '../db/database';
 export const SETTING_KEYS = {
   /** Voyage choisi explicitement par l'utilisateur (sinon, choix automatique). */
   activeTripId: 'activeTripId',
+  /** Date (ISO) du dernier export : sert au rappel de sauvegarde (F-15.4). */
+  lastExportAt: 'lastExportAt',
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];
