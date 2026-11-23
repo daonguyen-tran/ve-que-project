@@ -1,5 +1,5 @@
 import { CalendarDays, Settings2 } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { tripLength } from '@ve-que/domain';
 import { useActiveTrip } from '@/app/providers/active-trip-context';
 import { ItineraryOverview } from '@/features/itinerary/components/ItineraryOverview';
@@ -10,10 +10,18 @@ import { formatDateRange } from '@/shared/lib/format-date';
 import { ButtonLink } from '@/shared/ui/Button';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { PageHeader } from '@/shared/ui/PageHeader';
+import { DaysOverview } from '../components/DaysOverview';
+import { PlanningViewSwitch } from '../components/PlanningViewSwitch';
 
-/** Planning du voyage actif : voyageurs, frise des nuits et étapes (hébergements et trajets au lot 4). */
+/**
+ * Planning du voyage actif, en deux vues : l'itinéraire (étapes, hébergements, trajets) et le
+ * détail jour par jour. La vue choisie est dans l'URL (`?vue=jours`) : le bouton retour d'un
+ * jour ramène à la bonne vue, et l'on peut partager le lien.
+ */
 export function PlanningPage() {
   const { activeTrip, isLoading } = useActiveTrip();
+  const [searchParams] = useSearchParams();
+  const view = searchParams.get('vue') === 'jours' ? 'days' : 'itinerary';
   const members = useMembers(activeTrip?.id);
 
   if (isLoading) return <PageHeader title={t.placeholder.planningTitle} />;
@@ -51,7 +59,7 @@ export function PlanningPage() {
           </Link>
         }
       />
-      <div className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-3">
+      <div className="mx-auto flex max-w-3xl flex-col gap-5 px-4 py-3 pb-28">
         <Link
           to={`/voyages/${activeTrip.id}`}
           className="border-line bg-surface hover:border-muted flex min-h-16 items-center gap-3 rounded-[var(--radius-card)] border px-4 py-3 text-inherit no-underline transition-colors"
@@ -74,7 +82,12 @@ export function PlanningPage() {
           </span>
         </Link>
 
-        <ItineraryOverview trip={activeTrip} />
+        <PlanningViewSwitch view={view} />
+        {view === 'days' ? (
+          <DaysOverview trip={activeTrip} />
+        ) : (
+          <ItineraryOverview trip={activeTrip} />
+        )}
       </div>
     </>
   );

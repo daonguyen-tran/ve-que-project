@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { t } from '@/shared/i18n';
+import { cn } from '@/shared/lib/cn';
 
 /**
  * En-tête simple des écrans secondaires : titre sur le fond, sans bandeau.
@@ -13,15 +14,23 @@ export function PageHeader({
   subtitle,
   action,
   backTo,
+  wide = false,
 }: {
   title: ReactNode;
   subtitle?: ReactNode;
   action?: ReactNode;
   backTo?: string;
+  /** Pleine largeur utile (vues sur plusieurs colonnes, sur PC). */
+  wide?: boolean;
 }) {
   return (
     <header className="pt-safe">
-      <div className="mx-auto flex max-w-3xl items-start justify-between gap-3 px-5 pt-6 pb-2">
+      <div
+        className={cn(
+          'mx-auto flex items-start justify-between gap-3 px-5 pt-6 pb-2',
+          wide ? 'max-w-6xl' : 'max-w-3xl',
+        )}
+      >
         <div className="flex min-w-0 items-start gap-1">
           {backTo && (
             <Link

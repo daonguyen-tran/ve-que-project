@@ -74,17 +74,24 @@ export type PlannedItemStatus = z.infer<typeof plannedItemStatusSchema>;
  * - `free_time` : un bloc « temps libre » assumé ;
  * - `family` : un moment en famille (jours au village, F-2.11).
  */
+export const plannedItemKindSchema = z.enum(['activity', 'free_time', 'family']);
+export type PlannedItemKind = z.infer<typeof plannedItemKindSchema>;
+
 export const plannedItemSchema = tripScopedSchema.extend({
   date: localDateSchema,
   slot: timeSlotSchema,
   /** Heure précise optionnelle (une réservation à 14 h 30, par exemple). */
   time: localTimeSchema.nullable(),
-  kind: z.enum(['activity', 'free_time', 'family']),
+  kind: plannedItemKindSchema,
   ideaId: z.uuid().nullable(),
   title: z.string().trim().min(1),
   place: placeSchema.nullable(),
+  /** Durée estimée (F-2.6) ; `null` si inconnue. Sert aussi au « temps libre » (phase 3). */
+  durationMinutes: z.int().positive().nullable().default(null),
+  /** Coût estimé pour le groupe, dans sa devise. */
   estimatedCost: moneySchema.nullable(),
   status: plannedItemStatusSchema,
+  notes: z.string().default(''),
   /** Ordre d'affichage dans le créneau (entier croissant). */
   position: z.int().nonnegative(),
 });

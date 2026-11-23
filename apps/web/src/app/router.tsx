@@ -6,7 +6,8 @@ import { QuickExpensePage } from '@/features/expenses/QuickExpensePage';
 import { IdeasPage } from '@/features/ideas/IdeasPage';
 import { StopDetailPage } from '@/features/itinerary/pages/StopDetailPage';
 import { MorePage } from '@/features/more/MorePage';
-import { PlanningPage } from '@/features/planning/PlanningPage';
+import { DayPage } from '@/features/planning/pages/DayPage';
+import { PlanningPage } from '@/features/planning/pages/PlanningPage';
 import { TodayPage } from '@/features/today/TodayPage';
 import { NewTripPage } from '@/features/trips/pages/NewTripPage';
 import { TripDetailPage } from '@/features/trips/pages/TripDetailPage';
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { index: true, element: <TodayPage /> },
       { path: 'planning', element: <PlanningPage /> },
       { path: 'planning/etapes/:stopId', element: <StopDetailPage /> },
+      { path: 'planning/jours/:date', element: <DayPage /> },
       { path: 'idees', element: <IdeasPage /> },
       { path: 'depenses', element: <ExpensesPage /> },
       { path: 'depenses/nouvelle', element: <QuickExpensePage /> },

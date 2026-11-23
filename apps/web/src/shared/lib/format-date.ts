@@ -75,3 +75,22 @@ export function formatDaysAgo(instant: string, now: Date = new Date()): string {
 export function formatDateTime(instant: string): string {
   return dateTime.format(new Date(instant));
 }
+
+/**
+ * Heure à la française : « 14 h 30 », « 9 h ». Les espaces sont insécables, pour que l'heure
+ * ne soit jamais coupée en fin de ligne.
+ */
+export function formatTime(time: string): string {
+  const [hours = '0', minutes = '00'] = time.split(':');
+  const h = String(Number(hours));
+  return minutes === '00' ? `${h}\u00a0h` : `${h}\u00a0h\u00a0${minutes}`;
+}
+
+/** Durée : « 30 min », « 2 h », « 1 h 30 ». */
+export function formatDuration(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours === 0) return `${minutes}\u00a0min`;
+  if (minutes === 0) return `${hours}\u00a0h`;
+  return `${hours}\u00a0h\u00a0${String(minutes).padStart(2, '0')}`;
+}

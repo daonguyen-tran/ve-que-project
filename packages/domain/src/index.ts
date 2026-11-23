@@ -18,6 +18,7 @@ export * from './trip/trip-rules';
 export * from './itinerary/itinerary';
 export * from './itinerary/idea';
 export * from './itinerary/days';
+export * from './itinerary/day-plan';
 export * from './itinerary/stop-rules';
 export * from './itinerary/transfer-rules';
 

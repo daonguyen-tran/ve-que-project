@@ -243,6 +243,14 @@ Bloc calendrier à gauche (jour abrégé, numéro en `date-block`, mois), nom su
 
 Entre deux étapes de la liste : pastille ronde avec l'icône du moyen de transport, « Avion · 4 juil. · 10:30 → 11:50 », lune et « arrivée le 8 juil. » pour un trajet de nuit, puis le statut. Sans trajet : un lien discret « + Ajouter le trajet vers Hoi An ».
 
+### Programme d'un jour (créneaux)
+
+Trois créneaux, chacun annoncé par son icône (lever de soleil, soleil, lune) et son nom. Les éléments sont des cartes avec une **poignée** à gauche, seule zone qui déclenche le glisser (on fait défiler la page en touchant la carte, et la toucher ouvre l'édition). L'heure précise, quand il y en a une, précède le titre en chiffres tabulaires (« 19 h 30 »). « Prévu » est l'état normal et n'a pas de pastille ; « Réservé » est en jade avec une coche, « À confirmer » et « Annulé » en contour neutre. Le **temps libre** est une carte « en creux » (fond du jour, bord pointillé) : un espace laissé vide exprès ; les moments **en famille** prennent le jade clair des villages. Un créneau vide est une zone pointillée qui porte directement deux ajouts en un geste (temps libre, activité ; « en famille » d'abord au village). Pendant le glisser, la carte d'origine reste en fantôme et une copie ombrée suit le pointeur ; sur PC, trois jours côte à côte permettent de glisser d'un jour à l'autre.
+
+### Jauge des créneaux (vue jour par jour)
+
+Trois segments arrondis par jour : laque pleine si quelque chose est prévu, laque claire en pointillé pour un temps libre, gris si rien. Une légende est affichée une fois au-dessus de la liste, et le libellé accessible dit la même chose en mots.
+
 ### Écran de réglage en sections (Sauvegarde et transfert)
 
 Titre de section sur le fond, puis une carte blanche qui regroupe l'action (`DataSection`). Un seul bouton principal par carte ; l'action destructive (« Effacer et remplacer ») prend la variante danger et passe par une confirmation qui nomme ce qui sera perdu. Les statuts (« Nouveau », « Déjà à jour », « À faire ») sont des pastilles arrondies : laque claire quand il y a quelque chose à faire, gris quand il n'y a rien. Les messages de résultat sont en texte coloré sous les boutons (succès en vert, erreur en laque profonde), jamais en toast qui disparaît.
