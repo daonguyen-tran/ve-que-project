@@ -91,7 +91,6 @@ describe('cityMapModel', () => {
       ...meta,
       id,
       date: d('2027-07-05'),
-      slot: 'afternoon',
       time: null,
       position: 0,
       kind: 'activity',
@@ -138,9 +137,7 @@ describe('cityMapModel', () => {
       ['Plage', 'idea'],
       ['Dîner', 'planned'],
     ]);
-    expect(model.places.find((p) => p.title === 'Lanternes')?.subtitle).toBe(
-      'Prévu J5 · après-midi',
-    );
+    expect(model.places.find((p) => p.title === 'Lanternes')?.subtitle).toBe('Prévu J5');
     expect(model.places.find((p) => p.title === 'Hội An')?.number).toBe(2);
   });
 });

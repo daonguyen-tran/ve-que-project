@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { toLocalDate as d } from '@ve-que/domain';
@@ -54,33 +54,41 @@ async function renderDay(date: string) {
 }
 
 describe('DayPage', () => {
-  it('montre seulement les créneaux remplis, et renvoie à la fiche de l’étape pour organiser', async () => {
+  it('liste les activités du jour par heure, et renvoie à la fiche de l’étape pour organiser', async () => {
     const { repositories, trip, stop } = await renderDay('2027-07-09');
     expect(await screen.findByText('Rien de prévu ce jour-là.')).toBeTruthy();
-    expect(screen.queryByRole('region', { name: 'Matin' })).toBeNull();
     const link = await screen.findByRole('link', {
       name: 'Organiser la journée dans la fiche de Village de Bà Nội',
     });
     expect(link.getAttribute('href')).toBe(`/planning/etapes/${stop.id}`);
 
-    await new PlannedItemService(repositories).create(trip, {
+    const service = new PlannedItemService(repositories);
+    const base = {
       date: d('2027-07-09'),
-      slot: 'afternoon',
-      kind: 'activity',
-      title: 'Marché de Hội An',
-      time: null,
+      kind: 'activity' as const,
       address: '',
       vietnameseAddress: '',
       durationMinutes: null,
       estimatedCost: null,
-      status: 'planned',
+      status: 'planned' as const,
       notes: '',
-    });
+    };
+    await service.create(trip, { ...base, title: 'Marché de Hội An', time: null });
+    await service.create(trip, { ...base, title: 'Dîner chez Bác Hai', time: '19:30' });
 
-    const afternoon = await screen.findByRole('region', { name: 'Après-midi' });
-    expect(within(afternoon).getByText('Marché de Hội An')).toBeTruthy();
-    expect(screen.queryByRole('region', { name: 'Matin' })).toBeNull();
-    expect(screen.queryByRole('region', { name: 'Soir' })).toBeNull();
+    const list = await screen.findByRole('list');
+    await waitFor(() =>
+      expect(
+        within(list)
+          .getAllByRole('listitem')
+          .map((row) => row.textContent),
+      ).toEqual([
+        expect.stringContaining('Dîner chez Bác Hai'),
+        expect.stringContaining('Marché de Hội An'),
+      ]),
+    );
+    expect(within(list).getByText('19 h 30')).toBeTruthy();
+    expect(screen.queryByText('Matin')).toBeNull();
     expect(screen.queryByText('Rien de prévu ce jour-là.')).toBeNull();
   });
 

@@ -1,25 +1,12 @@
-import { Coffee, MapPin, Moon, Sun, Sunrise, Users, type LucideIcon } from 'lucide-react';
+import { Coffee, MapPin, Users, type LucideIcon } from 'lucide-react';
 import {
   formatCompact,
   formatMoney,
   type Money,
   type PlannedItemKind,
   type PlannedItemStatus,
-  type TimeSlot,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
-
-/** Icône de chaque créneau : le soleil se lève, culmine, laisse place à la lune. */
-export const SLOT_ICON: Record<TimeSlot, LucideIcon> = {
-  morning: Sunrise,
-  afternoon: Sun,
-  evening: Moon,
-};
-
-export const SLOT_OPTIONS = (Object.keys(SLOT_ICON) as TimeSlot[]).map((slot) => ({
-  value: slot,
-  label: t.slots[slot],
-}));
 
 /**
  * Apparence de chaque type d'élément, en ligne sur une surface blanche (`PlanItemRow`).

@@ -79,9 +79,45 @@ describe('readBackup', () => {
     });
   });
 
+  it('migre un fichier au format 1 : les créneaux disparaissent, l’ordre reste', () => {
+    const data = sampleData();
+    const tripId = data.trips[0]!.id;
+    const legacyItem = (title: string, slot: string, position: number) => ({
+      ...createEntity({ tripId }, t0),
+      date: '2027-07-02',
+      slot,
+      time: null,
+      kind: 'activity',
+      ideaId: null,
+      title,
+      place: null,
+      durationMinutes: null,
+      estimatedCost: null,
+      status: 'planned',
+      notes: '',
+      position,
+    });
+    const v1 = {
+      format: BACKUP_FORMAT,
+      schemaVersion: 1,
+      exportedAt: t1.toISOString(),
+      data: {
+        ...data,
+        plannedItems: [legacyItem('Dîner', 'evening', 0), legacyItem('Musée', 'morning', 0)],
+      },
+    };
+    const result = readBackup(JSON.stringify(v1));
+    expect(result.ok).toBe(true);
+    const items = result.ok ? result.value.data.plannedItems : [];
+    expect(items.map((entry) => [entry.title, entry.position, 'slot' in entry])).toEqual([
+      ['Dîner', 1, false],
+      ['Musée', 0, false],
+    ]);
+  });
+
   it('refuse des données invalides et dit où est le problème', () => {
     const data = sampleData();
-    const broken = { format: BACKUP_FORMAT, schemaVersion: 1, exportedAt: t1.toISOString(), data };
+    const broken = { format: BACKUP_FORMAT, schemaVersion: 2, exportedAt: t1.toISOString(), data };
     (broken.data.trips[0] as { endDate: string }).endDate = '2027-06-01';
     const result = readBackup(JSON.stringify(broken));
     expect(result.ok).toBe(false);

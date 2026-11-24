@@ -4,36 +4,31 @@ import { useController, useForm, useWatch } from 'react-hook-form';
 import {
   groupCost,
   openingStatus,
-  slotForTime,
   suggestDayForCity,
-  timeSlotSchema,
   toLocalDate,
   tripPhase,
   tripToday,
   type Idea,
   type PlannedItem,
-  type TimeSlot,
   type Trip,
 } from '@ve-que/domain';
 import type { TripCalendar } from '@/features/planning/hooks/use-day-plan';
-import { formatCost, SLOT_OPTIONS } from '@/features/planning/plan-style';
+import { formatCost } from '@/features/planning/plan-style';
 import { t } from '@/shared/i18n';
 import { formatShortDate } from '@/shared/lib/format-date';
 import { Button } from '@/shared/ui/Button';
 import { SelectField } from '@/shared/ui/form/fields';
-import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { TimeField } from '@/shared/ui/time';
 import { useIdeaService } from '../hooks/use-ideas';
 
 interface PlanValues {
   date: string;
-  slot: TimeSlot;
   time: string;
 }
 
 /**
- * Planifier une idée (F-3.3) : jour, créneau, heure facultative. Le jour proposé est le
+ * Planifier une idée (F-3.3) : jour, heure facultative. Le jour proposé est le
  * premier passé dans la ville de l'idée ; les horaires connus signalent un lieu fermé, sans
  * jamais bloquer (les horaires saisis peuvent être faux, ou on veut juste voir la façade).
  */
@@ -55,8 +50,8 @@ export function PlanIdeaSheet({
   const service = useIdeaService();
   const formId = useId();
   const [saveError, setSaveError] = useState(false);
-  const { register, handleSubmit, reset, control, setValue, formState } = useForm<PlanValues>({
-    defaultValues: { date: '', slot: 'morning', time: '' },
+  const { register, handleSubmit, reset, control, formState } = useForm<PlanValues>({
+    defaultValues: { date: '', time: '' },
   });
 
   useEffect(() => {
@@ -69,10 +64,10 @@ export function PlanIdeaSheet({
       idea.city,
       from,
     );
-    reset({ date: date ?? '', slot: 'morning', time: '' });
+    reset({ date: date ?? '', time: '' });
   }, [idea, trip, calendar, reset]);
 
-  const [date, slot, time] = useWatch({ control, name: ['date', 'slot', 'time'] });
+  const [date, time] = useWatch({ control, name: ['date', 'time'] });
   // L'heure est pilotée par le sélecteur maison (composant contrôlé).
   const timeField = useController({ control, name: 'time' });
 
@@ -83,10 +78,9 @@ export function PlanIdeaSheet({
       </Sheet>
     );
 
-  const status =
-    date && timeSlotSchema.safeParse(slot).success
-      ? openingStatus(idea.openingHours, toLocalDate(date), { slot, time: time || null })
-      : 'unknown';
+  const status = date
+    ? openingStatus(idea.openingHours, toLocalDate(date), time || null)
+    : 'unknown';
   const cost = groupCost(idea.pricePerPerson, travellers);
   const weekday = date ? (t.ideas.weekdays[new Date(`${date}T00:00:00Z`).getUTCDay()] ?? '') : '';
 
@@ -101,7 +95,7 @@ export function PlanIdeaSheet({
       const item = await service.plan(
         trip,
         idea,
-        { date: toLocalDate(values.date), slot: values.slot, time: values.time || null },
+        { date: toLocalDate(values.date), time: values.time || null },
         travellers,
       );
       onPlanned(item);
@@ -145,17 +139,13 @@ export function PlanIdeaSheet({
           }))}
           {...register('date')}
         />
-        <SegmentedField label={t.plan.slotLabel} options={SLOT_OPTIONS} {...register('slot')} />
         <TimeField
           label={t.plan.timeLabel}
           labelAside={t.common.optional}
           hint={t.plan.timeHint}
           clearable
           value={timeField.field.value}
-          onChange={(value) => {
-            timeField.field.onChange(value);
-            if (value) setValue('slot', slotForTime(value));
-          }}
+          onChange={timeField.field.onChange}
         />
         {status === 'closed' && (
           <p

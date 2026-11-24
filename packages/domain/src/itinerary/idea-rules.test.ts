@@ -109,23 +109,22 @@ describe('openingStatus', () => {
   const nightMarket = [{ days: [5, 6, 0], open: '17:00', close: '01:00' }];
 
   it('sans horaires, ne se prononce pas', () => {
-    expect(openingStatus(null, monday, { slot: 'morning', time: null })).toBe('unknown');
+    expect(openingStatus(null, monday, null)).toBe('unknown');
   });
 
-  it('repère un jour de fermeture et les créneaux hors horaires', () => {
-    expect(openingStatus(museum, monday, { slot: 'morning', time: null })).toBe('closed');
-    expect(openingStatus(museum, d('2027-07-06'), { slot: 'afternoon', time: null })).toBe('open');
-    expect(openingStatus(museum, d('2027-07-06'), { slot: 'evening', time: null })).toBe('closed');
-    expect(openingStatus(museum, d('2027-07-06'), { slot: 'afternoon', time: '17:00' })).toBe(
-      'closed',
-    );
+  it('repère un jour de fermeture et une heure hors horaires', () => {
+    expect(openingStatus(museum, monday, null)).toBe('closed');
+    // Sans heure : ouvert à un moment de la journée.
+    expect(openingStatus(museum, d('2027-07-06'), null)).toBe('open');
+    expect(openingStatus(museum, d('2027-07-06'), '17:00')).toBe('closed');
   });
 
   it('gère les plages qui passent minuit', () => {
     const sunday = d('2027-07-04');
-    expect(openingStatus(nightMarket, sunday, { slot: 'evening', time: '23:30' })).toBe('open');
+    expect(openingStatus(nightMarket, sunday, '23:30')).toBe('open');
     // Lundi 0 h 30 : encore la nuit de dimanche.
-    expect(openingStatus(nightMarket, monday, { slot: 'evening', time: '00:30' })).toBe('open');
-    expect(openingStatus(nightMarket, monday, { slot: 'evening', time: null })).toBe('closed');
+    expect(openingStatus(nightMarket, monday, '00:30')).toBe('open');
+    // Lundi sans heure : seulement ouvert la nuit (avant 6 h), donc fermé dans la journée.
+    expect(openingStatus(nightMarket, monday, null)).toBe('closed');
   });
 });

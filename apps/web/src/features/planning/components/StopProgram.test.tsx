@@ -50,7 +50,6 @@ describe('StopProgram', () => {
     const { repositories, trip } = await setup();
     await new PlannedItemService(repositories).create(trip, {
       date: d('2027-07-12'),
-      slot: 'morning',
       kind: 'activity',
       title: 'Cours de cuisine',
       time: null,
@@ -73,11 +72,10 @@ describe('StopProgram', () => {
     );
   });
 
-  it('ajoute une activité sur le jour choisi, dans le premier créneau libre', async () => {
+  it('ajoute une activité sur le jour choisi', async () => {
     const { repositories, trip } = await setup();
     await new PlannedItemService(repositories).create(trip, {
       date: d('2027-07-12'),
-      slot: 'morning',
       kind: 'activity',
       title: 'Cours de cuisine',
       time: null,
@@ -102,7 +100,7 @@ describe('StopProgram', () => {
       const items = await repositories.plannedItems.listByTrip(trip.id);
       expect(items.find((item) => item.title === 'Plage An Bàng')).toMatchObject({
         date: '2027-07-12',
-        slot: 'afternoon',
+        time: null,
         kind: 'activity',
       });
     });
@@ -118,9 +116,7 @@ describe('StopProgram', () => {
 
     await waitFor(async () => {
       const items = await repositories.plannedItems.listByTrip(trip.id);
-      expect(items.map((item) => [item.date, item.slot, item.kind])).toEqual([
-        ['2027-07-13', 'morning', 'family'],
-      ]);
+      expect(items.map((item) => [item.date, item.kind])).toEqual([['2027-07-13', 'family']]);
     });
   });
 });

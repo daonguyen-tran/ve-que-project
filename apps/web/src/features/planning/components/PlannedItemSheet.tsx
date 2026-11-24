@@ -6,7 +6,6 @@ import {
   cityKey,
   groupCost,
   plannedByIdea,
-  slotForTime,
   sortIdeas,
   toLocalDate,
   type Idea,
@@ -29,7 +28,7 @@ import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { TimeField } from '@/shared/ui/time';
 import { usePlannedItems, usePlannedItemService, type TripCalendar } from '../hooks/use-day-plan';
-import { DURATION_OPTIONS, KIND_OPTIONS, SLOT_OPTIONS, STATUS_OPTIONS } from '../plan-style';
+import { DURATION_OPTIONS, KIND_OPTIONS, STATUS_OPTIONS } from '../plan-style';
 import {
   initialPlannedItemValues,
   plannedItemFormSchema,
@@ -40,13 +39,12 @@ import {
 const EMPTY_TARGET: PlannedItemSheetTarget = {
   mode: 'create',
   date: toLocalDate('2000-01-01'),
-  slot: 'morning',
   kind: 'activity',
 };
 
 /**
- * Ajout et modification d'un élément du programme. Changer le jour ou le créneau ici est
- * l'action « Déplacer » sur téléphone (F-2.9) ; sur PC, on peut aussi glisser-déposer.
+ * Ajout et modification d'un élément du programme. Changer le jour ou l'heure ici est l'action
+ * « Déplacer » (F-2.9) : l'heure suffit à situer l'élément dans sa journée.
  */
 export function PlannedItemSheet({
   trip,
@@ -129,7 +127,6 @@ export function PlannedItemSheet({
       kind: values.kind,
       title: values.title || t.plan.kinds[values.kind],
       date: toLocalDate(values.date),
-      slot: values.slot,
       time: values.time || null,
       durationMinutes: values.duration ? Number(values.duration) : null,
       estimatedCost: moneyFromField(values.cost),
@@ -234,18 +231,13 @@ export function PlannedItemSheet({
             error={errors.date?.message}
             {...register('date')}
           />
-          <SegmentedField label={t.plan.slotLabel} options={SLOT_OPTIONS} {...register('slot')} />
           <div className="grid grid-cols-2 gap-3">
             <TimeField
               label={t.plan.timeLabel}
               labelAside={t.common.optional}
               clearable
               value={time.field.value}
-              onChange={(value) => {
-                time.field.onChange(value);
-                // Une heure précise range l'élément dans le bon créneau, sans autre geste.
-                if (value) setValue('slot', slotForTime(value));
-              }}
+              onChange={time.field.onChange}
               panelClassName="col-span-full row-start-2"
             />
             {kind !== 'free_time' ? (

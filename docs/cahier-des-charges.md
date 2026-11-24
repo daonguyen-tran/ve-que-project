@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Projet** | Về Quê (`ve-que`) — application de préparation et d'accompagnement de voyage au Vietnam |
-| **Version du document** | 1.1 (ajout du module M17 « Carnet d'adresses ») |
-| **Date** | 23/11/2026 |
+| **Version du document** | 1.2 (programme des journées sans créneaux, ADR 0010) |
+| **Date** | 24/11/2026 |
 | **Statut** | Phase 0 livrée ; M17 ajouté le 23/11/2026 |
 | **Porteur** | Utilisateur principal (étudiant en développement logiciel) |
 
@@ -30,7 +30,7 @@
 |---|---|---|
 | O1 | Savoir à tout moment où en est l'argent | Toute dépense saisie en **moins de 5 secondes** ; solde espèces exact à ±5 % après recomptage |
 | O2 | Toujours avoir une idée d'activité adaptée | Une suggestion pertinente en **moins de 3 interactions** depuis l'écran d'accueil |
-| O3 | Avoir un plan clair mais souple | Chaque jour du voyage planifié par créneaux avant le départ |
+| O3 | Avoir un plan clair mais souple | Chaque jour du voyage planifié avant le départ |
 | O4 | Fonctionner partout | 100 % des fonctions de consultation et de saisie disponibles hors ligne |
 
 ### 1.4 Utilisateurs
@@ -56,9 +56,8 @@
 | **Étape** | Lieu de séjour sur une période (ville ou village), avec un ou plusieurs hébergements. |
 | **Trajet** | Déplacement entre deux étapes (avion, bus, train, voiture, bateau…). |
 | **Jour** | Date du voyage, rattachée à l'étape où l'on se trouve. |
-| **Créneau** | Partie d'un jour : **matin**, **après-midi** ou **soir**. Peut porter une heure précise optionnelle. |
 | **Idée** | Activité possible dans une ville (banque d'idées), pas encore planifiée. |
-| **Élément planifié** | Activité placée dans un créneau (issue d'une idée ou saisie librement), ou bloc **temps libre**. |
+| **Élément planifié** | Activité placée dans une journée, avec une heure optionnelle (issue d'une idée ou saisie librement), bloc **temps libre** ou moment **en famille**. |
 | **Dépense** | Sortie d'argent : montant, devise, catégorie, payeur, portefeuille. |
 | **Portefeuille** | Source d'argent : espèces (par devise) ou carte bancaire. |
 | **Mouvement** | Opération sur un portefeuille qui n'est pas une dépense : retrait au distributeur, change, ajustement. |
@@ -81,7 +80,7 @@ Chaque exigence porte une priorité **MoSCoW** :
 | Module | Contenu | Phase |
 |---|---|---|
 | M1 | Voyages et membres | 1 |
-| M2 | Itinéraire (étapes, trajets, jours, créneaux) | 1 |
+| M2 | Itinéraire (étapes, trajets, jours, programme) | 1 |
 | M3 | Banque d'idées + « J'ai du temps libre » | 1 / 3 |
 | M4 | Carte intégrée (en ligne) | 1 |
 | M5 | Dépenses (saisie rapide « 50k », répartition) | 2 |
@@ -132,18 +131,18 @@ Format : **ID** — description — *priorité*. Les critères d'acceptation (CA
 - **F-2.2** Ajouter un ou plusieurs **hébergements** à une étape : nom, adresse (latin + vietnamien), coordonnées GPS, prix, statut (envisagé / réservé), référence de réservation, lien. — *M*
 - **F-2.3** Créer des **trajets** entre étapes : mode, date, heures de départ/arrivée, prix, statut, référence, notes. — *M*
 - **F-2.4** Les **jours** sont générés automatiquement à partir des dates du voyage et rattachés à l'étape correspondante. — *M*
-- **F-2.5** Chaque jour comporte trois **créneaux** (matin, après-midi, soir). Un élément planifié peut avoir une **heure précise optionnelle**. — *M*
-- **F-2.6** Planifier un élément dans un créneau : depuis une idée, ou en saisie libre (titre, lieu, durée, coût estimé). — *M*
-- **F-2.7** Ajouter un bloc **« temps libre »** dans un créneau. — *M*
+- **F-2.5** Chaque jour a un **programme chronologique**, sans créneaux matin / après-midi / soir : un élément planifié peut avoir une **heure précise optionnelle** ; les éléments avec une heure sont triés par heure, ceux sans heure viennent après, dans l'ordre d'ajout (ADR 0010). — *M*
+- **F-2.6** Planifier un élément dans une journée : depuis une idée, ou en saisie libre (titre, lieu, durée, coût estimé). — *M*
+- **F-2.7** Ajouter un bloc **« temps libre »** dans une journée. — *M*
 - **F-2.8** Statut d'un élément : **idée → prévu → réservé**, plus **fait** et **annulé** pendant le voyage. — *M*
-- **F-2.9** Déplacer un élément vers un autre créneau ou un autre jour (glisser-déposer sur PC, action « Déplacer » sur mobile). — *S*
+- **F-2.9** Déplacer un élément vers un autre jour ou à une autre heure, depuis sa fiche. — *S*
 - **F-2.10** Vue **chronologique** de tout le voyage (étapes, trajets, jours) et vue **détail d'un jour**. — *M*
-- **F-2.11** Pour les jours d'étape « village », proposer par défaut des créneaux « en famille » plutôt que des activités. — *C*
+- **F-2.11** Pour les jours d'étape « village », proposer par défaut des moments « en famille » plutôt que des activités. — *C*
 
 ### M3 — Banque d'idées
 - **F-3.1** Créer une idée rattachée à une **ville** : titre, catégorie (culture, nourriture, nature, plage, marché, shopping, détente…), durée estimée, prix estimé par personne, horaires d'ouverture, adresse (latin + vietnamien), coordonnées GPS, intérieur/extérieur, lien, notes, priorité (incontournable / si le temps). — *M*
 - **F-3.2** Filtrer et trier les idées par ville, catégorie, durée, prix, priorité, statut (planifiée ou non). — *M*
-- **F-3.3** Planifier une idée en un geste vers un créneau ; l'idée apparaît alors comme « planifiée ». — *M*
+- **F-3.3** Planifier une idée en un geste vers un jour (heure facultative) ; l'idée apparaît alors comme « planifiée ». — *M*
 - **F-3.4** **« J'ai du temps libre »** : l'utilisateur indique la durée disponible (30 min, 1 h, 2 h, demi-journée) ; l'appli propose les idées non planifiées de l'étape courante, triées par pertinence. — *S*
   - Filtres éliminatoires : durée estimée ≤ durée disponible ; lieu **ouvert maintenant et jusqu'à la fin** de l'activité (si horaires connus).
   - Score de tri : priorité de l'idée, distance à la position actuelle (si GPS autorisé), adéquation météo (pluie ⇒ bonus aux idées en intérieur), prix.
@@ -188,7 +187,7 @@ Format : **ID** — description — *priorité*. Les critères d'acceptation (CA
 
 ### M8 — Écran « Aujourd'hui » (accueil)
 - **F-8.1** **Avant le voyage** : compte à rebours, avancement de la checklist, budget estimé vs défini, jours encore non planifiés. — *M*
-- **F-8.2** **Pendant le voyage** : jour *n* / 21, étape courante, créneaux du jour, prochain élément (avec heure et adresse), météo du jour, dépenses du jour vs budget journalier, solde Espèces VND, accès direct à la saisie rapide et à « J'ai du temps libre ». — *M*
+- **F-8.2** **Pendant le voyage** : jour *n* / 21, étape courante, programme du jour (activité en cours mise en avant), prochain élément (avec heure et adresse), météo du jour, dépenses du jour vs budget journalier, solde Espèces VND, accès direct à la saisie rapide et à « J'ai du temps libre ». — *M*
 - **F-8.3** Jour de trajet : le trajet est mis en avant (heure, lieu de départ, référence). — *S*
 - **F-8.4** **Après le voyage** : récapitulatif (total, par catégorie, nombre d'activités, lien vers le journal). — *C*
 
@@ -312,7 +311,7 @@ Infrastructure : repositories Dexie, clients API (taux, météo), plus tard sync
 | Pattern | Où | Intérêt |
 |---|---|---|
 | **Repository** | Accès aux données (`ExpenseRepository`…) | Remplacer Dexie / ajouter la sync sans toucher au métier |
-| **Value Object** | `Money`, `DateRange`, `TimeSlot` | Règles (arrondis, devises) encapsulées et testées |
+| **Value Object** | `Money`, `DateRange`, `LocalTime` | Règles (arrondis, devises) encapsulées et testées |
 | **Strategy** | Fournisseur de taux (API / manuel) ; règle de répartition (égale / personnalisée) | Ajouter une variante sans modifier l'existant |
 | **Adapter** | Clients météo et taux | Isoler le format des API externes |
 | **Observer** | `useLiveQuery` (Dexie) | L'UI se met à jour dès qu'une donnée change |
@@ -356,7 +355,7 @@ VeQueProject/
 | `Accommodation` | stopId, name, address, addressVi, location?, price (Money)?, status, bookingRef?, url? |
 | `Transfer` (trajet) | fromStopId, toStopId, mode, departAt, arriveAt, price?, status, bookingRef?, notes |
 | `Idea` | city, title, category, durationMin, pricePerPerson?, openingHours?, address?, addressVi?, location?, indoor, priority, url?, notes |
-| `PlannedItem` | date, slot (`morning`/`afternoon`/`evening`), time?, kind (`activity`/`free_time`/`family`), ideaId?, title, estimatedCost?, status, order |
+| `PlannedItem` | date, time?, kind (`activity`/`free_time`/`family`), ideaId?, title, estimatedCost?, status, position (rang d'ajout dans la journée) |
 | `Expense` | amount (Money), rateToRef, amountRef (Money), category, payerId, walletId, date, stopId?, plannedItemId?, label?, shared, participantIds[] |
 | `Wallet` | name, kind (`cash`/`card`), currency |
 | `WalletMovement` | kind (`withdrawal`/`exchange`/`adjustment`), fromWalletId?, toWalletId?, amountOut?, amountIn, fee?, date |
@@ -459,7 +458,7 @@ Inspirée de la **laque** et du **curcuma**, posée sur un fond « papier de riz
 | `emil-design-eng` | Finitions d'interface : états pressés, transitions sobres |
 | `mobile-native` | Comportement « natif » de la PWA sur Android (safe areas, hauteur d'écran, zoom des champs) |
 | `break-ui` | Tests des écrans avec des données extrêmes (diacritiques, gros montants VND, listes vides) |
-| `gestures` | Glisser-déposer d'une idée vers un créneau |
+| `gestures` | Gestes tactiles (glisser-déposer abandonné, voir ADR 0005) |
 
 ---
 

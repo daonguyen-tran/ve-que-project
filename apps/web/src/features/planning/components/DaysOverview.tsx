@@ -1,17 +1,16 @@
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
-import { summarizeDay, tripToday, type Trip } from '@ve-que/domain';
+import { summarizeDay, tripToday, type DaySummary, type Trip } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { dateParts } from '@/shared/lib/format-date';
 import { usePlannedItems, useTripCalendar } from '../hooks/use-day-plan';
 import { StopChip } from './DayHeading';
-import { SlotMeter, SlotMeterLegend } from './SlotMeter';
 
 /**
- * Vue « jour par jour » du planning : chaque jour avec son étape et ce qui est prévu dans ses
- * trois créneaux : un fil chronologique en lecture. Les journées s'organisent dans la fiche
- * de chaque étape.
+ * Vue « jour par jour » du planning : chaque jour avec son étape et ce qui y est prévu, en un
+ * mot (« 3 prévus », « Temps libre », « À prévoir ») : un fil chronologique en lecture. Les
+ * journées s'organisent dans la fiche de chaque étape.
  */
 export function DaysOverview({ trip }: { trip: Trip }) {
   const calendar = useTripCalendar(trip);
@@ -27,12 +26,9 @@ export function DaysOverview({ trip }: { trip: Trip }) {
 
   return (
     <section aria-labelledby="days-title" className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2 px-1">
-        <h2 id="days-title" className="m-0 text-lg font-semibold tracking-[-0.01em]">
-          {t.plan.daysTitle(totalDays)}
-        </h2>
-        <SlotMeterLegend />
-      </div>
+      <h2 id="days-title" className="m-0 px-1 text-lg font-semibold tracking-[-0.01em]">
+        {t.plan.daysTitle(totalDays)}
+      </h2>
 
       <ol className="border-line bg-surface m-0 list-none overflow-hidden rounded-[var(--radius-card)] border p-0">
         {calendar.days.map((day) => {
@@ -68,7 +64,7 @@ export function DaysOverview({ trip }: { trip: Trip }) {
                     <span className="text-curcuma-ink text-xs font-semibold">{t.plan.today}</span>
                   )}
                 </span>
-                <SlotMeter summary={summarizeDay(items, day.date)} />
+                <DayLoad summary={summarizeDay(items, day.date)} />
                 <ChevronRight className="text-muted size-5 shrink-0" aria-hidden="true" />
               </Link>
             </li>
@@ -76,5 +72,28 @@ export function DaysOverview({ trip }: { trip: Trip }) {
         })}
       </ol>
     </section>
+  );
+}
+
+/**
+ * Ce qui est prévu un jour, en un mot. Un jour vide dit « À prévoir » (objectif O3 : chaque jour
+ * préparé avant le départ), en gris plus pâle pour qu'on repère d'un coup d'œil ce qui reste.
+ */
+function DayLoad({ summary }: { summary: DaySummary }) {
+  const text =
+    summary.count === 0
+      ? t.plan.load.empty
+      : summary.onlyFreeTime
+        ? t.plan.load.free
+        : t.plan.load.count(summary.count);
+  return (
+    <span
+      className={cn(
+        'tabular shrink-0 text-[13px] whitespace-nowrap',
+        summary.count === 0 ? 'text-muted' : 'text-ink-soft font-medium',
+      )}
+    >
+      {text}
+    </span>
   );
 }

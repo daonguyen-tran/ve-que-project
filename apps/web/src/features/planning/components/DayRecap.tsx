@@ -1,10 +1,9 @@
 import { CalendarCog } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router';
-import type { PlannedItem, Transfer, TripDay } from '@ve-que/domain';
+import { dayItems, type PlannedItem, type Transfer, type TripDay } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import type { TripCalendar } from '../hooks/use-day-plan';
-import { buildColumns } from '../plan-board';
 import type { PlannedItemSheetTarget } from '../planned-item-form';
 import { DayContent } from './DayContent';
 import { DayHeading } from './DayHeading';
@@ -30,9 +29,10 @@ export function DayRecap({
   showDayHeadings: boolean;
   onOpenSheet: (target: PlannedItemSheetTarget) => void;
 }) {
-  const dates = useMemo(() => days.map((day) => day.date), [days]);
-  const columns = useMemo(() => buildColumns(items, dates), [items, dates]);
-  const byId = useMemo(() => new Map(items.map((item) => [item.id, item])), [items]);
+  const byDay = useMemo(
+    () => new Map(days.map((day) => [day.date, dayItems(items, day.date)] as const)),
+    [days, items],
+  );
 
   return (
     <div
@@ -49,8 +49,7 @@ export function DayRecap({
               <DayContent
                 day={day}
                 calendar={calendar}
-                columns={columns}
-                itemsById={byId}
+                items={byDay.get(day.date) ?? []}
                 transfers={transfers}
                 onOpenSheet={onOpenSheet}
               />

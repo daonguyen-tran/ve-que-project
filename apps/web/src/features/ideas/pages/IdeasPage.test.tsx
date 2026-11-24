@@ -71,8 +71,8 @@ describe('IdeasPage', () => {
     const dialog = screen.getByRole('dialog');
     fireEvent.click(within(dialog).getByRole('button', { name: 'Planifier' }));
 
-    expect((await screen.findByRole('status')).textContent).toContain('J4, matin');
+    expect((await screen.findByRole('status')).textContent).toContain('planifiée : J4.');
     const [item] = await repositories.plannedItems.listByTrip(trip.id);
-    expect(item).toMatchObject({ title: 'Atelier lanternes', date: '2027-07-04', slot: 'morning' });
+    expect(item).toMatchObject({ title: 'Atelier lanternes', date: '2027-07-04', time: null });
   });
 });

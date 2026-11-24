@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import type { Idea, PlannedItem } from '@ve-que/domain';
 import { formatCost } from '@/features/planning/plan-style';
 import { t } from '@/shared/i18n';
-import { formatDuration } from '@/shared/lib/format-date';
+import { formatDuration, formatTime } from '@/shared/lib/format-date';
 import { Button } from '@/shared/ui/Button';
 import { CATEGORY_ICON } from '../idea-style';
 
@@ -68,7 +68,7 @@ export function IdeaCard({
             className="text-success flex min-h-11 items-center gap-1.5 text-sm font-medium no-underline"
           >
             <CalendarCheck className="size-4" strokeWidth={2} aria-hidden="true" />
-            {t.ideas.plannedOn(firstDay ?? 0, t.slots[first.slot])}
+            {t.ideas.plannedOn(firstDay ?? 0, first.time && formatTime(first.time))}
           </Link>
         ) : (
           <span className="text-muted truncate text-sm">{showCity ? idea.city : ''}</span>

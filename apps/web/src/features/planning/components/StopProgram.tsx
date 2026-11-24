@@ -1,14 +1,7 @@
 import { CalendarDays, ChevronRight } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import {
-  stopColorOf,
-  TIME_SLOTS,
-  type Stop,
-  type TimeSlot,
-  type Trip,
-  type TripDay,
-} from '@ve-que/domain';
+import { dayItems, stopColorOf, type Stop, type Trip, type TripDay } from '@ve-que/domain';
 import { useTransfers } from '@/features/itinerary/hooks/use-itinerary';
 import { STOP_COLOR_STYLE } from '@/features/itinerary/stop-style';
 import { t } from '@/shared/i18n';
@@ -17,7 +10,6 @@ import { formatLongDate } from '@/shared/lib/format-date';
 import { DateBlock } from '@/shared/ui/DateBlock';
 import { AddRow, Card, Section } from '@/shared/ui/SectionCard';
 import { usePlannedItems, useTripCalendar } from '../hooks/use-day-plan';
-import { buildColumns, containerId, idsIn, type Columns } from '../plan-board';
 import type { PlannedItemSheetTarget } from '../planned-item-form';
 import { DayContent } from './DayContent';
 import { PlannedItemSheet } from './PlannedItemSheet';
@@ -26,9 +18,10 @@ import { PlannedItemSheet } from './PlannedItemSheet';
  * Programme d'une étape, dans sa fiche : une carte par jour, du jour d'arrivée au jour de
  * départ inclus. C'est ici qu'on organise ses journées (« qu'est-ce qu'on fait à Hoi An ? »).
  *
- * - Chaque jour montre son trajet éventuel et ses créneaux remplis (`DayContent`).
- * - « Ajouter » ouvre la fiche d'activité sur ce jour, dans le premier créneau encore libre ;
- *   la fiche permet de changer de créneau, ou de donner une heure qui le règle d'elle-même.
+ * - Chaque jour montre son trajet éventuel et ses éléments dans l'ordre chronologique
+ *   (`DayContent`).
+ * - « Ajouter » ouvre la fiche d'activité sur ce jour ; son heure, si on en donne une, la
+ *   range dans la journée.
  * - Les jours de transition (départ de l'étape précédente, départ vers la suivante) figurent
  *   dans les deux étapes : une activité est rattachée à une date, pas à une étape, donc rien
  *   n'est dupliqué.
@@ -55,11 +48,9 @@ export function StopProgram({
       ) ?? [],
     [calendar, stop.arrivalDate, stop.departureDate],
   );
-  const dates = useMemo(() => days.map((day) => day.date), [days]);
-  const columns = useMemo(() => buildColumns(items ?? [], dates), [items, dates]);
-  const itemsById = useMemo(
-    () => new Map((items ?? []).map((item) => [item.id, item] as const)),
-    [items],
+  const byDay = useMemo(
+    () => new Map(days.map((day) => [day.date, dayItems(items ?? [], day.date)] as const)),
+    [days, items],
   );
 
   if (!calendar || !items || !transfers) return null;
@@ -89,7 +80,6 @@ export function StopProgram({
                 setSheet({
                   mode: 'create',
                   date: day.date,
-                  slot: firstFreeSlot(columns, day),
                   kind: defaultKind,
                 })
               }
@@ -97,8 +87,7 @@ export function StopProgram({
               <DayContent
                 day={day}
                 calendar={calendar}
-                columns={columns}
-                itemsById={itemsById}
+                items={byDay.get(day.date) ?? []}
                 transfers={transfers}
                 accent={stopColorOf(stop)}
                 onOpenSheet={setSheet}
@@ -121,7 +110,7 @@ export function StopProgram({
  * Un jour du programme, en trois bandes séparées par un filet :
  * - l'en-tête, lien vers « Jour par jour » : pavé de date à la couleur de l'étape (le repère
  *   qu'on retrouve en faisant défiler), date en toutes lettres, « Jour 4 sur 21 » ;
- * - le contenu (trajet, créneaux remplis) ;
+ * - le contenu (trajet, éléments par heure) ;
  * - l'action d'ajout, en laque comme toutes les actions.
  */
 function ProgramDay({
@@ -176,11 +165,4 @@ function dayTag(day: TripDay, stop: Stop): string | undefined {
   if (day.date === stop.arrivalDate) return t.plan.arrivalDay;
   if (day.date === stop.departureDate) return t.plan.departureDay;
   return undefined;
-}
-
-/** Premier créneau sans élément ce jour-là (le soir si tout est pris). */
-function firstFreeSlot(columns: Columns, day: TripDay): TimeSlot {
-  return (
-    TIME_SLOTS.find((slot) => idsIn(columns, containerId(day.date, slot)).length === 0) ?? 'evening'
-  );
 }

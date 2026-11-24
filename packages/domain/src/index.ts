@@ -21,6 +21,7 @@ export * from './itinerary/idea';
 export * from './itinerary/idea-rules';
 export * from './itinerary/days';
 export * from './itinerary/day-plan';
+export * from './itinerary/slot-migration';
 export * from './itinerary/stop-rules';
 export * from './itinerary/stop-availability';
 export * from './itinerary/stop-color';

@@ -11,7 +11,6 @@ import {
   type Money,
   type OpeningRange,
   type PlannedItem,
-  type TimeSlot,
   type Trip,
 } from '@ve-que/domain';
 import { PlannedItemService } from '@/features/planning/services/planned-item-service';
@@ -81,11 +80,11 @@ export class IdeaService {
     await this.repositories.ideas.remove(idea.id);
   }
 
-  /** Place l'idée dans un créneau ; le coût prévu est le prix par personne × voyageurs. */
+  /** Place l'idée dans une journée ; le coût prévu est le prix par personne × voyageurs. */
   async plan(
     trip: Trip,
     idea: Idea,
-    when: { date: LocalDate; slot: TimeSlot; time: LocalTime | null },
+    when: { date: LocalDate; time: LocalTime | null },
     travellers: number,
   ): Promise<PlannedItem> {
     return this.plannedItems.create(trip, {

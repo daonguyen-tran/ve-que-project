@@ -19,6 +19,7 @@ import { useMembers } from '@/features/trips/hooks/use-trips';
 import { t } from '@/shared/i18n';
 import { Button, ButtonLink } from '@/shared/ui/Button';
 import { ChoiceChips } from '@/shared/ui/ChoiceChips';
+import { formatTime } from '@/shared/lib/format-date';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { IdeaCard } from '../components/IdeaCard';
@@ -141,7 +142,13 @@ export function IdeasPage() {
             role="status"
             className="bg-member-jade-tint text-member-jade flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl py-2 pr-2 pl-4 text-[15px]"
           >
-            <span>{t.ideas.plannedNotice(notice.title, noticeDay ?? 0, t.slots[notice.slot])}</span>
+            <span>
+              {t.ideas.plannedNotice(
+                notice.title,
+                noticeDay ?? 0,
+                notice.time && formatTime(notice.time),
+              )}
+            </span>
             <ButtonLink
               to={`/planning/jours/${notice.date}`}
               variant="quiet"

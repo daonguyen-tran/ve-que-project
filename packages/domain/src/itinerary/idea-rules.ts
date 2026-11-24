@@ -5,7 +5,8 @@ import { Money } from '../money/money';
 import { isActiveItem } from './day-plan';
 import type { TripDay } from './days';
 import type { Idea, IdeaCategory, OpeningRange } from './idea';
-import type { PlannedItem, Stop, TimeSlot } from './itinerary';
+import { compareInDay } from './day-plan';
+import type { PlannedItem, Stop } from './itinerary';
 
 /*
  * Règles de la banque d'idées (F-3.1 à F-3.3).
@@ -55,9 +56,8 @@ export function cityGroups(
 
 // ─── Planification ───────────────────────────────────────────────────────────────────────
 
-/** Éléments planifiés (non annulés) issus de chaque idée, par date puis créneau. */
+/** Éléments planifiés (non annulés) issus de chaque idée, par date puis heure. */
 export function plannedByIdea(items: ReadonlyArray<PlannedItem>): Map<string, PlannedItem[]> {
-  const order: Record<TimeSlot, number> = { morning: 0, afternoon: 1, evening: 2 };
   const map = new Map<string, PlannedItem[]>();
   for (const item of items) {
     if (!item.ideaId || !isActiveItem(item)) continue;
@@ -66,7 +66,7 @@ export function plannedByIdea(items: ReadonlyArray<PlannedItem>): Map<string, Pl
     map.set(item.ideaId, list);
   }
   for (const list of map.values()) {
-    list.sort((a, b) => a.date.localeCompare(b.date) || order[a.slot] - order[b.slot]);
+    list.sort((a, b) => a.date.localeCompare(b.date) || compareInDay(a, b));
   }
   return map;
 }
@@ -142,14 +142,10 @@ export function sortIdeas<
 export type OpeningStatus = 'open' | 'closed' | 'unknown';
 
 /**
- * Fenêtre horaire de chaque créneau, en minutes depuis minuit. Le matin commence à 6 h : avant,
- * on dort (ou on prend un bus de nuit).
+ * Journée « éveillée », en minutes depuis minuit : de 6 h à minuit. Avant 6 h, on dort (ou on
+ * prend un bus de nuit) ; un lieu ouvert seulement la nuit ne compte pas comme ouvert ce jour-là.
  */
-const SLOT_WINDOW: Record<TimeSlot, [number, number]> = {
-  morning: [6 * 60, 12 * 60],
-  afternoon: [12 * 60, 18 * 60],
-  evening: [18 * 60, 24 * 60],
-};
+const DAYTIME: [number, number] = [6 * 60, 24 * 60];
 
 function minutes(time: LocalTime): number {
   const [h = 0, m = 0] = time.split(':').map(Number);
@@ -189,21 +185,22 @@ export function openIntervals(
 }
 
 /**
- * L'idée est-elle ouverte ce jour-là, à cette heure ou pendant ce créneau ?
- * Sans heure précise, « ouvert » signifie ouvert à un moment du créneau. Sans horaires
- * connus, la réponse est `unknown` : on ne bloque jamais une idée faute d'information.
+ * L'idée est-elle ouverte ce jour-là, à cette heure ?
+ * Sans heure précise, « ouvert » signifie ouvert à un moment de la journée (entre 6 h et
+ * minuit). Sans horaires connus, la réponse est `unknown` : on ne bloque jamais une idée faute
+ * d'information.
  */
 export function openingStatus(
   hours: readonly OpeningRange[] | null,
   date: LocalDate,
-  when: { slot: TimeSlot; time: LocalTime | null },
+  time: LocalTime | null,
 ): OpeningStatus {
   if (!hours || hours.length === 0) return 'unknown';
   const intervals = openIntervals(hours, date);
-  if (when.time) {
-    const at = minutes(when.time);
+  if (time) {
+    const at = minutes(time);
     return intervals.some(([start, end]) => start <= at && at < end) ? 'open' : 'closed';
   }
-  const [from, to] = SLOT_WINDOW[when.slot];
+  const [from, to] = DAYTIME;
   return intervals.some(([start, end]) => start < to && from < end) ? 'open' : 'closed';
 }

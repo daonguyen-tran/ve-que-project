@@ -2,11 +2,9 @@ import { z } from 'zod';
 import {
   plannedItemKindSchema,
   plannedItemStatusSchema,
-  timeSlotSchema,
   type PlannedItem,
   type PlannedItemKind,
   type LocalDate,
-  type TimeSlot,
 } from '@ve-que/domain';
 import { locationFieldSchema, locationToField } from '@/features/map/location-field';
 import { t } from '@/shared/i18n';
@@ -19,7 +17,6 @@ export const plannedItemFormSchema = z
     // Le titre n'est obligatoire que pour une activité : un « temps libre » se suffit à lui-même.
     title: z.string().trim().max(80, t.validation.maxLength(80)),
     date: z.iso.date(t.validation.dateRequired),
-    slot: timeSlotSchema,
     time: z.string().regex(/^$|^([01]\d|2[0-3]):[0-5]\d$/),
     duration: z.string(),
     cost: optionalMoneyFieldSchema,
@@ -39,8 +36,7 @@ export const plannedItemFormSchema = z
 export type PlannedItemFormValues = z.infer<typeof plannedItemFormSchema>;
 
 export type PlannedItemSheetTarget =
-  | { mode: 'create'; date: LocalDate; slot: TimeSlot; kind: PlannedItemKind }
-  | { mode: 'edit'; item: PlannedItem };
+  { mode: 'create'; date: LocalDate; kind: PlannedItemKind } | { mode: 'edit'; item: PlannedItem };
 
 export function initialPlannedItemValues(target: PlannedItemSheetTarget): PlannedItemFormValues {
   if (target.mode === 'create') {
@@ -48,7 +44,6 @@ export function initialPlannedItemValues(target: PlannedItemSheetTarget): Planne
       kind: target.kind,
       title: '',
       date: target.date,
-      slot: target.slot,
       time: '',
       duration: '',
       cost: moneyToField(null, 'VND'),
@@ -65,7 +60,6 @@ export function initialPlannedItemValues(target: PlannedItemSheetTarget): Planne
     kind: item.kind,
     title: item.title,
     date: item.date,
-    slot: item.slot,
     time: item.time ?? '',
     duration: item.durationMinutes ? String(item.durationMinutes) : '',
     cost: moneyToField(item.estimatedCost, 'VND'),

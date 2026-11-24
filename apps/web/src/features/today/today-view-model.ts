@@ -1,4 +1,4 @@
-import type { Money, TimeSlot } from '@ve-que/domain';
+import type { Money } from '@ve-que/domain';
 
 /**
  * Données prêtes à afficher pour l'écran « Aujourd'hui ».
@@ -22,8 +22,8 @@ export interface TodayViewModel {
 
 export interface ProgramEntry {
   id: string;
-  slot: TimeSlot;
   title: string;
+  /** Heure affichée (« 19 h 30 ») ; `null` pour un élément sans heure. */
   time: string | null;
   state: 'done' | 'now' | 'upcoming';
   /** Précision affichée sous le titre quand l'élément est à venir (« dans 4 h »). */

@@ -1,16 +1,17 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type {
-  Accommodation,
-  Expense,
-  Idea,
-  Locality,
-  Member,
-  PlannedItem,
-  Stop,
-  Transfer,
-  Trip,
-  Wallet,
-  WalletMovement,
+import {
+  dropLegacySlots,
+  type Accommodation,
+  type Expense,
+  type Idea,
+  type Locality,
+  type Member,
+  type PlannedItem,
+  type Stop,
+  type Transfer,
+  type Trip,
+  type Wallet,
+  type WalletMovement,
 } from '@ve-que/domain';
 
 /** Paire clé/valeur pour les réglages et les caches techniques (taux, météo, dernier export). */
@@ -73,5 +74,16 @@ export class VeQueDatabase extends Dexie {
     this.version(2).stores({
       localities: 'id, updatedAt',
     });
+
+    // v3 : le programme d'une journée n'a plus de créneaux (ADR 0007). Aucun index ne change ;
+    // l'`upgrade` retire le champ `slot` et renumérote chaque journée en gardant l'ancien ordre
+    // (matin, après-midi, soir), pour qu'un élément sans heure reste à sa place.
+    this.version(3)
+      .stores({})
+      .upgrade(async (tx) => {
+        const table = tx.table('plannedItems');
+        const items = (await table.toArray()) as Array<Record<string, unknown>>;
+        if (items.length > 0) await table.bulkPut(dropLegacySlots(items));
+      });
   }
 }

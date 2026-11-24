@@ -16,7 +16,7 @@ import {
   type TripDay,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
-import { formatDateRange, formatDuration } from '@/shared/lib/format-date';
+import { formatDateRange, formatDuration, formatTime } from '@/shared/lib/format-date';
 
 /*
  * Modèle de la carte : ce qu'il faut dessiner, calculé à partir des données du voyage, sans
@@ -134,7 +134,7 @@ export function cityMapModel(
       title: idea.title,
       subtitle:
         first && day
-          ? t.map.plannedOn(day.dayNumber, t.slots[first.slot])
+          ? t.map.plannedOn(day.dayNumber, first.time && formatTime(first.time))
           : `${t.ideas.categories[idea.category]} · ${formatDuration(idea.durationMinutes)}`,
       category: idea.category,
       keywords: `${idea.city} ${t.ideas.categories[idea.category]} ${keywordsOf(idea.place)}`,
@@ -152,7 +152,7 @@ export function cityMapModel(
       tone: 'planned',
       point: item.place?.location ?? null,
       title: item.title,
-      subtitle: t.map.dayAndSlot(day.dayNumber, t.slots[item.slot]),
+      subtitle: t.map.dayAt(day.dayNumber, item.time && formatTime(item.time)),
       keywords: keywordsOf(item.place),
       detailTo: `/planning/jours/${item.date}`,
       mapsUrl: googleMapsUrl(item.place, item.title),

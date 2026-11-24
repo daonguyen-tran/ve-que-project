@@ -1,29 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { toLocalDate as d } from '../shared/local-date';
 import {
-  dayPlan,
+  compareInDay,
+  dayItems,
   defaultItemKind,
-  insertionIndex,
-  planMove,
+  nextPosition,
   planningProgress,
-  slotForTime,
   summarizeDay,
 } from './day-plan';
 import type { PlannedItem } from './itinerary';
+import { dropLegacySlots } from './slot-migration';
 
 const day1 = d('2027-07-04');
 const day2 = d('2027-07-05');
 
 type Item = Pick<
   PlannedItem,
-  'id' | 'date' | 'slot' | 'position' | 'createdAt' | 'time' | 'kind' | 'status'
+  'id' | 'date' | 'position' | 'createdAt' | 'time' | 'kind' | 'status'
 >;
 
 function item(id: string, partial: Partial<Item> = {}): Item {
   return {
     id,
     date: day1,
-    slot: 'morning',
     position: 0,
     createdAt: '2027-01-01T00:00:00.000Z',
     time: null,
@@ -35,16 +34,6 @@ function item(id: string, partial: Partial<Item> = {}): Item {
 
 const ids = (list: readonly { id: string }[]) => list.map((entry) => entry.id);
 
-describe('slotForTime', () => {
-  it('range une heure dans son créneau', () => {
-    expect(slotForTime('08:30')).toBe('morning');
-    expect(slotForTime('11:59')).toBe('morning');
-    expect(slotForTime('12:00')).toBe('afternoon');
-    expect(slotForTime('18:00')).toBe('evening');
-    expect(slotForTime('23:30')).toBe('evening');
-  });
-});
-
 describe('defaultItemKind', () => {
   it('propose « en famille » au village', () => {
     expect(defaultItemKind('village')).toBe('family');
@@ -53,96 +42,83 @@ describe('defaultItemKind', () => {
   });
 });
 
-describe('dayPlan', () => {
-  it('trie chaque créneau par position, puis par ancienneté en cas d’égalité', () => {
+describe('dayItems', () => {
+  it('met les heures dans l’ordre, puis les éléments sans heure dans l’ordre d’ajout', () => {
     const items = [
-      item('b', { position: 1 }),
-      item('c', { position: 0, createdAt: '2027-01-02T00:00:00.000Z' }),
-      item('a', { position: 0 }),
-      item('soir', { slot: 'evening' }),
+      item('sans-2', { position: 3 }),
+      item('soir', { time: '19:30', position: 0 }),
+      item('sans-1', { position: 1 }),
+      item('matin', { time: '08:30', position: 2 }),
       item('autre-jour', { date: day2 }),
     ];
-    const plan = dayPlan(items, day1);
-    expect(plan.map((slot) => slot.slot)).toEqual(['morning', 'afternoon', 'evening']);
-    expect(ids(plan[0]!.items)).toEqual(['a', 'c', 'b']);
-    expect(ids(plan[2]!.items)).toEqual(['soir']);
+    expect(ids(dayItems(items, day1))).toEqual(['matin', 'soir', 'sans-1', 'sans-2']);
+  });
+
+  it('départage deux éléments au même rang par ancienneté, puis par identifiant', () => {
+    const items = [item('b', { createdAt: '2027-01-02T00:00:00.000Z' }), item('c'), item('a')];
+    expect(ids(dayItems(items, day1))).toEqual(['a', 'c', 'b']);
+    expect(
+      compareInDay(item('x', { time: '10:00' }), item('y', { time: '10:00', position: 1 })),
+    ).toBeLessThan(0);
   });
 });
 
-describe('insertionIndex', () => {
-  const ordered = [item('a', { time: '09:00' }), item('b'), item('c', { time: '11:00' })];
-  it('ajoute à la fin sans heure', () => {
-    expect(insertionIndex(ordered, null)).toBe(3);
-  });
-  it('place juste après le dernier élément prévu plus tôt', () => {
-    expect(insertionIndex(ordered, '10:00')).toBe(1);
-    expect(insertionIndex(ordered, '11:00')).toBe(3);
-  });
-  it('sinon, avant le premier élément prévu plus tard', () => {
-    expect(insertionIndex(ordered, '08:00')).toBe(0);
-    expect(insertionIndex([item('libre'), item('x', { time: '15:00' })], '14:00')).toBe(1);
-  });
-  it('à la fin si rien n’est horodaté', () => {
-    expect(insertionIndex([item('libre')], '14:00')).toBe(1);
-  });
-});
-
-describe('planMove', () => {
-  const items = [
-    item('m0', { position: 0 }),
-    item('m1', { position: 1 }),
-    item('m2', { position: 2 }),
-    item('a0', { slot: 'afternoon', position: 0 }),
-  ];
-
-  it('réordonne dans un créneau en ne renvoyant que ce qui change', () => {
-    expect(planMove(items, 'm2', { date: day1, slot: 'morning', index: 0 })).toEqual([
-      { id: 'm2', date: day1, slot: 'morning', position: 0 },
-      { id: 'm0', date: day1, slot: 'morning', position: 1 },
-      { id: 'm1', date: day1, slot: 'morning', position: 2 },
-    ]);
-    expect(planMove(items, 'm1', { date: day1, slot: 'morning', index: 1 })).toEqual([]);
-  });
-
-  it('déplace vers un autre créneau et resserre le créneau quitté', () => {
-    expect(planMove(items, 'm0', { date: day1, slot: 'afternoon', index: 1 })).toEqual([
-      { id: 'm0', date: day1, slot: 'afternoon', position: 1 },
-      { id: 'm1', date: day1, slot: 'morning', position: 0 },
-      { id: 'm2', date: day1, slot: 'morning', position: 1 },
-    ]);
-  });
-
-  it('déplace vers un autre jour, en bornant le rang', () => {
-    expect(planMove(items, 'm2', { date: day2, slot: 'evening', index: 99 })).toEqual([
-      { id: 'm2', date: day2, slot: 'evening', position: 0 },
-    ]);
-  });
-
-  it('ne fait rien pour un élément inconnu', () => {
-    expect(planMove(items, 'inconnu', { date: day1, slot: 'morning', index: 0 })).toEqual([]);
+describe('nextPosition', () => {
+  it('place après le plus grand rang du jour, sans compter l’élément déplacé', () => {
+    const items = [
+      item('a', { position: 0 }),
+      item('b', { position: 4 }),
+      item('c', { date: day2, position: 9 }),
+    ];
+    expect(nextPosition(items, day1)).toBe(5);
+    expect(nextPosition(items, day1, 'b')).toBe(1);
+    expect(nextPosition(items, d('2027-07-06'))).toBe(0);
   });
 });
 
 describe('summarizeDay et planningProgress', () => {
   const items = [
     item('a'),
-    item('libre', { slot: 'afternoon', kind: 'free_time' }),
-    item('annulé', { slot: 'evening', status: 'cancelled' }),
-    item('annulé-j2', { date: day2, status: 'cancelled' }),
+    item('libre', { kind: 'free_time' }),
+    item('annulé', { status: 'cancelled' }),
+    item('libre-j2', { date: day2, kind: 'free_time' }),
   ];
 
-  it('compte les éléments actifs de chaque créneau', () => {
-    expect(summarizeDay(items, day1)).toEqual({
-      morning: { count: 1, hasFreeTime: false },
-      afternoon: { count: 1, hasFreeTime: true },
-      evening: { count: 0, hasFreeTime: false },
-    });
+  it('compte les éléments actifs et repère une journée de temps libre', () => {
+    expect(summarizeDay(items, day1)).toEqual({ count: 2, onlyFreeTime: false });
+    expect(summarizeDay(items, day2)).toEqual({ count: 1, onlyFreeTime: true });
+    expect(summarizeDay(items, d('2027-07-06'))).toEqual({ count: 0, onlyFreeTime: false });
   });
 
   it('compte les jours où quelque chose est prévu', () => {
-    expect(planningProgress([{ date: day1 }, { date: day2 }], items)).toEqual({
-      plannedDays: 1,
-      totalDays: 2,
+    expect(
+      planningProgress([{ date: day1 }, { date: day2 }, { date: d('2027-07-06') }], items),
+    ).toEqual({
+      plannedDays: 2,
+      totalDays: 3,
+    });
+  });
+});
+
+describe('dropLegacySlots', () => {
+  it('retire le créneau et renumérote chaque journée dans l’ancien ordre', () => {
+    const legacy = [
+      { id: 'soir', tripId: 't', date: day1, slot: 'evening', position: 0, createdAt: 'x' },
+      { id: 'aprem-2', tripId: 't', date: day1, slot: 'afternoon', position: 1, createdAt: 'x' },
+      { id: 'matin', tripId: 't', date: day1, slot: 'morning', position: 0, createdAt: 'x' },
+      { id: 'aprem-1', tripId: 't', date: day1, slot: 'afternoon', position: 0, createdAt: 'x' },
+      { id: 'j2', tripId: 't', date: day2, slot: 'evening', position: 3, createdAt: 'x' },
+      { id: 'autre-voyage', tripId: 'u', date: day1, slot: 'evening', position: 5, createdAt: 'x' },
+    ];
+    const migrated = dropLegacySlots(legacy);
+    expect(migrated.every((entry) => !('slot' in entry))).toBe(true);
+    expect(Object.fromEntries(migrated.map((entry) => [entry.id, entry.position]))).toEqual({
+      matin: 0,
+      'aprem-1': 1,
+      'aprem-2': 2,
+      soir: 3,
+      j2: 0,
+      'autre-voyage': 0,
     });
   });
 });

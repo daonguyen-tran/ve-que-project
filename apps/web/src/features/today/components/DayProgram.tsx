@@ -6,8 +6,9 @@ import { cn } from '@/shared/lib/cn';
 import type { ProgramEntry } from '../today-view-model';
 
 /**
- * Programme du jour en trois créneaux. Le créneau en cours est le seul élément en jaune
- * curcuma : c'est le « maintenant » de l'appli, réservé à cet usage (voir DESIGN.md).
+ * Programme du jour, dans l'ordre chronologique, l'heure en tête de ligne. L'élément en cours
+ * est le seul en jaune curcuma : c'est le « maintenant » de l'appli, réservé à cet usage
+ * (voir DESIGN.md).
  */
 export function DayProgram({ entries }: { entries: ProgramEntry[] }) {
   return (
@@ -34,29 +35,31 @@ export function DayProgram({ entries }: { entries: ProgramEntry[] }) {
 
 function ProgramRow({ entry }: { entry: ProgramEntry }) {
   const isNow = entry.state === 'now';
-  const detail =
-    entry.state === 'done'
-      ? [entry.time, t.status.done].filter(Boolean).join(' · ')
-      : isNow
-        ? t.status.now
-        : [entry.time, entry.hint].filter(Boolean).join(' · ');
+  const detail = entry.state === 'done' ? t.status.done : isNow ? t.status.now : (entry.hint ?? '');
 
   return (
     <li
       aria-current={isNow ? 'time' : undefined}
       className={cn(
-        'border-line-soft grid grid-cols-[92px_1fr_auto] items-center gap-3 border-b px-4 py-3.5 last:border-b-0',
+        'border-line-soft grid grid-cols-[64px_1fr_auto] items-center gap-3 border-b px-4 py-3.5 last:border-b-0',
         isNow && 'bg-curcuma-tint',
       )}
     >
-      <span className={cn('text-[13px]', isNow ? 'text-curcuma-ink font-semibold' : 'text-muted')}>
-        {t.slots[entry.slot]}
+      <span
+        className={cn(
+          'tabular text-sm font-semibold whitespace-nowrap',
+          isNow ? 'text-curcuma-ink' : entry.state === 'done' ? 'text-muted' : 'text-ink',
+        )}
+      >
+        {entry.time}
       </span>
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className="truncate text-[15px] font-medium">{entry.title}</span>
-        <span className={cn('tabular text-[13px]', isNow ? 'text-curcuma-ink' : 'text-muted')}>
-          {detail}
-        </span>
+        {detail && (
+          <span className={cn('tabular text-[13px]', isNow ? 'text-curcuma-ink' : 'text-muted')}>
+            {detail}
+          </span>
+        )}
       </span>
       {entry.state === 'done' ? (
         <Check

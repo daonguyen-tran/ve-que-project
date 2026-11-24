@@ -83,17 +83,12 @@ export const transferSchema = tripScopedSchema.extend({
 });
 export type Transfer = z.infer<typeof transferSchema>;
 
-/** Créneau d'une journée (F-2.5). */
-export const timeSlotSchema = z.enum(['morning', 'afternoon', 'evening']);
-export type TimeSlot = z.infer<typeof timeSlotSchema>;
-export const TIME_SLOTS: readonly TimeSlot[] = timeSlotSchema.options;
-
 /** Cycle de vie d'un élément planifié (F-2.8). */
 export const plannedItemStatusSchema = z.enum(['idea', 'planned', 'booked', 'done', 'cancelled']);
 export type PlannedItemStatus = z.infer<typeof plannedItemStatusSchema>;
 
 /**
- * Élément placé dans un créneau (F-2.6, F-2.7) :
+ * Élément du programme d'une journée (F-2.6, F-2.7) :
  * - `activity` : une activité, issue de la banque d'idées (`ideaId`) ou saisie librement ;
  * - `free_time` : un bloc « temps libre » assumé ;
  * - `family` : un moment en famille (jours au village, F-2.11).
@@ -103,8 +98,10 @@ export type PlannedItemKind = z.infer<typeof plannedItemKindSchema>;
 
 export const plannedItemSchema = tripScopedSchema.extend({
   date: localDateSchema,
-  slot: timeSlotSchema,
-  /** Heure précise optionnelle (une réservation à 14 h 30, par exemple). */
+  /**
+   * Heure précise optionnelle (une réservation à 14 h 30, par exemple). C'est elle qui situe
+   * l'élément dans la journée ; sans heure, il vient après les éléments horodatés.
+   */
   time: localTimeSchema.nullable(),
   kind: plannedItemKindSchema,
   ideaId: z.uuid().nullable(),
@@ -116,7 +113,7 @@ export const plannedItemSchema = tripScopedSchema.extend({
   estimatedCost: moneySchema.nullable(),
   status: plannedItemStatusSchema,
   notes: z.string().default(''),
-  /** Ordre d'affichage dans le créneau (entier croissant). */
+  /** Rang d'ajout dans la journée : ordonne les éléments sans heure (voir `compareInDay`). */
   position: z.int().nonnegative(),
 });
 export type PlannedItem = z.infer<typeof plannedItemSchema>;

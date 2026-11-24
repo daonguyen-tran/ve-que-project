@@ -44,12 +44,7 @@ describe('IdeaService', () => {
     expect(idea.url).toBeNull();
     expect(idea.place.address).toBe('12 Nguyễn Thái Học');
 
-    const item = await service.plan(
-      trip,
-      idea,
-      { date: d('2027-07-05'), slot: 'evening', time: null },
-      2,
-    );
+    const item = await service.plan(trip, idea, { date: d('2027-07-05'), time: null }, 2);
     expect(item).toMatchObject({
       ideaId: idea.id,
       title: 'Atelier lanternes',

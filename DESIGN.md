@@ -1,6 +1,6 @@
 ---
 name: Về Quê
-description: Préparer et vivre un voyage familial au Vietnam : l'argent lisible comme un billet, la journée en trois créneaux.
+description: Préparer et vivre un voyage familial au Vietnam : l'argent lisible comme un billet, la journée lue à l'heure.
 colors:
   laque: "#A8322D"
   laque-deep: "#86231F"
@@ -111,7 +111,7 @@ components:
   list-grouped:
     backgroundColor: "{colors.surface}"
     rounded: "{rounded.card}"
-  slot-now:
+  item-now:
     backgroundColor: "{colors.curcuma-tint}"
     textColor: "{colors.curcuma-ink}"
   brand-header:
@@ -140,7 +140,7 @@ Ce que le système refuse : le tableau de bord de cartes identiques à accent un
 
 ### Secondary
 
-- **Jaune curcuma** `curcuma` (#E0A526), avec `curcuma-tint` en fond et `curcuma-ink` pour le texte posé dessus : réservé au **maintenant** (créneau en cours). Jamais décoratif.
+- **Jaune curcuma** `curcuma` (#E0A526), avec `curcuma-tint` en fond et `curcuma-ink` pour le texte posé dessus : réservé au **maintenant** (l'activité en cours). Jamais décoratif.
 
 ### Neutral
 
@@ -170,7 +170,7 @@ Teintes des billets : nourriture vert (100 000), transport bleu (20 000), activi
 - `date-block` 22 px / 700 : le numéro du jour dans le bloc calendrier des étapes.
 - `heading` 18 px / 600 : titres de section.
 - `body` 15 px / 400–500 : contenu des listes.
-- `label` 13 px : créneaux, métadonnées, légendes.
+- `label` 13 px : métadonnées, légendes.
 - `nav` 12 px : libellés de la barre d'onglets.
 
 ### Named Rules
@@ -226,7 +226,7 @@ Saisie « à la vietnamienne » (`50k`, `1,2M`, `350 000`) avec bascule ₫ / �
 
 ### Cards / Containers
 
-Listes groupées blanches à filets internes (`list-grouped`) pour les créneaux et les menus ; une seule carte surélevée par écran.
+Listes groupées blanches à filets internes (`list-grouped`) pour les programmes et les menus ; une seule carte surélevée par écran.
 
 ### Bouton « + Dépense »
 
@@ -258,29 +258,29 @@ Une grammaire en trois niveaux, la même pour chaque rubrique (`shared/ui/Sectio
 
 La couleur de l'étape sert de repère sur sa fiche : le nom « À montrer sur place » sur la teinte de l'étape, et le pavé de date de chaque jour du programme. Sur PC, logistique et notes à gauche (340 px), programme à droite.
 
-### Programme d'un jour (créneaux)
+### Programme d'un jour
 
-Une journée est une carte en trois bandes : l'en-tête (pavé de date `DateBlock` à la couleur de l'étape, date en toutes lettres, « Jour 4 sur 21 », pastille « Arrivée » / « Départ » à contour neutre, lien vers « Jour par jour »), le contenu, puis « + Ajouter une activité ». Le contenu a la même allure partout (`DayContent`) : le trajet du jour sur fond pierre, puis seulement les créneaux remplis. Le **créneau** est un intercalaire : icône + nom en capitales 12 px grises espacées, prolongé d'un filet ; il est volontairement plus petit et plus pâle que les éléments. Les **éléments** sont des lignes en encre 15 px, avec à gauche une colonne de repère calée contre le titre : l'heure en chiffres tabulaires (« 19 h 30 ») ou une pastille à la couleur de l'étape ; la colonne ne s'élargit que si un élément du jour a une heure. « Prévu » est l'état normal et n'a pas de pastille ; « Réservé » est en jade avec une coche, « À confirmer » et « Annulé » en contour neutre (titre barré pour l'annulé). Le **temps libre** est une ligne « en creux » (bord pointillé) ; les moments **en famille** prennent le jade clair des villages. Toucher un élément ouvre sa fiche (modifier, changer de jour ou de créneau).
+Une journée est une carte en trois bandes : l'en-tête (pavé de date `DateBlock` à la couleur de l'étape, date en toutes lettres, « Jour 4 sur 21 », pastille « Arrivée » / « Départ » à contour neutre, lien vers « Jour par jour »), le contenu, puis « + Ajouter une activité ». Le contenu a la même allure partout (`DayContent`) : le trajet du jour sur fond pierre, puis la liste des éléments dans l'ordre chronologique, **sans intercalaires matin / après-midi / soir** : d'abord les éléments avec une heure, puis ceux sans heure dans l'ordre d'ajout. Les **éléments** sont des lignes en encre 15 px, avec à gauche une colonne de repère calée contre le titre : l'heure en chiffres tabulaires (« 19 h 30 ») ou une pastille à la couleur de l'étape ; la colonne ne s'élargit que si un élément du jour a une heure. C'est elle qui donne le rythme de la journée, comme un agenda. « Prévu » est l'état normal et n'a pas de pastille ; « Réservé » est en jade avec une coche, « À confirmer » et « Annulé » en contour neutre (titre barré pour l'annulé). Le **temps libre** est une ligne « en creux » (bord pointillé) ; les moments **en famille** prennent le jade clair des villages. Toucher un élément ouvre sa fiche (modifier, changer de jour ou d'heure).
 
 ### Banque d'idées
 
-Filtres en **pastilles** à choix unique (villes avec leur nombre d'idées, statut de planification) qui défilent horizontalement, puis deux listes déroulantes compactes (catégorie, tri). Pastille active : encre pleine, texte clair. Carte d'idée : tuile d'icône de catégorie (laque claire), titre, pastille « Incontournable » en laque pleine (le seul plein rouge de la carte), ligne de méta (catégorie · durée · prix par personne). L'action principale « Planifier » est un bouton secondaire à part ; une idée planifiée la remplace par un lien vert « Prévu J5 · après-midi » vers le jour. Un lieu fermé au moment choisi est signalé dans un encadré laque claire, sans bloquer. Les jours d'ouverture sont sept cases L M M J V S D sur toute la largeur.
+Filtres en **pastilles** à choix unique (villes avec leur nombre d'idées, statut de planification) qui défilent horizontalement, puis deux listes déroulantes compactes (catégorie, tri). Pastille active : encre pleine, texte clair. Carte d'idée : tuile d'icône de catégorie (laque claire), titre, pastille « Incontournable » en laque pleine (le seul plein rouge de la carte), ligne de méta (catégorie · durée · prix par personne). L'action principale « Planifier » est un bouton secondaire à part ; une idée planifiée la remplace par un lien vert « Prévu J5 · 19 h 30 » (ou « Prévu J5 » sans heure) vers le jour. Un lieu fermé au moment choisi est signalé dans un encadré laque claire, sans bloquer. Les jours d'ouverture sont sept cases L M M J V S D sur toute la largeur.
 
 ### Carte (vue « Carte » du planning)
 
 Fond OpenStreetMap, sans retouche de couleur. Une zone à la fois, choisie dans des pastilles : tout le voyage (étapes numérotées dans leur couleur, reliées par les trajets : vol en pointillés fins, trajet terrestre plein, trajet non saisi en tirets pâles) ou une ville. Repères ronds de 28 px cerclés de blanc : laque pleine pour un incontournable à planifier, contour laque pour une idée « si le temps », vert pour ce qui est planifié, encre (coins de 6 px) pour un hébergement ; l'icône de la catégorie est dans le repère. La légende ne montre que les repères présents. Sous la carte, la même liste de lieux, avec « Voir la fiche » et « Google Maps » ; hors ligne, la carte disparaît au profit de cette liste et d'un encadré qui l'explique. Le repère du sélecteur de position est une goutte laque. Au-dessus de la carte, une barre de recherche (lieux du voyage d'abord, sans tenir compte des accents ; « Chercher l'adresse » en dernière ligne) ; un bouton carré en haut à droite de la carte, assorti au zoom de Leaflet, passe en plein écran : la carte occupe tout l'écran, avec la recherche et les zones en haut, la légende en bas, et le bouton « Quitter » à droite de la recherche.
 
-### Jauge des créneaux (vue jour par jour)
+### Charge d'un jour (vue jour par jour)
 
-Trois segments arrondis par jour : laque pleine si quelque chose est prévu, laque claire en pointillé pour un temps libre, gris si rien. Une légende est affichée une fois au-dessus de la liste, et le libellé accessible dit la même chose en mots.
+Un mot à droite de chaque jour, en 13 px : « 3 prévus » en encre douce, « Temps libre » si la journée n'a que du temps libre, « À prévoir » en gris si rien n'est prévu (pour repérer d'un coup d'œil ce qui reste à préparer).
 
 ### Écran de réglage en sections (Sauvegarde et transfert)
 
 Titre de section sur le fond, puis une carte blanche qui regroupe l'action (`DataSection`). Un seul bouton principal par carte ; l'action destructive (« Effacer et remplacer ») prend la variante danger et passe par une confirmation qui nomme ce qui sera perdu. Les statuts (« Nouveau », « Déjà à jour », « À faire ») sont des pastilles arrondies : laque claire quand il y a quelque chose à faire, gris quand il n'y a rien. Les messages de résultat sont en texte coloré sous les boutons (succès en vert, erreur en laque profonde), jamais en toast qui disparaît.
 
-### Créneau en cours
+### Activité en cours (écran Aujourd'hui)
 
-Ligne de liste sur fond `curcuma-tint`, libellé et détail en `curcuma-ink`, pastille « En cours » à contour curcuma.
+Programme du jour en lignes : l'heure en tête (64 px, chiffres tabulaires), titre, détail. L'activité en cours est sur fond `curcuma-tint`, heure et détail en `curcuma-ink`, pastille « En cours » à contour curcuma.
 
 ## Do's and Don'ts
 

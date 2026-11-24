@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
-import { dayPlan, toLocalDate as d, type Trip } from '@ve-que/domain';
+import { dayItems, toLocalDate as d, type Trip } from '@ve-que/domain';
 import { TripService } from '@/features/trips/services/trip-service';
 import { VeQueDatabase } from '@/infrastructure/db/database';
 import { createRepositories, type Repositories } from '@/infrastructure/repositories';
@@ -35,7 +35,6 @@ async function setup(): Promise<{
 function input(title: string, partial: Partial<PlannedItemInput> = {}): PlannedItemInput {
   return {
     date: day,
-    slot: 'morning',
     time: null,
     kind: 'activity',
     title,
@@ -51,60 +50,62 @@ function input(title: string, partial: Partial<PlannedItemInput> = {}): PlannedI
 
 async function titles(repositories: Repositories, trip: Trip, date = day) {
   const items = await repositories.plannedItems.listByTrip(trip.id);
-  return Object.fromEntries(
-    dayPlan(items, date).map(({ slot, items: list }) => [slot, list.map((item) => item.title)]),
-  );
+  return dayItems(items, date).map((item) => item.title);
 }
 
 describe('PlannedItemService', () => {
-  it('range les éléments horodatés dans l’ordre des heures', async () => {
+  it('met les heures dans l’ordre, puis les éléments sans heure dans l’ordre d’ajout', async () => {
     const { repositories, service, trip } = await setup();
     await service.create(trip, input('Marché', { time: '10:00' }));
     await service.create(trip, input('Café'));
+    await service.create(trip, input('Dîner', { time: '19:30' }));
+    await service.create(trip, input('Sieste', { kind: 'free_time' }));
     await service.create(trip, input('Pagode', { time: '08:00' }));
 
-    expect((await titles(repositories, trip)).morning).toEqual(['Pagode', 'Marché', 'Café']);
+    expect(await titles(repositories, trip)).toEqual([
+      'Pagode',
+      'Marché',
+      'Dîner',
+      'Café',
+      'Sieste',
+    ]);
   });
 
-  it('déplace un élément vers un autre créneau puis un autre jour', async () => {
-    const { repositories, service, trip } = await setup();
-    const market = await service.create(trip, input('Marché'));
-    await service.create(trip, input('Café'));
-    await service.create(trip, input('Sieste', { slot: 'afternoon', kind: 'free_time' }));
-
-    await service.move(market, { date: day, slot: 'afternoon', index: 0 });
-    expect(await titles(repositories, trip)).toEqual({
-      morning: ['Café'],
-      afternoon: ['Marché', 'Sieste'],
-      evening: [],
-    });
-
-    const moved = (await repositories.plannedItems.getById(market.id))!;
-    expect(moved.updatedAt > market.updatedAt).toBe(true);
-    await service.move(moved, { date: d('2027-07-05'), slot: 'evening', index: 0 });
-    expect((await titles(repositories, trip, d('2027-07-05'))).evening).toEqual(['Marché']);
-  });
-
-  it('replace un élément modifié quand son heure change, et garde son rang sinon', async () => {
+  it('garde le rang d’un élément modifié ; changer l’heure le replace dans la journée', async () => {
     const { repositories, service, trip } = await setup();
     await service.create(trip, input('Pagode', { time: '08:00' }));
     const lunch = await service.create(trip, input('Déjeuner'));
     const market = await service.create(trip, input('Marché', { time: '10:00' }));
-    expect((await titles(repositories, trip)).morning).toEqual(['Pagode', 'Marché', 'Déjeuner']);
+    await service.create(trip, input('Café'));
+    expect(await titles(repositories, trip)).toEqual(['Pagode', 'Marché', 'Déjeuner', 'Café']);
 
     await service.update(lunch, input('Déjeuner au bord de l’eau'));
-    expect((await titles(repositories, trip)).morning).toEqual([
+    expect(await titles(repositories, trip)).toEqual([
       'Pagode',
       'Marché',
       'Déjeuner au bord de l’eau',
+      'Café',
     ]);
 
     await service.update(market, input('Marché', { time: '07:00' }));
-    expect((await titles(repositories, trip)).morning).toEqual([
+    expect(await titles(repositories, trip)).toEqual([
       'Marché',
       'Pagode',
       'Déjeuner au bord de l’eau',
+      'Café',
     ]);
+  });
+
+  it('déplace un élément vers un autre jour, après ceux qui y sont déjà', async () => {
+    const { repositories, service, trip } = await setup();
+    const market = await service.create(trip, input('Marché'));
+    await service.create(trip, input('Café'));
+    await service.create(trip, input('Plage', { date: d('2027-07-05') }));
+
+    const moved = await service.update(market, input('Marché', { date: d('2027-07-05') }));
+    expect(moved.updatedAt > market.updatedAt).toBe(true);
+    expect(await titles(repositories, trip)).toEqual(['Café']);
+    expect(await titles(repositories, trip, d('2027-07-05'))).toEqual(['Plage', 'Marché']);
   });
 
   it('enregistre le lieu seulement s’il est renseigné', async () => {

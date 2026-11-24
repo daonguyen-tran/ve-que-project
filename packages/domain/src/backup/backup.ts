@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { expenseSchema, walletMovementSchema, walletSchema } from '../expenses/expense';
 import { ideaSchema } from '../itinerary/idea';
+import { dropLegacySlots } from '../itinerary/slot-migration';
 import {
   accommodationSchema,
   plannedItemSchema,
@@ -26,7 +27,7 @@ export const BACKUP_FORMAT = 've-que-backup';
  * Version du format. À **incrémenter** dès qu'un changement des entités rend les anciens
  * fichiers incompatibles, en ajoutant la migration correspondante dans `MIGRATIONS`.
  */
-export const CURRENT_BACKUP_VERSION = 1;
+export const CURRENT_BACKUP_VERSION = 2;
 
 /** Tables sauvegardées, dans l'ordre où l'on peut les écrire (les parents avant les enfants). */
 export const BACKUP_TABLES = [
@@ -112,11 +113,21 @@ export function filterBackupByTrips(data: BackupData, tripIds: readonly string[]
 
 /*
  * Migrations : une fonction par version, qui transforme un fichier de la version N en
- * version N + 1. `readBackup` les enchaîne jusqu'à la version courante. Aucune pour l'instant ;
- * exemple futur : `1: (raw) => ({ ...raw, schemaVersion: 2, data: { ...raw.data, places: [] } })`.
+ * version N + 1. `readBackup` les enchaîne jusqu'à la version courante.
+ *
+ * - 1 → 2 : les éléments du programme perdent leur créneau (`slot`) ; leur rang devient un
+ *   rang dans la journée, qui garde l'ancien ordre (voir `dropLegacySlots`, ADR 0007).
  */
 type RawBackup = { format?: unknown; schemaVersion?: unknown; [key: string]: unknown };
-const MIGRATIONS: Record<number, (raw: RawBackup) => RawBackup> = {};
+const MIGRATIONS: Record<number, (raw: RawBackup) => RawBackup> = {
+  1: (raw) => {
+    const data = (raw.data ?? {}) as Record<string, unknown>;
+    const items = Array.isArray(data.plannedItems)
+      ? (data.plannedItems as Array<Record<string, unknown>>)
+      : [];
+    return { ...raw, schemaVersion: 2, data: { ...data, plannedItems: dropLegacySlots(items) } };
+  },
+};
 
 export type BackupReadError =
   | { code: 'not_json' }

@@ -17,7 +17,7 @@ Monorepo pnpm. PWA React 19 + TypeScript (strict) + Vite, styles en Tailwind CSS
 
 ## Product Purpose
 
-Về Quê (« rentrer au pays natal ») aide à préparer puis à vivre un voyage au Vietnam : un itinéraire par étapes et par créneaux (matin, après-midi, soir) qui laisse de la place au temps libre, une banque d'idées par ville, et surtout un suivi des dépenses qui dit à tout moment où est passé l'argent et ce qu'il reste en liquide. Réussite : chaque dépense saisie en moins de 5 secondes, une idée d'activité trouvée en moins de 3 gestes, chaque jour planifié avant le départ, tout utilisable hors ligne.
+Về Quê (« rentrer au pays natal ») aide à préparer puis à vivre un voyage au Vietnam : un itinéraire par étapes, avec des journées lues à l'heure, qui laisse de la place au temps libre, une banque d'idées par ville, et surtout un suivi des dépenses qui dit à tout moment où est passé l'argent et ce qu'il reste en liquide. Réussite : chaque dépense saisie en moins de 5 secondes, une idée d'activité trouvée en moins de 3 gestes, chaque jour planifié avant le départ, tout utilisable hors ligne.
 
 ## Positioning
 
@@ -33,7 +33,7 @@ Un outil personnel conçu pour la réalité d'un voyage familial au Vietnam, pas
 
 ## Capabilities and Constraints
 
-Fonctionnalités confirmées (détail et priorités dans `docs/cahier-des-charges.md`) : voyages multiples et membres ; itinéraire (étapes, hébergements, trajets, jours dérivés, créneaux avec heure optionnelle, temps libre, statuts) ; banque d'idées et filtre « J'ai du temps libre » ; carte en ligne ; dépenses avec saisie rapide « 50k », taux de change figé, répartition optionnelle à parts égales ; portefeuilles espèces et carte ; budget descendant et ascendant ; écran « Aujourd'hui » ; checklist avant départ ; météo par étape ; fiches famille et liste de cadeaux ; journal ; aide aux billets VND ; prix de référence ; export/import JSON.
+Fonctionnalités confirmées (détail et priorités dans `docs/cahier-des-charges.md`) : voyages multiples et membres ; itinéraire (étapes, hébergements, trajets, jours dérivés, programme chronologique avec heure optionnelle, temps libre, statuts) ; banque d'idées et filtre « J'ai du temps libre » ; carte en ligne ; dépenses avec saisie rapide « 50k », taux de change figé, répartition optionnelle à parts égales ; portefeuilles espèces et carte ; budget descendant et ascendant ; écran « Aujourd'hui » ; checklist avant départ ; météo par étape ; fiches famille et liste de cadeaux ; journal ; aide aux billets VND ; prix de référence ; export/import JSON.
 
 Contraintes : offline-first ; interface en français, textes centralisés ; mode sombre reporté (couleurs en variables) ; montants en entiers ; aucun service payant.
 

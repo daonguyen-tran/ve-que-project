@@ -358,7 +358,8 @@ export const fr = {
     indoor: 'Intérieur',
     outdoor: 'Extérieur',
     perPerson: (price: string) => `${price} / pers.`,
-    plannedOn: (day: number, slot: string) => `Prévu J${day} · ${slot.toLowerCase()}`,
+    plannedOn: (day: number, time: string | null) =>
+      time ? `Prévu J${day} · ${time}` : `Prévu J${day}`,
     plan: 'Planifier',
     planAction: (title: string) => `Planifier « ${title} »`,
     open: (title: string) => `Modifier « ${title} »`,
@@ -399,8 +400,10 @@ export const fr = {
       `Coût prévu : ${amount} pour ${travellers} ${travellers > 1 ? 'voyageurs' : 'voyageur'}.`,
     closedWarning: (weekday: string) =>
       `D’après ses horaires, c’est fermé ce ${weekday} à ce moment-là. Tu peux planifier quand même.`,
-    plannedNotice: (title: string, day: number, slot: string) =>
-      `« ${title} » est planifiée : J${day}, ${slot.toLowerCase()}.`,
+    plannedNotice: (title: string, day: number, time: string | null) =>
+      time
+        ? `« ${title} » est planifiée : J${day}, ${time}.`
+        : `« ${title} » est planifiée : J${day}.`,
     seeDay: 'Voir le jour',
     showMap: 'Voir sur la carte',
   },
@@ -467,8 +470,9 @@ export const fr = {
       lodging: 'Hébergement',
     },
     routeLegend: { ground: 'Trajet', flight: 'Vol', missing: 'Trajet non saisi' },
-    plannedOn: (day: number, slot: string) => `Prévu J${day} · ${slot.toLowerCase()}`,
-    dayAndSlot: (day: number, slot: string) => `J${day} · ${slot.toLowerCase()}`,
+    plannedOn: (day: number, time: string | null) =>
+      time ? `Prévu J${day} · ${time}` : `Prévu J${day}`,
+    dayAt: (day: number, time: string | null) => (time ? `J${day} · ${time}` : `J${day}`),
     location: {
       label: 'Position sur la carte',
       placeholder: 'Ex. : 15.8770, 108.3260',
@@ -516,19 +520,17 @@ export const fr = {
     departureDay: 'Départ',
     addOn: (day: string) => `Ajouter une activité le ${day}`,
     daysTitle: (n: number) => (n > 1 ? `${n} jours` : '1 jour'),
-    legendPlanned: 'Prévu',
-    legendFree: 'Temps libre',
-    legendEmpty: 'Rien',
+    load: {
+      empty: 'À prévoir',
+      free: 'Temps libre',
+      count: (n: number) => (n > 1 ? `${n} prévus` : '1 prévu'),
+    },
     dayLabel: (n: number) => `Jour ${n}`,
     dayShort: (n: number) => `J${n}`,
     dayOf: (n: number, total: number) => `Jour ${n} sur ${total}`,
     today: 'Aujourd’hui',
     noStop: 'Hors étape',
     arrivingFrom: (from: string) => `depuis ${from}`,
-    slotState: (slot: string, state: string) => `${slot} : ${state}`,
-    slotNothing: 'rien de prévu',
-    slotFree: 'temps libre',
-    slotCount: (n: number) => (n > 1 ? `${n} éléments` : '1 élément'),
     boardTitle: 'Programme',
     previousDays: (n: number) => (n > 1 ? `${n} jours précédents` : 'Jour précédent'),
     nextDays: (n: number) => (n > 1 ? `${n} jours suivants` : 'Jour suivant'),
@@ -551,9 +553,8 @@ export const fr = {
     titleOptional: (fallback: string) => `Facultatif, « ${fallback} » par défaut`,
     dayField: 'Jour',
     dayOption: (n: number, date: string, stop: string) => `J${n} · ${date} · ${stop}`,
-    slotLabel: 'Créneau',
     timeLabel: 'Heure',
-    timeHint: 'Le créneau s’ajuste à l’heure choisie.',
+    timeHint: 'Sans heure, l’activité se place après celles qui en ont une.',
     durationLabel: 'Durée',
     durationUnknown: 'Non précisée',
     costLabel: 'Coût estimé',
@@ -625,11 +626,6 @@ export const fr = {
     now: 'En cours',
     overBudget: (amount: string) => `Budget du jour dépassé de ${amount}`,
     dayOf: (day: number, total: number) => `Jour ${day} sur ${total}`,
-  },
-  slots: {
-    morning: 'Matin',
-    afternoon: 'Après-midi',
-    evening: 'Soir',
   },
   status: {
     done: 'fait',
