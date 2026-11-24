@@ -2,6 +2,7 @@ import type {
   Accommodation,
   Expense,
   Idea,
+  Locality,
   Member,
   PlannedItem,
   Stop,
@@ -28,6 +29,8 @@ export interface Repositories {
   expenses: TripScopedRepository<Expense>;
   wallets: TripScopedRepository<Wallet>;
   walletMovements: TripScopedRepository<WalletMovement>;
+  /** « Mes lieux », hors voyage (comme le futur carnet d'adresses). */
+  localities: DexieRepository<Locality>;
   settings: SettingsStore;
   /** Lecture et écriture en bloc de toutes les données, pour l'export/import (F-15). */
   backup: BackupStore;
@@ -63,6 +66,7 @@ export function createRepositories(
     expenses: new DexieTripScopedRepository(db.expenses, clock),
     wallets: new DexieTripScopedRepository(db.wallets, clock),
     walletMovements: new DexieTripScopedRepository(db.walletMovements, clock),
+    localities: new DexieRepository(db.localities, clock),
     settings: createSettingsStore(db),
     backup: createBackupStore(db),
     // Dexie rattache automatiquement à la transaction toutes les opérations lancées depuis

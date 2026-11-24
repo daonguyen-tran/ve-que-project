@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Trash2 } from 'lucide-react';
+import { Check, Trash2 } from 'lucide-react';
 import { useEffect, useId, useMemo, useState } from 'react';
 import { useController, useForm, useWatch } from 'react-hook-form';
 import {
@@ -12,15 +12,19 @@ import {
   type StopColor,
   type Trip,
   formatLocation,
+  type LocalitySuggestion,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { Button } from '@/shared/ui/Button';
 import { ConfirmSheet } from '@/shared/ui/ConfirmSheet';
 import { DateRangeField } from '@/shared/ui/calendar';
+import { CheckboxField } from '@/shared/ui/form/CheckboxField';
 import { TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useStopService } from '../hooks/use-stops';
+import { LocalityNameField } from '@/features/localities/components/LocalityNameField';
+import { useLocalityService } from '@/features/localities/hooks/use-localities';
 import { LocationField } from '@/features/map/components/LocationField';
 import { locationFromField, locationToField } from '@/features/map/location-field';
 import { makeStopFormSchema, type StopFormValues } from '../stop-form-schema';
@@ -44,6 +48,7 @@ function initialValues(target: StopSheetTarget): StopFormValues {
       vietnameseName: stop.place.vietnamese,
       location: locationToField(stop.place.location),
       notes: stop.notes,
+      remember: false,
     };
   }
   return {
@@ -55,6 +60,7 @@ function initialValues(target: StopSheetTarget): StopFormValues {
     vietnameseName: '',
     location: '',
     notes: '',
+    remember: false,
   };
 }
 
@@ -107,6 +113,36 @@ export function StopSheet({
   const arrival = useController({ control, name: 'arrivalDate' });
   const departure = useController({ control, name: 'departureDate' });
   const locationText = useWatch({ control, name: 'location' });
+  const name = useController({ control, name: 'name' });
+  const localityService = useLocalityService();
+  // Suggestion choisie pour le nom, mémorisée avec le panneau ouvert à ce moment-là : en
+  // rouvrir un autre (autre étape, nouvelle création) l'oublie, sans effet à synchroniser.
+  const [pick, setPick] = useState<{
+    target: StopSheetTarget;
+    suggestion: LocalitySuggestion;
+  } | null>(null);
+  const picked = pick && pick.target === target ? pick.suggestion : null;
+
+  /** Choisir une suggestion remplit le nom, le nom vietnamien, le type et la position. */
+  const applySuggestion = (suggestion: LocalitySuggestion) => {
+    if (!target) return;
+    const options = { shouldDirty: true, shouldValidate: true };
+    name.field.onChange(suggestion.name);
+    setValue('vietnameseName', suggestion.vietnameseName, options);
+    setValue('kind', suggestion.kind, options);
+    setValue('location', suggestion.location ? formatLocation(suggestion.location) : '', options);
+    setValue('remember', false);
+    setPick({ target, suggestion });
+  };
+
+  /** Modifier le nom après un choix : la position venait de la suggestion, on l'oublie. */
+  const typeName = (value: string) => {
+    name.field.onChange(value);
+    if (picked) {
+      setPick(null);
+      setValue('location', '', { shouldDirty: true });
+    }
+  };
 
   useEffect(() => {
     if (target) reset(initialValues(target));
@@ -117,7 +153,7 @@ export function StopSheet({
     onClose();
   };
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async ({ remember, ...values }) => {
     setSaveError(false);
     const input = {
       ...values,
@@ -128,6 +164,16 @@ export function StopSheet({
     try {
       if (editing) await stopService.updateStop(trip, editing, input);
       else await stopService.createStop(trip, input);
+      // Un lieu trouvé en ligne est retenu d'office : il sera proposé ensuite, même hors ligne.
+      // Un nom saisi à la main ne l'est que si l'utilisateur l'a demandé.
+      if (remember || picked?.source === 'online') {
+        await localityService.remember({
+          name: input.name,
+          vietnameseName: input.vietnameseName,
+          kind: input.kind,
+          location: input.location,
+        });
+      }
       close();
     } catch {
       setSaveError(true);
@@ -157,13 +203,34 @@ export function StopSheet({
           onSubmit={(event) => void onSubmit(event)}
           className="flex flex-col gap-5"
         >
-          <TextField
-            label={t.stops.nameLabel}
-            placeholder={t.stops.namePlaceholder}
-            autoComplete="off"
-            error={errors.name?.message}
-            {...register('name')}
-          />
+          <div className="flex flex-col gap-1">
+            <LocalityNameField
+              label={t.stops.nameLabel}
+              placeholder={t.stops.namePlaceholder}
+              error={errors.name?.message}
+              value={name.field.value}
+              onChange={typeName}
+              onBlur={name.field.onBlur}
+              onPick={applySuggestion}
+            />
+            {picked ? (
+              <p
+                role="status"
+                className="text-muted m-0 flex items-center gap-1.5 px-1 text-[13px]"
+              >
+                <Check className="size-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+                {t.localities.picked(picked.name)}
+              </p>
+            ) : (
+              name.field.value.trim() && (
+                <CheckboxField
+                  label={t.localities.remember}
+                  hint={t.localities.rememberHint}
+                  {...register('remember')}
+                />
+              )
+            )}
+          </div>
           <SegmentedField
             label={t.stops.kindLabel}
             options={STOP_KIND_OPTIONS}

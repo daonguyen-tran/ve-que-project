@@ -62,6 +62,7 @@ $RECYCLE.BIN/
 # Claude : les skills du projet sont versionnés (.claude/skills/),
 # les réglages personnels de chaque machine ne le sont pas.
 .claude/settings.local.json
+Claude outputs/
 
 # Impeccable : PRODUCT.md, DESIGN.md, .impeccable/design.json, .impeccable/config.json
 # et les briefs .impeccable/surfaces/ sont versionnés ; ses dossiers de travail ne le sont pas.

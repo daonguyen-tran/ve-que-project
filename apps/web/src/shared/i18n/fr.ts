@@ -489,6 +489,23 @@ export const fr = {
       chosen: (coords: string) => `Position choisie : ${coords}`,
     },
   },
+  localities: {
+    listLabel: 'Suggestions de lieux',
+    regions: { north: 'Nord', center: 'Centre', south: 'Sud' },
+    groups: {
+      saved: 'Mes lieux',
+      builtin: 'Villes et lieux connus',
+      online: 'Autres lieux (en ligne)',
+    },
+    searching: 'Recherche en ligne…',
+    offline: 'Hors ligne : seuls les lieux connus et les tiens sont proposés.',
+    onlineError: 'La recherche en ligne ne répond pas. Tu peux garder le nom saisi.',
+    remember: 'Retenir ce lieu pour mes prochains voyages',
+    rememberHint: 'Il sera proposé dès les premières lettres, même hors ligne.',
+    picked: (name: string) => `${name} choisi : nom vietnamien, type et position remplis.`,
+    count: (n: number) =>
+      n === 0 ? 'Aucune suggestion' : n === 1 ? '1 suggestion' : `${n} suggestions`,
+  },
   plan: {
     views: { label: 'Affichage du planning', itinerary: 'Itinéraire', days: 'Jours', map: 'Carte' },
     emptyDay: 'Rien de prévu ce jour-là.',

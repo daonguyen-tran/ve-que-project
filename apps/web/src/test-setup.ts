@@ -29,3 +29,9 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
       dispatchEvent: () => false,
     }) as MediaQueryList;
 }
+
+// Aucun test ne doit appeler un vrai service en ligne (Photon, Nominatim…) : par défaut, le
+// réseau répond par une erreur. Un test qui a besoin d'une réponse remplace `fetch` lui-même.
+if (typeof window !== 'undefined') {
+  window.fetch = () => Promise.reject(new Error('Réseau désactivé pendant les tests'));
+}

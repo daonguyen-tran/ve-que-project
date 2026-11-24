@@ -7,6 +7,7 @@ import {
   stopSchema,
   transferSchema,
 } from '../itinerary/itinerary';
+import { localitySchema } from '../localities/locality';
 import { memberSchema, tripSchema } from '../trip/trip';
 
 /*
@@ -39,8 +40,15 @@ export const BACKUP_TABLES = [
   'expenses',
   'wallets',
   'walletMovements',
+  'localities',
 ] as const;
 export type BackupTable = (typeof BACKUP_TABLES)[number];
+
+/**
+ * Tables qui n'appartiennent à aucun voyage (« mes lieux ») : elles suivent l'utilisateur et
+ * restent entières quand on n'exporte que certains voyages.
+ */
+const PERSONAL_TABLES: ReadonlySet<BackupTable> = new Set(['localities']);
 
 const backupDataSchema = z.object({
   trips: z.array(tripSchema).default([]),
@@ -53,6 +61,8 @@ const backupDataSchema = z.object({
   expenses: z.array(expenseSchema).default([]),
   wallets: z.array(walletSchema).default([]),
   walletMovements: z.array(walletMovementSchema).default([]),
+  // Absente des sauvegardes faites avant « mes lieux » : la valeur par défaut les garde valides.
+  localities: z.array(localitySchema).default([]),
 });
 
 /** Contenu d'une sauvegarde : une liste d'entités par table. */
@@ -90,7 +100,11 @@ export function filterBackupByTrips(data: BackupData, tripIds: readonly string[]
   const filtered = emptyBackupData() as Record<BackupTable, BackupEntity[]>;
   for (const table of BACKUP_TABLES) {
     filtered[table] = (data[table] as BackupEntity[]).filter((entity) =>
-      table === 'trips' ? keep.has(entity.id) : keep.has((entity as { tripId: string }).tripId),
+      PERSONAL_TABLES.has(table)
+        ? true
+        : table === 'trips'
+          ? keep.has(entity.id)
+          : keep.has((entity as { tripId: string }).tripId),
     );
   }
   return filtered as unknown as BackupData;

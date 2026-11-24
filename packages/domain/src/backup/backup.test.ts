@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createEntity, markDeleted, updateEntity } from '../shared/entity';
 import { toLocalDate as d } from '../shared/local-date';
 import type { Stop } from '../itinerary/itinerary';
+import type { Locality } from '../localities/locality';
 import { buildNewTrip } from '../trip/trip-rules';
 import {
   BACKUP_FORMAT,
@@ -96,6 +97,18 @@ describe('filterBackupByTrips', () => {
     expect(filtered.trips.map((trip) => trip.name)).toEqual(['Vietnam 2027']);
     expect(filtered.stops.map((stop) => stop.name)).toEqual(['Saigon']);
     expect(filtered.members.every((member) => member.tripId === vietnamId)).toBe(true);
+  });
+
+  it('garde « mes lieux », qui n’appartiennent à aucun voyage', () => {
+    const village = createEntity<Locality>({
+      name: 'Xóm Đông',
+      vietnameseName: 'Xóm Đông',
+      kind: 'village',
+      location: null,
+    });
+    const data = { ...sampleData(), localities: [village] };
+    const filtered = filterBackupByTrips(data, [data.trips[0]!.id]);
+    expect(filtered.localities.map((locality) => locality.name)).toEqual(['Xóm Đông']);
   });
 });
 

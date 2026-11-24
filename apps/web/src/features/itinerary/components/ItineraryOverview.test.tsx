@@ -111,6 +111,51 @@ describe('ItineraryOverview', () => {
   });
 });
 
+describe('nom de l’étape', () => {
+  it('choisir une suggestion remplit le nom vietnamien, le type et la position', async () => {
+    const { repositories, trip } = await setup();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ajouter une étape' }));
+    const dialog = screen.getByRole('dialog');
+    const name = within(dialog).getByRole('combobox', { name: 'Nom' });
+    fireEvent.focus(name);
+    fireEvent.change(name, { target: { value: 'phu q' } });
+    fireEvent.mouseDown(await within(dialog).findByRole('option', { name: /Phu Quoc/ }));
+
+    expect((within(dialog).getByLabelText(/Nom en vietnamien/) as HTMLInputElement).value).toBe(
+      'Phú Quốc',
+    );
+    expect((within(dialog).getByLabelText('Île') as HTMLInputElement).checked).toBe(true);
+    expect(within(dialog).getByRole('status').textContent).toContain('Phu Quoc choisi');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    await waitFor(async () => {
+      const [stop] = await repositories.stops.listByTrip(trip.id);
+      expect(stop).toMatchObject({ name: 'Phu Quoc', kind: 'island' });
+      expect(stop!.place.location?.lat).toBeCloseTo(10.29, 1);
+    });
+    // Un lieu de la liste intégrée n'est pas recopié dans « mes lieux ».
+    expect(await repositories.localities.listAll()).toEqual([]);
+  });
+
+  it('retient un lieu saisi à la main quand on le demande', async () => {
+    const { repositories } = await setup();
+    fireEvent.click(await screen.findByRole('button', { name: 'Ajouter une étape' }));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByRole('combobox', { name: 'Nom' }), {
+      target: { value: 'Xóm Đông' },
+    });
+    fireEvent.click(within(dialog).getByLabelText('Village'));
+    fireEvent.click(within(dialog).getByLabelText('Retenir ce lieu pour mes prochains voyages'));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    await waitFor(async () => {
+      expect(await repositories.localities.listAll()).toMatchObject([
+        { name: 'Xóm Đông', kind: 'village' },
+      ]);
+    });
+  });
+});
+
 describe('trajets', () => {
   it('ajoute un bus de nuit avec un prix saisi « à la vietnamienne »', async () => {
     const { repositories, trip } = await setup();

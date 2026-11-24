@@ -1,3 +1,4 @@
+import { searchKey } from '../shared/search-key';
 import type { LocalTime } from '../shared/common-schemas';
 import { addDays, type LocalDate } from '../shared/local-date';
 import { Money } from '../money/money';
@@ -13,18 +14,11 @@ import type { PlannedItem, Stop, TimeSlot } from './itinerary';
 // ─── Villes ──────────────────────────────────────────────────────────────────────────────
 
 /**
- * Clé de comparaison d'un nom de ville : sans accents, sans casse, espaces réduits.
- * « Hội An », « Hoi An » et « hoi  an » désignent la même ville. Le `đ` vietnamien n'est pas
- * une lettre accentuée pour Unicode (pas de décomposition NFD) : on le remplace à part.
+ * Clé de comparaison d'un nom de ville : « Hội An », « Hoi An » et « hoi  an » désignent la
+ * même ville (voir `searchKey`).
  */
 export function cityKey(city: string): string {
-  return city
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[đĐ]/g, 'd')
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .trim();
+  return searchKey(city);
 }
 
 export interface CityGroup {

@@ -3,6 +3,7 @@ import type {
   Accommodation,
   Expense,
   Idea,
+  Locality,
   Member,
   PlannedItem,
   Stop,
@@ -46,6 +47,8 @@ export class VeQueDatabase extends Dexie {
   expenses!: EntityTable<Expense, 'id'>;
   wallets!: EntityTable<Wallet, 'id'>;
   walletMovements!: EntityTable<WalletMovement, 'id'>;
+  /** « Mes lieux » : localités enregistrées par l'utilisateur, communes à tous les voyages. */
+  localities!: EntityTable<Locality, 'id'>;
   keyValues!: EntityTable<KeyValueRecord, 'key'>;
 
   constructor(name = 've-que') {
@@ -63,6 +66,12 @@ export class VeQueDatabase extends Dexie {
       wallets: 'id, tripId, updatedAt',
       walletMovements: 'id, tripId, [tripId+date], updatedAt',
       keyValues: 'key',
+    });
+
+    // v2 : ajout de « mes lieux » (suggestions de noms d'étape). Une nouvelle table vide ne
+    // demande aucune migration des données existantes : pas de `upgrade`.
+    this.version(2).stores({
+      localities: 'id, updatedAt',
     });
   }
 }

@@ -5,6 +5,7 @@ export * from './shared/entity';
 export * from './shared/local-date';
 export * from './shared/result';
 export * from './shared/common-schemas';
+export * from './shared/search-key';
 
 export * from './money/currency';
 export * from './money/money';
@@ -24,6 +25,10 @@ export * from './itinerary/stop-rules';
 export * from './itinerary/stop-availability';
 export * from './itinerary/stop-color';
 export * from './itinerary/transfer-rules';
+
+export * from './localities/locality';
+export * from './localities/locality-search';
+export * from './localities/vietnam-localities';
 
 export * from './expenses/expense';
 

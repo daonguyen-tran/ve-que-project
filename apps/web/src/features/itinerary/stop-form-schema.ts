@@ -35,6 +35,8 @@ export function makeStopFormSchema(
       vietnameseName: z.string().trim().max(80, t.validation.maxLength(80)),
       location: locationFieldSchema,
       notes: z.string().trim().max(500, t.validation.maxLength(500)),
+      /** « Retenir ce lieu » : ajouter le nom saisi à « mes lieux » (voir `LocalityService`). */
+      remember: z.boolean(),
     })
     .superRefine((values, ctx) => {
       // Une date manquante a déjà son message (« Choisis une date ») : rien de plus à vérifier.
