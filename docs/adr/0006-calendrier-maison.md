@@ -1,4 +1,4 @@
-# ADR 0006 — Calendrier maison pour toutes les dates
+# ADR 0006 — Sélecteurs maison pour toutes les dates et les heures
 
 - **Statut** : accepté
 - **Date** : 23/11/2026
@@ -40,3 +40,27 @@ d'Android.
   avec `useController` de React Hook Form, et non `register`.
 - Plage bornée courte (un voyage) : tous les mois sont affichés l'un sous l'autre. Sinon
   (dates d'un voyage à créer) : un mois à la fois, avec des flèches.
+
+## Ajout du 24/11/2026 : les heures
+
+Le champ heure du navigateur (`<input type="time">`) a un rendu très différent d'un appareil
+à l'autre. Il est remplacé partout (trajets, activités, planification d'une idée, horaires
+d'ouverture) par `TimeField` (`apps/web/src/shared/ui/time`), jumeau de `DateField`.
+
+Après un premier essai en grilles de pastilles, on a retenu des **roues qui défilent**, comme
+le sélecteur d'heure des téléphones (`Wheel`) :
+
+- deux colonnes, heures et minutes (à la minute près), une bande de sélection commune ;
+- défilement natif et arrêt sur une valeur par CSS `scroll-snap` : pas d'inertie maison.
+  On lit la valeur centrée quand le défilement s'arrête (pas d'événement pendant 120 ms ;
+  `scrollend` n'existe pas sur tous les navigateurs) ;
+- chaque arrêt enregistre l'heure ; un champ vide s'ouvre sur 09:00 sans rien enregistrer,
+  « Valider » garde l'heure affichée, « Effacer » vide les champs facultatifs ;
+- au clavier, chaque roue est un `spinbutton` (flèches, Page précédente et suivante, Début, Fin).
+
+Deux briques sont partagées avec le calendrier dans `apps/web/src/shared/ui/picker` :
+
+| Brique           | Rôle                                                                                                  |
+| ---------------- | ----------------------------------------------------------------------------------------------------- |
+| `picker-cell.ts` | Apparence des pastilles du calendrier et du panneau déplié                                            |
+| `usePickerPanel` | Ouverture du panneau ; fermeture au toucher extérieur et avec Échap, sans fermer le formulaire autour |

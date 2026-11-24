@@ -12,6 +12,7 @@ import { DateField } from '@/shared/ui/calendar';
 import { FieldGroupError, TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
+import { TimeField } from '@/shared/ui/time';
 import { useTransferService } from '../hooks/use-itinerary';
 import { makeTransferFormSchema, type TransferFormValues } from '../itinerary-forms';
 import { BOOKING_STATUS_OPTIONS, TRANSFER_MODE_OPTIONS } from '../transfer-style';
@@ -73,9 +74,11 @@ export function TransferSheet({
     resolver: zodResolver(schema),
     defaultValues: initialValues(null),
   });
-  // Dates pilotées par le calendrier maison (composant contrôlé).
+  // Dates et heures pilotées par les sélecteurs maison (composants contrôlés).
   const departDate = useController({ control, name: 'departDate' });
   const arriveDate = useController({ control, name: 'arriveDate' });
+  const departTime = useController({ control, name: 'departTime' });
+  const arriveTime = useController({ control, name: 'arriveTime' });
 
   useEffect(() => {
     if (target) reset(initialValues(target));
@@ -148,7 +151,7 @@ export function TransferSheet({
           />
 
           <div className="flex flex-col gap-3">
-            <div className="grid grid-cols-[1fr_8.5rem] gap-3">
+            <div className="grid grid-cols-[minmax(0,1fr)_8.5rem] gap-3">
               <DateField
                 label={t.transfers.departDateLabel}
                 min={trip.startDate}
@@ -159,13 +162,15 @@ export function TransferSheet({
                 onChange={departDate.field.onChange}
                 panelClassName="col-span-full row-start-2"
               />
-              <TextField
+              <TimeField
                 label={t.transfers.departTimeLabel}
-                type="time"
-                {...register('departTime')}
+                clearable
+                value={departTime.field.value}
+                onChange={departTime.field.onChange}
+                panelClassName="col-span-full row-start-2"
               />
             </div>
-            <div className="grid grid-cols-[1fr_8.5rem] gap-3">
+            <div className="grid grid-cols-[minmax(0,1fr)_8.5rem] gap-3">
               <DateField
                 label={t.transfers.arriveDateLabel}
                 min={trip.startDate}
@@ -181,10 +186,12 @@ export function TransferSheet({
                 onChange={arriveDate.field.onChange}
                 panelClassName="col-span-full row-start-2"
               />
-              <TextField
+              <TimeField
                 label={t.transfers.arriveTimeLabel}
-                type="time"
-                {...register('arriveTime')}
+                clearable
+                value={arriveTime.field.value}
+                onChange={arriveTime.field.onChange}
+                panelClassName="col-span-full row-start-2"
               />
             </div>
             {dateError ? (

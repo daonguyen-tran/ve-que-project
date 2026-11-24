@@ -1,6 +1,6 @@
 import { CircleAlert } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useController, useForm, useWatch } from 'react-hook-form';
 import {
   groupCost,
   openingStatus,
@@ -20,9 +20,10 @@ import { formatCost, SLOT_OPTIONS } from '@/features/planning/plan-style';
 import { t } from '@/shared/i18n';
 import { formatShortDate } from '@/shared/lib/format-date';
 import { Button } from '@/shared/ui/Button';
-import { SelectField, TextField } from '@/shared/ui/form/fields';
+import { SelectField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
+import { TimeField } from '@/shared/ui/time';
 import { useIdeaService } from '../hooks/use-ideas';
 
 interface PlanValues {
@@ -72,6 +73,8 @@ export function PlanIdeaSheet({
   }, [idea, trip, calendar, reset]);
 
   const [date, slot, time] = useWatch({ control, name: ['date', 'slot', 'time'] });
+  // L'heure est pilotée par le sélecteur maison (composant contrôlé).
+  const timeField = useController({ control, name: 'time' });
 
   if (!idea)
     return (
@@ -143,18 +146,16 @@ export function PlanIdeaSheet({
           {...register('date')}
         />
         <SegmentedField label={t.plan.slotLabel} options={SLOT_OPTIONS} {...register('slot')} />
-        <TextField
+        <TimeField
           label={t.plan.timeLabel}
           labelAside={t.common.optional}
           hint={t.plan.timeHint}
-          type="time"
-          className="tabular"
-          {...register('time', {
-            onChange: (event: { target: { value: string } }) => {
-              const value = event.target.value;
-              if (/^\d{2}:\d{2}$/.test(value)) setValue('slot', slotForTime(value));
-            },
-          })}
+          clearable
+          value={timeField.field.value}
+          onChange={(value) => {
+            timeField.field.onChange(value);
+            if (value) setValue('slot', slotForTime(value));
+          }}
         />
         {status === 'closed' && (
           <p

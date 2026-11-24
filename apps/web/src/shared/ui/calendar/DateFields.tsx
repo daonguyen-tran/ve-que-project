@@ -1,11 +1,13 @@
 import { CalendarDays, CircleAlert } from 'lucide-react';
-import { useId, useRef, useState, type ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 import { isLocalDate, type LocalDate } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { formatMediumDate } from '@/shared/lib/format-date';
 import { controlClass, describedBy, type FieldChrome } from '@/shared/ui/form/field-chrome';
 import { FieldFrame } from '@/shared/ui/form/fields';
+import { PICKER_PANEL_CLASS } from '@/shared/ui/picker/picker-cell';
+import { usePickerPanel } from '@/shared/ui/picker/use-picker-panel';
 import { Calendar, type DayDecoration } from './Calendar';
 import {
   isPickable as isRangePickable,
@@ -31,7 +33,8 @@ const orNull = (value: MaybeDate): LocalDate | null => (value && isLocalDate(val
 
 /**
  * Champ « un jour » : un bouton qui affiche la date choisie et déplie le calendrier en
- * dessous. Choisir un jour referme le calendrier et rend le focus au bouton.
+ * dessous. Choisir un jour referme le calendrier et rend le focus au bouton ; toucher ailleurs
+ * ou Échap le referme aussi (voir `usePickerPanel`).
  *
  * Le calendrier s'ouvre dans la page (et non dans une fenêtre par-dessus) : dans un panneau
  * déjà modal, une seconde couche modale compliquerait le focus et le bouton retour d'Android.
@@ -63,8 +66,7 @@ export function DateField({
   }) {
   const id = useId();
   const panelId = useId();
-  const [open, setOpen] = useState(false);
-  const trigger = useRef<HTMLButtonElement>(null);
+  const { open, toggle, close, triggerRef, panelRef, onKeyDown } = usePickerPanel();
   const date = orNull(value);
   const inBounds = (day: LocalDate) => (!min || day >= min) && (!max || day <= max);
 
@@ -81,14 +83,15 @@ export function DateField({
         labelAside={labelAside}
       >
         <button
-          ref={trigger}
+          ref={triggerRef}
           id={id}
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy(id, { hint, error, externalErrorId })}
-          onClick={() => setOpen((current) => !current)}
+          onClick={toggle}
+          onKeyDown={onKeyDown}
           className={controlClass(
             Boolean(error),
             'tabular flex items-center justify-between gap-2 text-left',
@@ -106,16 +109,17 @@ export function DateField({
       </FieldFrame>
       {open && (
         <div
+          ref={panelRef}
           id={panelId}
-          className={cn('border-line bg-surface rounded-xl border p-2', panelClassName)}
+          onKeyDown={onKeyDown}
+          className={cn(PICKER_PANEL_CLASS, panelClassName)}
         >
           <Calendar
             selection={{ start: date, end: date }}
             isPickable={(day) => inBounds(day) && isPickable(day)}
             onPick={(day) => {
               onChange(day);
-              setOpen(false);
-              trigger.current?.focus();
+              close(true);
             }}
             min={min}
             max={max}
@@ -196,7 +200,7 @@ export function DateRangeField({
         <RangeEnd label={endLabel} date={end} active={waitingFor === 'end'} />
       </div>
 
-      <div className="border-line bg-surface rounded-xl border p-2">
+      <div className={PICKER_PANEL_CLASS}>
         <Calendar
           selection={selection}
           isPickable={(day) => isRangePickable(selection, day, rules)}

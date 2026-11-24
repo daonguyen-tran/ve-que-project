@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode }
 import { localDateOf, type LocalDate } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
+import { pickerCellClass } from '@/shared/ui/picker/picker-cell';
 import { formatFullDate, formatMonthYear, weekdayNames } from '@/shared/lib/format-date';
 import {
   addMonths,
@@ -298,15 +299,11 @@ function DayButton({
         title={decoration?.description}
         onClick={pickable ? onPick : undefined}
         onKeyDown={onKeyDown}
-        className={cn(
-          'tabular relative flex size-10 items-center justify-center rounded-full text-[15px] transition-colors duration-150',
-          'focus-visible:outline-laque focus-visible:outline-2 focus-visible:outline-offset-1',
-          endpoint && 'bg-laque text-on-laque font-semibold',
-          !endpoint && pickable && 'text-ink hover:bg-ground',
-          !endpoint && !pickable && 'text-muted/60 cursor-not-allowed',
-          !endpoint && decoration?.className,
-          !endpoint && decoration?.className && 'rounded-lg',
-        )}
+        className={pickerCellClass({
+          selected: endpoint,
+          pickable,
+          extra: decoration?.className,
+        })}
       >
         {Number(date.slice(8))}
       </button>

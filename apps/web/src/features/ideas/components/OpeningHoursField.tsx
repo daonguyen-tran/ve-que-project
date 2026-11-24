@@ -1,6 +1,7 @@
 import { CircleAlert, Plus, X } from 'lucide-react';
 import { useId } from 'react';
 import {
+  Controller,
   useFieldArray,
   type Control,
   type FieldErrors,
@@ -8,7 +9,7 @@ import {
 } from 'react-hook-form';
 import { t } from '@/shared/i18n';
 import { Button } from '@/shared/ui/Button';
-import { TextField } from '@/shared/ui/form/fields';
+import { TimeField } from '@/shared/ui/time';
 import { WEEK_ORDER } from '../idea-style';
 import { DEFAULT_RANGE, type IdeaFormValues } from '../idea-form';
 
@@ -46,19 +47,31 @@ export function OpeningHoursField({
             error={errors?.[index]?.days?.message}
           />
           <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-end gap-3">
-            <TextField
-              label={t.ideas.openLabel}
-              type="time"
-              className="tabular"
-              error={errors?.[index]?.open?.message}
-              {...register(`ranges.${index}.open`)}
+            <Controller
+              control={control}
+              name={`ranges.${index}.open`}
+              render={({ field: timeField }) => (
+                <TimeField
+                  label={t.ideas.openLabel}
+                  error={errors?.[index]?.open?.message}
+                  value={timeField.value}
+                  onChange={timeField.onChange}
+                  panelClassName="col-span-full row-start-2"
+                />
+              )}
             />
-            <TextField
-              label={t.ideas.closeLabel}
-              type="time"
-              className="tabular"
-              error={errors?.[index]?.close?.message}
-              {...register(`ranges.${index}.close`)}
+            <Controller
+              control={control}
+              name={`ranges.${index}.close`}
+              render={({ field: timeField }) => (
+                <TimeField
+                  label={t.ideas.closeLabel}
+                  error={errors?.[index]?.close?.message}
+                  value={timeField.value}
+                  onChange={timeField.onChange}
+                  panelClassName="col-span-full row-start-2"
+                />
+              )}
             />
             <Button
               variant="quiet"

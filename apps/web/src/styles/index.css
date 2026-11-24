@@ -180,6 +180,14 @@
   }
 }
 
+/* Masque la barre de défilement (roues du sélecteur d'heure) sans empêcher le défilement. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }

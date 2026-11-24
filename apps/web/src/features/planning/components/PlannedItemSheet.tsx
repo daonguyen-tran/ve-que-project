@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useController, useForm, useWatch } from 'react-hook-form';
 import {
   cityKey,
   groupCost,
@@ -24,6 +24,7 @@ import { AmountField } from '@/shared/ui/form/AmountField';
 import { SelectField, TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
+import { TimeField } from '@/shared/ui/time';
 import { usePlannedItems, usePlannedItemService, type TripCalendar } from '../hooks/use-day-plan';
 import { DURATION_OPTIONS, KIND_OPTIONS, SLOT_OPTIONS, STATUS_OPTIONS } from '../plan-style';
 import {
@@ -78,6 +79,8 @@ export function PlannedItemSheet({
   }, [target, reset]);
 
   const kind = useWatch({ control, name: 'kind' });
+  // L'heure est pilotée par le sélecteur maison (composant contrôlé).
+  const time = useController({ control, name: 'time' });
   const cost = useWatch({ control, name: 'cost' });
   const date = useWatch({ control, name: 'date' });
   const ideaId = useWatch({ control, name: 'ideaId' });
@@ -226,18 +229,17 @@ export function PlannedItemSheet({
           />
           <SegmentedField label={t.plan.slotLabel} options={SLOT_OPTIONS} {...register('slot')} />
           <div className="grid grid-cols-2 gap-3">
-            <TextField
+            <TimeField
               label={t.plan.timeLabel}
               labelAside={t.common.optional}
-              type="time"
-              className="tabular"
-              {...register('time', {
+              clearable
+              value={time.field.value}
+              onChange={(value) => {
+                time.field.onChange(value);
                 // Une heure précise range l'élément dans le bon créneau, sans autre geste.
-                onChange: (event: { target: { value: string } }) => {
-                  const value = event.target.value;
-                  if (/^\d{2}:\d{2}$/.test(value)) setValue('slot', slotForTime(value));
-                },
-              })}
+                if (value) setValue('slot', slotForTime(value));
+              }}
+              panelClassName="col-span-full row-start-2"
             />
             {kind !== 'free_time' ? (
               <SelectField

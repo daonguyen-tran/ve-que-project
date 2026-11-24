@@ -399,6 +399,15 @@ export const fr = {
     pickStart: (label: string) => `Touche le jour : ${label.toLowerCase()}.`,
     pickEnd: (label: string) => `Touche maintenant le jour : ${label.toLowerCase()}.`,
   },
+  time: {
+    choose: 'Choisir une heure',
+    hours: 'Heures',
+    minutes: 'Minutes',
+    hourName: (hour: number) => `${hour} h`,
+    minuteName: (minute: number) => (minute < 2 ? `${minute} minute` : `${minute} minutes`),
+    confirm: 'Valider',
+    clear: 'Effacer',
+  },
   plan: {
     views: { label: 'Affichage du planning', itinerary: 'Itinéraire', days: 'Jour par jour' },
     edit: {
