@@ -11,6 +11,7 @@ import {
   type Stop,
 } from '@ve-que/domain';
 import { useRepositories } from '@/app/providers/repositories-context';
+import { StopProgram } from '@/features/planning/components/StopProgram';
 import { useTrip } from '@/features/trips/hooks/use-trips';
 import { t } from '@/shared/i18n';
 import { formatDateRange } from '@/shared/lib/format-date';
@@ -29,7 +30,10 @@ import { TransferSlot } from '../components/TransferSlot';
 import { useAccommodations, useTransfers } from '../hooks/use-itinerary';
 import { useStops } from '../hooks/use-stops';
 
-/** Fiche d'une étape : nom à montrer sur place, hébergements, trajets d'arrivée et de départ. */
+/**
+ * Fiche d'une étape : nom à montrer sur place, hébergements, trajets d'arrivée et de départ,
+ * puis le programme de ses journées (où l'on ajoute les activités), et les notes.
+ */
 export function StopDetailPage() {
   const { stopId } = useParams();
   const navigate = useNavigate();
@@ -152,6 +156,8 @@ export function StopDetailPage() {
             onOpen={setTransferTarget}
           />
         </section>
+
+        <StopProgram trip={trip} stop={stop} />
 
         {stop.notes && (
           <section aria-labelledby="stop-notes" className="flex flex-col gap-2">

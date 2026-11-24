@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it } from 'vitest';
 import { toLocalDate as d } from '@ve-que/domain';
@@ -7,7 +7,6 @@ import { ActiveTripProvider } from '@/app/providers/ActiveTripProvider';
 import { RepositoriesProvider } from '@/app/providers/RepositoriesProvider';
 import { StopService } from '@/features/itinerary/services/stop-service';
 import { TripService } from '@/features/trips/services/trip-service';
-import { PlanningEditModeProvider } from '../edit-mode';
 import { VeQueDatabase } from '@/infrastructure/db/database';
 import { createRepositories } from '@/infrastructure/repositories';
 import { PlannedItemService } from '../services/planned-item-service';
@@ -18,8 +17,7 @@ afterEach(async () => {
   await db?.delete();
 });
 
-/** Par défaut en édition, comme au lot 6 ; `editing: false` pour la vue de lecture. */
-async function renderDay(date: string, { editing = true } = {}) {
+async function renderDay(date: string) {
   db = new VeQueDatabase(`test-${crypto.randomUUID()}`);
   const repositories = createRepositories(db);
   const trip = await new TripService(repositories).createTrip({
@@ -28,7 +26,7 @@ async function renderDay(date: string, { editing = true } = {}) {
     endDate: d('2027-07-21'),
     ownerName: 'Dao',
   });
-  await new StopService(repositories).createStop(trip, {
+  const stop = await new StopService(repositories).createStop(trip, {
     name: 'Village de Bà Nội',
     kind: 'village',
     vietnameseName: '',
@@ -40,11 +38,7 @@ async function renderDay(date: string, { editing = true } = {}) {
     [
       {
         path: '/planning/jours/:date',
-        element: (
-          <PlanningEditModeProvider initialEditing={editing}>
-            <DayPage />
-          </PlanningEditModeProvider>
-        ),
+        element: <DayPage />,
       },
     ],
     { initialEntries: [`/planning/jours/${date}`] },
@@ -56,35 +50,18 @@ async function renderDay(date: string, { editing = true } = {}) {
       </ActiveTripProvider>
     </RepositoriesProvider>,
   );
-  return { repositories, trip };
+  return { repositories, trip, stop };
 }
 
 describe('DayPage', () => {
-  it('propose « En famille » au village et l’ajoute en un geste', async () => {
-    const { repositories, trip } = await renderDay('2027-07-09');
-    expect(await screen.findByText('Jour 9 sur 21')).toBeTruthy();
-    // Les étapes arrivent un instant après le voyage : on attend que le jour soit rattaché.
-    expect(await screen.findByText('Village de Bà Nội')).toBeTruthy();
-
-    const morning = screen.getByRole('region', { name: 'Matin' });
-    fireEvent.click(within(morning).getByRole('button', { name: 'En famille' }));
-
-    await waitFor(async () => {
-      const items = await repositories.plannedItems.listByTrip(trip.id);
-      expect(items.map((item) => [item.date, item.slot, item.kind])).toEqual([
-        ['2027-07-09', 'morning', 'family'],
-      ]);
-    });
-    expect(
-      await within(morning).findByRole('button', { name: 'Déplacer « En famille »' }),
-    ).toBeTruthy();
-  });
-
-  it('en lecture, n’affiche que les créneaux remplis, sans poignée ni ajout', async () => {
-    const { repositories, trip } = await renderDay('2027-07-09', { editing: false });
+  it('montre seulement les créneaux remplis, et renvoie à la fiche de l’étape pour organiser', async () => {
+    const { repositories, trip, stop } = await renderDay('2027-07-09');
     expect(await screen.findByText('Rien de prévu ce jour-là.')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'En famille' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Matin' })).toBeNull();
+    const link = await screen.findByRole('link', {
+      name: 'Organiser la journée dans la fiche de Village de Bà Nội',
+    });
+    expect(link.getAttribute('href')).toBe(`/planning/etapes/${stop.id}`);
 
     await new PlannedItemService(repositories).create(trip, {
       date: d('2027-07-09'),
@@ -104,19 +81,7 @@ describe('DayPage', () => {
     expect(within(afternoon).getByText('Marché de Hội An')).toBeTruthy();
     expect(screen.queryByRole('region', { name: 'Matin' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Soir' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Déplacer « Marché de Hội An »' })).toBeNull();
     expect(screen.queryByText('Rien de prévu ce jour-là.')).toBeNull();
-  });
-
-  it('« Modifier » fait apparaître les outils, « Terminé » les retire', async () => {
-    await renderDay('2027-07-09', { editing: false });
-    fireEvent.click(await screen.findByRole('button', { name: 'Modifier' }));
-    const morning = await screen.findByRole('region', { name: 'Matin' });
-    expect(within(morning).getByRole('button', { name: 'En famille' })).toBeTruthy();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Terminé' }));
-    expect(await screen.findByText('Rien de prévu ce jour-là.')).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'En famille' })).toBeNull();
   });
 
   it('signale un jour hors du voyage', async () => {

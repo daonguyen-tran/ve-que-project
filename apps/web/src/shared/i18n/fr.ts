@@ -491,18 +491,14 @@ export const fr = {
   },
   plan: {
     views: { label: 'Affichage du planning', itinerary: 'Itinéraire', days: 'Jours', map: 'Carte' },
-    edit: {
-      start: 'Modifier',
-      done: 'Terminé',
-      announceOn: 'Mode édition : les ajouts et les déplacements sont disponibles.',
-      announceOff: 'Mode lecture.',
-    },
     emptyDay: 'Rien de prévu ce jour-là.',
+    planInStop: (stop: string) => `Organiser la journée dans la fiche de ${stop}`,
+    programTitle: 'Programme',
+    programHint: 'Chaque jour de l’étape, du jour d’arrivée au jour de départ.',
+    arrivalDay: 'Arrivée',
+    departureDay: 'Départ',
+    addOn: (day: string) => `Ajouter une activité le ${day}`,
     daysTitle: (n: number) => (n > 1 ? `${n} jours` : '1 jour'),
-    progress: (planned: number, total: number) =>
-      `${planned} ${planned > 1 ? 'jours préparés' : 'jour préparé'} sur ${total}`,
-    progressHint:
-      'Un jour est préparé dès qu’un créneau contient quelque chose, temps libre compris.',
     legendPlanned: 'Prévu',
     legendFree: 'Temps libre',
     legendEmpty: 'Rien',
@@ -521,9 +517,7 @@ export const fr = {
     nextDays: (n: number) => (n > 1 ? `${n} jours suivants` : 'Jour suivant'),
     outsideTrip: 'Ce jour ne fait pas partie du voyage.',
     backToDays: 'Retour aux jours',
-    addTo: (slot: string) => `Ajouter : ${slot.toLowerCase()}`,
     add: 'Ajouter',
-    emptySlot: 'Rien de prévu',
     kinds: { activity: 'Activité', free_time: 'Temps libre', family: 'En famille' },
     statuses: {
       idea: 'À confirmer',
@@ -559,7 +553,6 @@ export const fr = {
     transferNone: 'Changement d’étape : aucun trajet saisi.',
     fromIdeas: 'Depuis tes idées',
     fromIdeasHint: (city: string) => `À planifier à ${city}`,
-    dragHandle: (title: string) => `Déplacer « ${title} »`,
     dnd: {
       instructions:
         'Pour déplacer un élément, appuie sur Espace ou Entrée, déplace-le avec les flèches, puis appuie de nouveau sur Espace ou Entrée pour le déposer. Échap annule.',

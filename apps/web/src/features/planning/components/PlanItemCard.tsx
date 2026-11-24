@@ -1,5 +1,4 @@
-import { Check, GripVertical } from 'lucide-react';
-import type { ComponentProps, Ref } from 'react';
+import { Check } from 'lucide-react';
 import type { PlannedItem } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
@@ -7,29 +6,10 @@ import { formatDuration, formatTime } from '@/shared/lib/format-date';
 import { formatCost, KIND_STYLE } from '../plan-style';
 
 /**
- * Carte d'un élément du programme. Elle sert à trois endroits : dans la liste, en « fantôme »
- * à l'emplacement d'origine pendant un glisser, et sous le doigt (`lifted`).
- *
- * La poignée est un bouton à part, seul déclencheur du glisser : on peut ainsi faire défiler la
- * page en touchant la carte sans la déplacer par mégarde, et toucher la carte ouvre l'édition.
- * Elle n'apparaît qu'en mode édition (quand `handleProps` est fourni) et sous le doigt.
+ * Carte d'un élément du programme (activité, temps libre, en famille). Toucher la carte ouvre
+ * sa fiche, pour la modifier ou la déplacer vers un autre jour ou créneau.
  */
-export function PlanItemCard({
-  item,
-  onOpen,
-  handleProps,
-  handleRef,
-  lifted = false,
-  ghost = false,
-}: {
-  item: PlannedItem;
-  onOpen?: () => void;
-  handleProps?: ComponentProps<'button'>;
-  handleRef?: Ref<HTMLButtonElement>;
-  lifted?: boolean;
-  ghost?: boolean;
-}) {
-  const draggable = handleProps !== undefined || lifted;
+export function PlanItemCard({ item, onOpen }: { item: PlannedItem; onOpen?: () => void }) {
   const style = KIND_STYLE[item.kind];
   const Icon = style.icon;
   const cancelled = item.status === 'cancelled';
@@ -41,36 +21,11 @@ export function PlanItemCard({
   ].filter(Boolean);
 
   return (
-    <div
-      className={cn(
-        'flex min-h-14 items-stretch rounded-xl border',
-        style.card,
-        lifted && 'border-line bg-surface shadow-[0_10px_30px_-8px_rgb(28_25_23/0.35)]',
-        ghost && 'opacity-40',
-      )}
-    >
-      {draggable && (
-        <button
-          ref={handleRef}
-          type="button"
-          aria-label={t.plan.dragHandle(item.title)}
-          className={cn(
-            'text-muted flex w-10 shrink-0 cursor-grab touch-none items-center justify-center rounded-l-xl',
-            'hover:text-ink focus-visible:outline-laque focus-visible:outline-2 focus-visible:-outline-offset-2',
-            lifted && 'cursor-grabbing',
-          )}
-          {...handleProps}
-        >
-          <GripVertical className="size-[18px]" strokeWidth={1.9} aria-hidden="true" />
-        </button>
-      )}
+    <div className={cn('flex min-h-14 items-stretch rounded-xl border', style.card)}>
       <button
         type="button"
         onClick={onOpen}
-        className={cn(
-          'focus-visible:outline-laque flex min-w-0 flex-1 items-center gap-3 py-2.5 pr-3 text-left focus-visible:outline-2 focus-visible:-outline-offset-2',
-          draggable ? 'rounded-r-xl' : 'rounded-xl pl-3.5',
-        )}
+        className="focus-visible:outline-laque flex min-w-0 flex-1 items-center gap-3 rounded-xl py-2.5 pr-3 pl-3.5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2"
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span
