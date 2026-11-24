@@ -7,13 +7,12 @@ import { TRANSFER_MODE_ICON } from '../transfer-style';
 import { BookingBadge } from './BookingBadge';
 
 /*
- * Géométrie de la « route » : la ligne pointillée passe sous les dates des cartes d'étape.
- * Dans la carte, la colonne des dates commence après un retrait de 14 px (px-3.5) et son
- * texte est centré sur 34 px (48 px moins sa marge droite de 14 px) : l'axe des dates est
- * donc à 14 + 34 / 2 = 31 px du bord, plus 1 px de bordure. La gouttière ci-dessous fait
- * 64 px de large et centre la ligne à 32 px : elle tombe sous les dates.
+ * Géométrie de la « route » : la ligne pointillée passe sous le pavé de date des cartes
+ * d'étape. Ce pavé fait 48 px de large et commence après la bordure (1 px) et le retrait
+ * (14 px, px-3.5) de la carte : son axe est à 1 + 14 + 48 / 2 = 39 px du bord. La gouttière
+ * ci-dessous fait 78 px de large et centre la ligne à 39 px : elle tombe sous les dates.
  */
-const GUTTER = 'relative flex w-16 shrink-0 items-center justify-center self-stretch';
+const GUTTER = 'relative flex w-[78px] shrink-0 items-center justify-center self-stretch';
 
 /**
  * Tronçon de route entre deux étapes, dans la liste du planning.

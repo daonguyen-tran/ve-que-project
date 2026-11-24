@@ -1,11 +1,13 @@
 import {
   createEntity,
   stopSchema,
+  suggestStopColor,
   updateEntity,
   validateStopDates,
   type LocalDate,
   type Stop,
   type StopDateIssue,
+  type StopColor,
   type StopKind,
   type Trip,
 } from '@ve-que/domain';
@@ -14,6 +16,8 @@ import type { Repositories } from '@/infrastructure/repositories';
 export interface StopInput {
   name: string;
   kind: StopKind;
+  /** Absente : une couleur encore libre est choisie automatiquement (création, import). */
+  color?: StopColor;
   arrivalDate: LocalDate;
   departureDate: LocalDate;
   /** Nom écrit en vietnamien (« Hội An »), à montrer sur place. */
@@ -42,12 +46,15 @@ export class StopService {
 
   async createStop(trip: Trip, input: StopInput): Promise<Stop> {
     await this.assertDatesValid(trip, input);
+    const color =
+      input.color ?? suggestStopColor(await this.repositories.stops.listByTrip(trip.id));
     const stop = stopSchema.parse(
       createEntity<Stop>(
         {
           tripId: trip.id,
           name: input.name.trim(),
           kind: input.kind,
+          color,
           arrivalDate: input.arrivalDate,
           departureDate: input.departureDate,
           place: { address: '', vietnamese: input.vietnameseName.trim(), location: null },
@@ -68,6 +75,7 @@ export class StopService {
         {
           name: input.name.trim(),
           kind: input.kind,
+          color: input.color ?? stop.color,
           arrivalDate: input.arrivalDate,
           departureDate: input.departureDate,
           place: { ...stop.place, vietnamese: input.vietnameseName.trim() },

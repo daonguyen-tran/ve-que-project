@@ -1,5 +1,5 @@
-import type { Stop, TripDay } from '@ve-que/domain';
-import { STOP_KIND_STYLE } from '@/features/itinerary/stop-style';
+import { stopColorOf, type Stop, type TripDay } from '@ve-que/domain';
+import { STOP_COLOR_STYLE } from '@/features/itinerary/stop-style';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { formatLongDate } from '@/shared/lib/format-date';
@@ -26,7 +26,7 @@ export function StopChip({ stop, className }: { stop?: Stop; className?: string 
       <span
         className={cn(
           'size-2.5 shrink-0 rounded-full',
-          stop ? STOP_KIND_STYLE[stop.kind].fill : 'bg-line',
+          stop ? STOP_COLOR_STYLE[stopColorOf(stop)].fill : 'bg-line',
         )}
         aria-hidden="true"
       />

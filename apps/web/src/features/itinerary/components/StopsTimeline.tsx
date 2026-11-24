@@ -4,6 +4,7 @@ import {
   findStopOverlaps,
   primaryAccommodation,
   sortStops,
+  stopColorOf,
   stopNights,
   stopTransitions,
   type Accommodation,
@@ -13,7 +14,7 @@ import {
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { dateParts, formatShortDate } from '@/shared/lib/format-date';
-import { STOP_KIND_STYLE } from '../stop-style';
+import { STOP_COLOR_STYLE, STOP_KIND_STYLE } from '../stop-style';
 import { BookingBadge } from './BookingBadge';
 import type { TransferSheetTarget } from './TransferSheet';
 import { RouteLeg } from './RouteLeg';
@@ -100,22 +101,28 @@ function StopRow({
   stop: Stop;
   accommodation: Accommodation | undefined;
 }) {
-  const { icon: KindIcon, label: kindLabel, tint, ink } = STOP_KIND_STYLE[stop.kind];
+  const { icon: KindIcon, label: kindLabel } = STOP_KIND_STYLE[stop.kind];
+  const color = STOP_COLOR_STYLE[stopColorOf(stop)];
   const arrival = dateParts(stop.arrivalDate);
   return (
     <Link
       to={`/planning/etapes/${stop.id}`}
       className="border-line bg-surface hover:border-muted flex min-h-[76px] w-full items-center gap-3.5 rounded-[var(--radius-card)] border px-3.5 py-3 text-inherit no-underline transition-colors"
     >
+      {/* Date d'arrivée sur un pavé à la couleur de l'étape : le même repère que la frise. */}
       <span
-        className="border-line-soft flex w-12 shrink-0 flex-col items-center border-r pr-3.5"
+        className={cn(
+          'flex w-12 shrink-0 flex-col items-center rounded-xl py-2',
+          color.tint,
+          color.ink,
+        )}
         aria-hidden="true"
       >
-        <span className="text-muted text-xs">{arrival.weekday}</span>
+        <span className="text-xs">{arrival.weekday}</span>
         <span className="tabular text-[22px] leading-none font-bold tracking-[-0.02em]">
           {arrival.day}
         </span>
-        <span className="text-muted text-xs">{arrival.month}</span>
+        <span className="text-xs">{arrival.month}</span>
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="line-clamp-2 text-base leading-snug font-semibold">{stop.name}</span>
@@ -125,13 +132,7 @@ function StopRow({
           </span>
         )}
         <span className="text-muted tabular flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
-          <span
-            className={cn(
-              'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium',
-              tint,
-              ink,
-            )}
-          >
+          <span className="bg-ground text-ink-soft flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
             <KindIcon className="size-3.5" strokeWidth={2} aria-hidden="true" />
             {kindLabel}
           </span>

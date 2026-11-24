@@ -5,9 +5,11 @@ import { useController, useForm } from 'react-hook-form';
 import {
   daysBetween,
   stopAvailability,
+  stopColorOf,
   toLocalDate,
   type LocalDate,
   type Stop,
+  type StopColor,
   type Trip,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
@@ -19,11 +21,12 @@ import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useStopService } from '../hooks/use-stops';
 import { makeStopFormSchema, type StopFormValues } from '../stop-form-schema';
-import { STOP_KIND_OPTIONS, STOP_KIND_STYLE } from '../stop-style';
+import { STOP_COLOR_STYLE, STOP_KIND_OPTIONS } from '../stop-style';
+import { StopColorField } from './StopColorField';
 
 /** Ce que le panneau doit faire : créer (avec des dates proposées) ou modifier une étape. */
 export type StopSheetTarget =
-  | { mode: 'create'; arrivalDate?: LocalDate; departureDate?: LocalDate }
+  | { mode: 'create'; arrivalDate?: LocalDate; departureDate?: LocalDate; color?: StopColor }
   | { mode: 'edit'; stop: Stop };
 
 function initialValues(target: StopSheetTarget): StopFormValues {
@@ -32,6 +35,7 @@ function initialValues(target: StopSheetTarget): StopFormValues {
     return {
       name: stop.name,
       kind: stop.kind,
+      color: stopColorOf(stop),
       arrivalDate: stop.arrivalDate,
       departureDate: stop.departureDate,
       vietnameseName: stop.place.vietnamese,
@@ -41,6 +45,7 @@ function initialValues(target: StopSheetTarget): StopFormValues {
   return {
     name: '',
     kind: 'city',
+    color: target.color ?? 'indigo',
     arrivalDate: target.arrivalDate ?? '',
     departureDate: target.departureDate ?? '',
     vietnameseName: '',
@@ -156,6 +161,11 @@ export function StopSheet({
             options={STOP_KIND_OPTIONS}
             {...register('kind')}
           />
+          <StopColorField
+            label={t.stops.colorLabel}
+            hint={t.stops.colorHint}
+            registration={register('color')}
+          />
           <DateRangeField
             label={t.stops.datesLabel}
             startLabel={t.stops.arrivalLabel}
@@ -175,7 +185,7 @@ export function StopSheet({
               const other = availability.takenBy(date);
               return other
                 ? {
-                    className: STOP_KIND_STYLE[other.kind].tint,
+                    className: STOP_COLOR_STYLE[stopColorOf(other)].tint,
                     description: t.stops.takenNight(other.name),
                   }
                 : undefined;

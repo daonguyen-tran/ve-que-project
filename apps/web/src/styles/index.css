@@ -45,12 +45,35 @@
   --color-cat-other: #78716c;
 
   /*
-   * Types d'étape dans la frise des nuits : trois luminosités bien distinctes (foncé, moyen,
-   * clair) pour rester lisibles sans voir les couleurs ; la légende ajoute les icônes.
+   * Couleurs d'étape, choisies par l'utilisateur (frise des nuits, cartes, calendrier).
+   * Pour chacune : un aplat (contraste ≥ 3:1 sur blanc, seuil des éléments graphiques), une
+   * teinte claire de fond et une encre lisible dessus (≥ 6,8:1). Pas de laque ni de curcuma,
+   * réservés aux actions et au « maintenant ».
    */
-  --color-stop-city: #23467f; /* ville : indigo foncé */
-  --color-stop-village: #4e9a62; /* village (la famille) : jade moyen */
-  --color-stop-island: #8ccfcb; /* île : sarcelle claire */
+  --color-stop-indigo: #23467f;
+  --color-stop-indigo-tint: #e6edf8;
+  --color-stop-indigo-ink: #23467f;
+  --color-stop-jade: #4e9a62;
+  --color-stop-jade-tint: #e5f1e9;
+  --color-stop-jade-ink: #245437;
+  --color-stop-sarcelle: #3a9893;
+  --color-stop-sarcelle-tint: #e0f0f0;
+  --color-stop-sarcelle-ink: #165559;
+  --color-stop-ocre: #b8821f;
+  --color-stop-ocre-tint: #f9efd9;
+  --color-stop-ocre-ink: #6e4c0c;
+  --color-stop-prune: #7e2f57;
+  --color-stop-prune-tint: #f7e6ef;
+  --color-stop-prune-ink: #7e2f57;
+  --color-stop-lotus: #d0668e;
+  --color-stop-lotus-tint: #fbe9f0;
+  --color-stop-lotus-ink: #8a2f55;
+  --color-stop-ciel: #5a8ccc;
+  --color-stop-ciel-tint: #e7f0fa;
+  --color-stop-ciel-ink: #1f4f86;
+  --color-stop-ardoise: #5c6773;
+  --color-stop-ardoise-tint: #eceef0;
+  --color-stop-ardoise-ink: #3a424b;
 
   /* Membres du voyage : pastille teintée + initiale foncée (contraste AA). */
   --color-member-laque: #86231f;

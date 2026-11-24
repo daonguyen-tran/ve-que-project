@@ -67,7 +67,7 @@ describe('ItineraryOverview', () => {
     expect(screen.getByRole('button', { name: 'Ajouter une étape' })).toBeTruthy();
   });
 
-  it('propose les premières nuits libres et grise celles des autres étapes', async () => {
+  it('propose les premières nuits libres, grise celles des autres étapes et une couleur libre', async () => {
     const { repositories, trip } = await setup();
     await new StopService(repositories).createStop(trip, {
       name: 'Saigon',
@@ -95,6 +95,9 @@ describe('ItineraryOverview', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'mercredi 7 juillet 2027' }));
     fireEvent.click(within(dialog).getByRole('button', { name: 'samedi 10 juillet 2027' }));
     fireEvent.change(within(dialog).getByLabelText('Nom'), { target: { value: 'Hue' } });
+    // Couleur proposée : la première libre (Saigon a pris l'indigo) ; on en choisit une autre.
+    expect((within(dialog).getByLabelText('Jade') as HTMLInputElement).checked).toBe(true);
+    fireEvent.click(within(dialog).getByLabelText('Lotus'));
     fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
 
     await waitFor(async () => {
@@ -102,6 +105,7 @@ describe('ItineraryOverview', () => {
       expect(saved.find((stop) => stop.name === 'Hue')).toMatchObject({
         arrivalDate: '2027-07-07',
         departureDate: '2027-07-10',
+        color: 'lotus',
       });
     });
   });

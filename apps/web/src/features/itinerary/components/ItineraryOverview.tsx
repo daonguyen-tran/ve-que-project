@@ -1,6 +1,6 @@
 import { MapPinned, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { suggestStopDates, type Trip } from '@ve-que/domain';
+import { suggestStopColor, suggestStopDates, type Trip } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { Button } from '@/shared/ui/Button';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -28,8 +28,13 @@ export function ItineraryOverview({ trip }: { trip: Trip }) {
 
   if (stops === undefined || accommodations === undefined || transfers === undefined) return null;
 
-  // « Ajouter » propose directement les premières nuits encore libres.
-  const openCreate = () => setStopTarget({ mode: 'create', ...suggestStopDates(trip, stops) });
+  // « Ajouter » propose directement les premières nuits encore libres et une couleur inutilisée.
+  const openCreate = () =>
+    setStopTarget({
+      mode: 'create',
+      ...suggestStopDates(trip, stops),
+      color: suggestStopColor(stops),
+    });
 
   return (
     <>

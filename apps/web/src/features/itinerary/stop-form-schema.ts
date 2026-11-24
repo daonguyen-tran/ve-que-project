@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   isLocalDate,
+  stopColorSchema,
   stopKindSchema,
   toLocalDate,
   validateStopDates,
@@ -27,6 +28,7 @@ export function makeStopFormSchema(
     .object({
       name: z.string().trim().min(1, t.validation.required).max(60, t.validation.maxLength(60)),
       kind: stopKindSchema,
+      color: stopColorSchema,
       arrivalDate: z.iso.date(t.validation.dateRequired),
       departureDate: z.iso.date(t.validation.dateRequired),
       vietnameseName: z.string().trim().max(80, t.validation.maxLength(80)),

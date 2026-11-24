@@ -49,6 +49,29 @@ describe('StopService', () => {
     });
   });
 
+  it('donne à chaque nouvelle étape une couleur encore libre, sauf choix explicite', async () => {
+    const saigon = await service.createStop(trip, input('Saigon', '2027-07-01', '2027-07-04'));
+    const hoiAn = await service.createStop(trip, input('Hoi An', '2027-07-04', '2027-07-08'));
+    const hue = await service.createStop(trip, {
+      ...input('Hue', '2027-07-08', '2027-07-10'),
+      color: 'lotus',
+    });
+    expect([saigon.color, hoiAn.color, hue.color]).toEqual(['indigo', 'jade', 'lotus']);
+
+    // Modifier l'étape sans toucher à la couleur la conserve.
+    const renamed = await service.updateStop(
+      trip,
+      hoiAn,
+      input('Hội An', '2027-07-04', '2027-07-08'),
+    );
+    expect(renamed.color).toBe('jade');
+    const recolored = await service.updateStop(trip, renamed, {
+      ...input('Hội An', '2027-07-04', '2027-07-08'),
+      color: 'ocre',
+    });
+    expect(recolored.color).toBe('ocre');
+  });
+
   it('refuse un chevauchement, même sans passer par le formulaire', async () => {
     await service.createStop(trip, input('Saigon', '2027-07-01', '2027-07-04'));
     const attempt = service.createStop(trip, input('Hue', '2027-07-03', '2027-07-05'));

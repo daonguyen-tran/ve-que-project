@@ -8,9 +8,33 @@ import { moneySchema } from '../money/money';
 export const stopKindSchema = z.enum(['city', 'village', 'island']);
 export type StopKind = z.infer<typeof stopKindSchema>;
 
+/**
+ * Couleurs d'étape, choisies par l'utilisateur pour distinguer les étapes (frise, calendrier,
+ * cartes). Ce sont des noms de jetons du design system, pas des valeurs CSS : l'interface fait
+ * la correspondance (`stop-style.ts` côté web). Huit teintes nettement différentes, sans le
+ * rouge laque (réservé aux actions et à la sélection) ni le curcuma (réservé au « maintenant »).
+ */
+export const STOP_COLORS = [
+  'indigo',
+  'jade',
+  'sarcelle',
+  'ocre',
+  'prune',
+  'lotus',
+  'ciel',
+  'ardoise',
+] as const;
+export const stopColorSchema = z.enum(STOP_COLORS);
+export type StopColor = z.infer<typeof stopColorSchema>;
+
 export const stopSchema = tripScopedSchema.extend({
   name: z.string().trim().min(1),
   kind: stopKindSchema,
+  /**
+   * Facultative : les étapes créées avant l'arrivée des couleurs (et les anciennes sauvegardes)
+   * n'en ont pas. Elles prennent alors la couleur de leur type (voir `stopColorOf`).
+   */
+  color: stopColorSchema.optional(),
   /** Nuit d'arrivée incluse, jour de départ exclu (on dort ailleurs ce soir-là). */
   arrivalDate: localDateSchema,
   departureDate: localDateSchema,

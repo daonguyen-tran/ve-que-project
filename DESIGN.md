@@ -24,9 +24,14 @@ colors:
   cat-shopping: "#9A6B12"
   cat-accommodation: "#1D6F74"
   cat-other: "#78716C"
-  stop-city: "#23467F"
-  stop-village: "#4E9A62"
-  stop-island: "#8CCFCB"
+  stop-indigo: "#23467F"
+  stop-jade: "#4E9A62"
+  stop-sarcelle: "#3A9893"
+  stop-ocre: "#B8821F"
+  stop-prune: "#7E2F57"
+  stop-lotus: "#D0668E"
+  stop-ciel: "#5A8CCC"
+  stop-ardoise: "#5C6773"
 typography:
   display-amount:
     fontFamily: "Be Vietnam Pro, system-ui, sans-serif"
@@ -141,9 +146,9 @@ Ce que le système refuse : le tableau de bord de cartes identiques à accent un
 
 - `ground` (#F5F5F4) pour le fond de l'appli, `surface` (#FFFFFF) pour les cartes et listes, `line` / `line-soft` pour les filets, `ink` / `ink-soft` / `muted` pour le texte (muted ≥ 7:1 sur blanc).
 
-### Types d'étape
+### Couleurs d'étape
 
-Frise des nuits : ville indigo foncé (`stop-city`), village jade moyen (`stop-village`, la famille), île sarcelle claire (`stop-island`). Trois luminosités nettement différentes, plus une icône par type dans la légende et dans chaque ligne.
+Chaque étape a une couleur choisie par l'utilisateur parmi huit : indigo, jade, sarcelle, ocre, prune, lotus, ciel, ardoise (`stop-*`). Une nouvelle étape reçoit la première couleur libre. Chaque couleur a un aplat (≥ 3:1 sur blanc : frise, pastilles), une teinte claire (`stop-*-tint` : pavé de date des cartes, nuits prises dans le calendrier) et une encre lisible dessus (`stop-*-ink`, ≥ 6,8:1). Ni laque ni curcuma, réservés aux actions et au « maintenant ». La couleur n'est jamais seule : la légende de la frise nomme chaque étape, et le type (ville, village, île) garde son icône et son libellé, sur un badge neutre.
 
 ### Data (catégories de dépenses)
 
