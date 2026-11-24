@@ -1,9 +1,14 @@
-import type { GeoPoint } from '@ve-que/domain';
+import type { GeoPoint, StopKind } from '@ve-que/domain';
 
 /** Résultat d'une recherche d'adresse. */
 export interface GeocodingResult {
   label: string;
   point: GeoPoint;
+  /**
+   * Ce qu'on a trouvé, pour régler le zoom : une localité entière (ville, village, île) ou,
+   * si absent, une adresse précise.
+   */
+  kind?: StopKind;
 }
 
 /**

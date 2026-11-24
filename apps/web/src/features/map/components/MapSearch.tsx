@@ -1,6 +1,10 @@
 import { MapPin, Search, X } from 'lucide-react';
 import { useId, useMemo, useRef, useState } from 'react';
+import { searchKey, type GeoPoint, type LocalitySuggestion } from '@ve-que/domain';
+import { useLocalitySuggestions } from '@/features/localities/hooks/use-locality-suggestions';
+import { STOP_KIND_STYLE } from '@/features/itinerary/stop-style';
 import type { Geocoder, GeocodingResult } from '@/infrastructure/geocoding/geocoder';
+import type { OnlineLocalitySearch } from '@/infrastructure/geocoding/photon-locality-search';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
 import { searchPlaces, type SearchEntry } from '../map-search';
@@ -11,27 +15,41 @@ type AddressSearch =
   | { state: 'done'; query: string; results: GeocodingResult[] }
   | { state: 'error'; query: string };
 
-/** Une ligne de la liste de résultats : un lieu du voyage, l'action « chercher l'adresse », une adresse. */
+/**
+ * Une ligne de la liste de résultats : un lieu du voyage, une localité suggérée (ville,
+ * village, île), l'action « chercher l'adresse », une adresse.
+ */
 type Option =
   | { kind: 'place'; entry: SearchEntry }
+  | { kind: 'locality'; suggestion: LocalitySuggestion & { location: GeoPoint } }
   | { kind: 'address-search'; query: string }
   | { kind: 'address'; result: GeocodingResult };
 
 /**
- * Barre de recherche de la carte (combobox ARIA). Elle cherche d'abord dans les lieux du
- * voyage (instantané, hors ligne compris) ; en ligne, une dernière ligne propose de chercher
- * l'adresse dans OpenStreetMap — seulement sur demande, comme l'exige Nominatim.
+ * Barre de recherche de la carte (combobox ARIA), en trois temps :
+ *
+ * 1. les lieux du voyage (instantané, hors ligne compris) ;
+ * 2. les localités, comme pour le nom d'une étape (`useLocalitySuggestions`) : mes lieux et la
+ *    liste intégrée hors ligne, puis Photon en ligne au fil de la frappe. Une localité déjà
+ *    présente comme étape du voyage n'est pas proposée deux fois ;
+ * 3. en ligne, une dernière ligne propose de chercher l'adresse précise dans OpenStreetMap
+ *    (Nominatim) — seulement sur demande, comme l'exige sa politique d'usage.
+ *
+ * Choisir une localité centre la carte dessus, comme une adresse trouvée.
  */
 export function MapSearch({
   entries,
   online,
   geocoder,
+  localitySearch,
   onSelectPlace,
   onSelectAddress,
 }: {
   entries: SearchEntry[];
   online: boolean;
   geocoder: Geocoder;
+  /** Recherche de localités en ligne (Photon par défaut ; remplaçable dans les tests). */
+  localitySearch?: OnlineLocalitySearch;
   onSelectPlace: (entry: SearchEntry) => void;
   onSelectAddress: (result: GeocodingResult) => void;
 }) {
@@ -44,10 +62,32 @@ export function MapSearch({
 
   const trimmed = query.trim();
   const places = useMemo(() => searchPlaces(entries, trimmed), [entries, trimmed]);
+  const localitySuggestions = useLocalitySuggestions(trimmed, {
+    // La recherche en ligne suit l'état réseau de la carte ; les sources locales restent actives.
+    enabled: open && online,
+    online: localitySearch,
+  });
+  const localities = useMemo(() => {
+    // Une étape déjà placée sur la carte suffit : pas de « Hoi An » en double. Sans position,
+    // on garde la ville connue, qui permet, elle, de centrer la carte.
+    const stopNames = new Set(
+      entries
+        .filter((entry) => entry.place.tone === 'stop' && entry.place.point)
+        .map((entry) => searchKey(entry.place.title)),
+    );
+    return [
+      ...localitySuggestions.saved,
+      ...localitySuggestions.builtin,
+      ...localitySuggestions.online,
+    ]
+      .filter((s): s is LocalitySuggestion & { location: GeoPoint } => s.location !== null)
+      .filter((s) => !stopNames.has(searchKey(s.name)));
+  }, [entries, localitySuggestions]);
   const addressResults =
     address.state === 'done' && address.query === trimmed ? address.results : [];
   const options: Option[] = [
     ...places.map((entry): Option => ({ kind: 'place', entry })),
+    ...localities.map((suggestion): Option => ({ kind: 'locality', suggestion })),
     ...(online && trimmed.length >= 3 && addressResults.length === 0
       ? [{ kind: 'address-search', query: trimmed } as const]
       : []),
@@ -72,6 +112,7 @@ export function MapSearch({
       return;
     }
     if (option.kind === 'place') onSelectPlace(option.entry);
+    else if (option.kind === 'locality') onSelectAddress(localityAsResult(option.suggestion));
     else onSelectAddress(option.result);
     setOpen(false);
     input.current?.blur();
@@ -155,13 +196,7 @@ export function MapSearch({
           >
             {options.map((option, index) => (
               <li
-                key={
-                  option.kind === 'place'
-                    ? option.entry.place.id
-                    : option.kind === 'address'
-                      ? `${option.result.point.lat},${option.result.point.lng}`
-                      : 'address-search'
-                }
+                key={optionKey(option)}
                 id={optionId(index)}
                 role="option"
                 aria-selected={index === activeIndex}
@@ -177,14 +212,64 @@ export function MapSearch({
               </li>
             ))}
           </ul>
-          <SearchStatus places={places.length} address={address} query={trimmed} />
+          <SearchStatus
+            places={places.length + localities.length}
+            address={address}
+            query={trimmed}
+            searchingLocalities={localitySuggestions.onlineState === 'loading'}
+          />
         </div>
       )}
     </div>
   );
 }
 
+/** Clé React stable d'une ligne. */
+function optionKey(option: Option): string {
+  if (option.kind === 'place') return option.entry.place.id;
+  if (option.kind === 'locality') return option.suggestion.key;
+  if (option.kind === 'address') return `${option.result.point.lat},${option.result.point.lng}`;
+  return 'address-search';
+}
+
+/** Une localité choisie se montre comme une adresse trouvée : un repère et son nom. */
+function localityAsResult(
+  suggestion: LocalitySuggestion & { location: GeoPoint },
+): GeocodingResult {
+  const label =
+    suggestion.vietnameseName && suggestion.vietnameseName !== suggestion.name
+      ? `${suggestion.name} (${suggestion.vietnameseName})`
+      : suggestion.name;
+  return { label, point: suggestion.location, kind: suggestion.kind };
+}
+
 function OptionContent({ option }: { option: Option }) {
+  if (option.kind === 'locality') {
+    const { suggestion } = option;
+    const { icon: KindIcon, label: kindLabel } = STOP_KIND_STYLE[suggestion.kind];
+    return (
+      <>
+        <KindIcon
+          className="text-muted size-[18px] shrink-0"
+          strokeWidth={1.9}
+          aria-hidden="true"
+        />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-[15px] font-medium">{suggestion.name}</span>
+          <span lang="vi" className="text-muted truncate text-[13px]">
+            {[
+              suggestion.vietnameseName !== suggestion.name ? suggestion.vietnameseName : null,
+              suggestion.detail,
+              kindLabel,
+              t.map.search.sources[suggestion.source],
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </span>
+        </span>
+      </>
+    );
+  }
   if (option.kind === 'address-search') {
     return (
       <>
@@ -239,10 +324,12 @@ function SearchStatus({
   places,
   address,
   query,
+  searchingLocalities,
 }: {
   places: number;
   address: AddressSearch;
   query: string;
+  searchingLocalities: boolean;
 }) {
   const current = address.state !== 'idle' && address.query === query ? address : null;
   const message =
@@ -252,9 +339,11 @@ function SearchStatus({
         ? t.map.search.failed
         : current?.state === 'done' && current.results.length === 0
           ? t.map.search.noAddress
-          : places === 0 && !current
-            ? t.map.search.noMatch
-            : null;
+          : searchingLocalities
+            ? t.localities.searching
+            : places === 0 && !current
+              ? t.map.search.noMatch
+              : null;
   return (
     <>
       {message && <p className="text-muted m-0 px-4 pt-1 pb-3 text-sm">{message}</p>}

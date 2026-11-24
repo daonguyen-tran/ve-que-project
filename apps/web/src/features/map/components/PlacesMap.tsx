@@ -7,6 +7,7 @@ import { googleMapsUrl, type GeoPoint } from '@ve-que/domain';
 import type { GeocodingResult } from '@/infrastructure/geocoding/geocoder';
 import { t } from '@/shared/i18n';
 import { boundsOf, locatedPlaces, VIETNAM_BOUNDS, type MapModel } from '../map-model';
+import { searchZoom } from '../search-zoom';
 import { markerIcon, pickIcon } from './markers';
 import { PlaceLinks } from './PlaceLinks';
 
@@ -116,13 +117,19 @@ function FitToPlaces({ points }: { points: GeoPoint[] }) {
   return null;
 }
 
-/** Repère de l'adresse cherchée : la carte s'y rend et ouvre sa bulle. */
+/**
+ * Repère du lieu ou de l'adresse cherchés : la carte s'y rend, à un zoom adapté (une ville
+ * en entier, une adresse de près, voir `searchZoom`), et ouvre sa bulle.
+ */
 function SearchPinMarker({ result }: { result: GeocodingResult }) {
   const map = useMap();
   const marker = useRef<L.Marker>(null);
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    map.flyTo([result.point.lat, result.point.lng], 17, { animate: !reduced, duration: 0.6 });
+    map.flyTo([result.point.lat, result.point.lng], searchZoom(result), {
+      animate: !reduced,
+      duration: 0.6,
+    });
     const timer = setTimeout(() => marker.current?.openPopup(), reduced ? 0 : 650);
     return () => clearTimeout(timer);
   }, [map, result]);

@@ -32,6 +32,14 @@ Trois sources de suggestions, séparées dans le code (une responsabilité par f
   l'on coche « Retenir ce lieu ». Les lieux ne sont rattachés à aucun voyage et font partie de
   la sauvegarde (table `localities`, facultative pour lire les anciennes sauvegardes).
 
+## Barre de recherche de la carte
+
+Les mêmes suggestions servent à la recherche de la carte (`MapSearch`), entre les lieux du
+voyage et la recherche d'adresse : choisir une localité centre la carte dessus. Une localité
+déjà présente comme étape **placée** n'est pas proposée en double. La recherche en ligne suit
+l'état réseau de la carte. Depuis la carte, rien n'est ajouté à « mes lieux » : regarder un
+endroit n'est pas le choisir.
+
 ## Pourquoi Photon et pas Nominatim
 
 La politique d'usage du serveur public de Nominatim interdit l'autocomplétion (il reste utilisé
