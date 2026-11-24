@@ -13,6 +13,8 @@ import { PageHeader } from '@/shared/ui/PageHeader';
 import { DaysOverview } from '../components/DaysOverview';
 import { EditModeToggle } from '../edit-mode';
 import { PlanningViewSwitch } from '../components/PlanningViewSwitch';
+import { planningViewFromParam } from '../planning-view';
+import { MapView } from '@/features/map/components/MapView';
 
 /**
  * Planning du voyage actif, en deux vues : l'itinéraire (étapes, hébergements, trajets) et le
@@ -25,7 +27,7 @@ import { PlanningViewSwitch } from '../components/PlanningViewSwitch';
 export function PlanningPage() {
   const { activeTrip, isLoading } = useActiveTrip();
   const [searchParams] = useSearchParams();
-  const view = searchParams.get('vue') === 'jours' ? 'days' : 'itinerary';
+  const view = planningViewFromParam(searchParams.get('vue'));
   const members = useMembers(activeTrip?.id);
 
   if (isLoading) return <PageHeader title={t.placeholder.planningTitle} />;
@@ -91,11 +93,9 @@ export function PlanningPage() {
           {/* Le mode édition ne concerne que les jours : l'itinéraire a son propre bouton d'ajout. */}
           {view === 'days' && <EditModeToggle />}
         </div>
-        {view === 'days' ? (
-          <DaysOverview trip={activeTrip} />
-        ) : (
-          <ItineraryOverview trip={activeTrip} />
-        )}
+        {view === 'days' && <DaysOverview trip={activeTrip} />}
+        {view === 'map' && <MapView trip={activeTrip} />}
+        {view === 'itinerary' && <ItineraryOverview trip={activeTrip} />}
       </div>
     </>
   );

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { cn } from '@/shared/lib/cn';
 
 /**
@@ -19,8 +20,24 @@ export function ChoiceChips<T extends string>({
   onChange: (value: T) => void;
   className?: string;
 }) {
+  const groupRef = useRef<HTMLDivElement>(null);
+
+  // La pastille active peut être hors de vue (choisie ailleurs, par un lien avec `?ville=`) :
+  // on fait défiler la rangée, horizontalement seulement, pour la montrer.
+  useEffect(() => {
+    const group = groupRef.current;
+    const active = group?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!group || !active) return;
+    const box = group.getBoundingClientRect();
+    const chip = active.getBoundingClientRect();
+    if (chip.left < box.left || chip.right > box.right) {
+      group.scrollLeft += chip.left - box.left - 16;
+    }
+  }, [value]);
+
   return (
     <div
+      ref={groupRef}
       role="group"
       aria-label={label}
       className={cn(

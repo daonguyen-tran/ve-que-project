@@ -8,6 +8,7 @@ import {
   type LocalDate,
   type TimeSlot,
 } from '@ve-que/domain';
+import { locationFieldSchema, locationToField } from '@/features/map/location-field';
 import { t } from '@/shared/i18n';
 import { moneyToField, optionalMoneyFieldSchema } from '@/shared/lib/money-field';
 
@@ -24,6 +25,7 @@ export const plannedItemFormSchema = z
     cost: optionalMoneyFieldSchema,
     address: z.string().trim().max(200, t.validation.maxLength(200)),
     vietnameseAddress: z.string().trim().max(200, t.validation.maxLength(200)),
+    location: locationFieldSchema,
     status: plannedItemStatusSchema,
     notes: z.string().trim().max(500, t.validation.maxLength(500)),
     /** Idée choisie dans « Depuis tes idées » (champ caché), vide sinon. */
@@ -52,6 +54,7 @@ export function initialPlannedItemValues(target: PlannedItemSheetTarget): Planne
       cost: moneyToField(null, 'VND'),
       address: '',
       vietnameseAddress: '',
+      location: '',
       status: 'planned',
       notes: '',
       ideaId: '',
@@ -68,6 +71,7 @@ export function initialPlannedItemValues(target: PlannedItemSheetTarget): Planne
     cost: moneyToField(item.estimatedCost, 'VND'),
     address: item.place?.address ?? '',
     vietnameseAddress: item.place?.vietnamese ?? '',
+    location: locationToField(item.place?.location),
     status: item.status,
     notes: item.notes,
     ideaId: item.ideaId ?? '',

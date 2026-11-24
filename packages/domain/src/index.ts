@@ -29,4 +29,5 @@ export * from './expenses/expense';
 
 export * from './backup/backup';
 
+export * from './geo/geo';
 export * from './repository';

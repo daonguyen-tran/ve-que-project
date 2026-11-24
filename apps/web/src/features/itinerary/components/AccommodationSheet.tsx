@@ -2,7 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import type { Accommodation, Stop } from '@ve-que/domain';
+import { formatLocation, type Accommodation, type Stop } from '@ve-que/domain';
+import { LocationField } from '@/features/map/components/LocationField';
+import { locationFromField, locationToField } from '@/features/map/location-field';
 import { t } from '@/shared/i18n';
 import { moneyFromField, moneyToField } from '@/shared/lib/money-field';
 import { Button } from '@/shared/ui/Button';
@@ -29,6 +31,7 @@ function initialValues(target: AccommodationSheetTarget | null): AccommodationFo
     url: accommodation?.url ?? '',
     address: accommodation?.place.address ?? '',
     vietnameseAddress: accommodation?.place.vietnamese ?? '',
+    location: locationToField(accommodation?.place.location),
   };
 }
 
@@ -53,6 +56,7 @@ export function AccommodationSheet({
     handleSubmit,
     reset,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<AccommodationFormValues>({
     resolver: zodResolver(accommodationFormSchema),
@@ -78,6 +82,7 @@ export function AccommodationSheet({
       url: values.url || null,
       address: values.address,
       vietnameseAddress: values.vietnameseAddress,
+      location: locationFromField(values.location),
     };
     try {
       if (editing) await service.update(editing, input);
@@ -90,6 +95,7 @@ export function AccommodationSheet({
 
   // `useWatch` s'abonne au seul champ prix pour l'aperçu du montant en direct.
   const price = useWatch({ control, name: 'price' });
+  const locationText = useWatch({ control, name: 'location' });
 
   return (
     <>
@@ -168,6 +174,18 @@ export function AccommodationSheet({
             autoComplete="off"
             error={errors.vietnameseAddress?.message}
             {...register('vietnameseAddress')}
+          />
+          <LocationField
+            value={locationText}
+            error={errors.location?.message}
+            inputProps={register('location')}
+            onPick={(point) =>
+              setValue('location', formatLocation(point), {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+            center={stop.place.location}
           />
           {saveError && (
             <p role="alert" className="text-laque-deep m-0 text-[15px] font-medium">

@@ -5,6 +5,7 @@ import {
   planMove,
   slotItems,
   updateEntity,
+  type GeoPoint,
   type LocalDate,
   type LocalTime,
   type Money,
@@ -32,6 +33,10 @@ export interface PlannedItemInput {
   notes: string;
   /** Idée de la banque d'idées dont l'élément est issu (F-3.3), à l'ajout seulement. */
   ideaId?: string | null;
+  /**
+   * Position GPS (M4). `undefined` : on garde celle déjà enregistrée ; `null` : on l'efface.
+   */
+  location?: GeoPoint | null;
 }
 
 /**
@@ -57,7 +62,7 @@ export class PlannedItemService {
           {
             tripId: trip.id,
             ideaId: input.ideaId ?? null,
-            ...this.content(input, null),
+            ...this.content(input, input.location ?? null),
             date: input.date,
             slot: input.slot,
             time: input.time,
@@ -87,7 +92,13 @@ export class PlannedItemService {
       const edited = plannedItemSchema.parse(
         updateEntity(
           current,
-          { ...this.content(input, current.place?.location ?? null), time: input.time },
+          {
+            ...this.content(
+              input,
+              input.location === undefined ? (current.place?.location ?? null) : input.location,
+            ),
+            time: input.time,
+          },
           this.clock(),
         ),
       );

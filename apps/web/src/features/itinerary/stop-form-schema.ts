@@ -9,6 +9,7 @@ import {
   type Trip,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
+import { locationFieldSchema } from '@/features/map/location-field';
 import { formatDateRange } from '@/shared/lib/format-date';
 
 /**
@@ -32,6 +33,7 @@ export function makeStopFormSchema(
       arrivalDate: z.iso.date(t.validation.dateRequired),
       departureDate: z.iso.date(t.validation.dateRequired),
       vietnameseName: z.string().trim().max(80, t.validation.maxLength(80)),
+      location: locationFieldSchema,
       notes: z.string().trim().max(500, t.validation.maxLength(500)),
     })
     .superRefine((values, ctx) => {

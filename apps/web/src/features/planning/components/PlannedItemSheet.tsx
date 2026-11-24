@@ -11,7 +11,10 @@ import {
   toLocalDate,
   type Idea,
   type Trip,
+  formatLocation,
 } from '@ve-que/domain';
+import { LocationField } from '@/features/map/components/LocationField';
+import { locationFromField, locationToField } from '@/features/map/location-field';
 import { useIdeas } from '@/features/ideas/hooks/use-ideas';
 import { CATEGORY_ICON } from '@/features/ideas/idea-style';
 import { useMembers } from '@/features/trips/hooks/use-trips';
@@ -93,6 +96,8 @@ export function PlannedItemSheet({
   const travellers = useMembers(trip.id)?.length ?? 1;
   const dayStop = calendar.days.find((day) => day.date === date)?.stopId;
   const dayCity = dayStop ? calendar.stopsById.get(dayStop)?.name : undefined;
+  const dayStopPlace = dayStop ? (calendar.stopsById.get(dayStop)?.place.location ?? null) : null;
+  const locationText = useWatch({ control, name: 'location' });
   const suggestions =
     !editing && isActivity && dayCity && ideas && items
       ? sortIdeas(
@@ -110,6 +115,7 @@ export function PlannedItemSheet({
     setValue('cost', moneyToField(groupCost(idea.pricePerPerson, travellers), 'VND'));
     setValue('address', idea.place.address);
     setValue('vietnameseAddress', idea.place.vietnamese);
+    setValue('location', locationToField(idea.place.location));
   };
 
   const close = () => {
@@ -131,6 +137,7 @@ export function PlannedItemSheet({
       // avant de changer de type.
       address: values.kind === 'free_time' ? '' : values.address,
       vietnameseAddress: values.kind === 'free_time' ? '' : values.vietnameseAddress,
+      location: values.kind === 'free_time' ? null : locationFromField(values.location),
       status: values.status,
       notes: values.notes,
       ideaId: values.kind === 'activity' && values.ideaId ? values.ideaId : null,
@@ -286,6 +293,18 @@ export function PlannedItemSheet({
                 autoComplete="off"
                 error={errors.vietnameseAddress?.message}
                 {...register('vietnameseAddress')}
+              />
+              <LocationField
+                value={locationText}
+                error={errors.location?.message}
+                inputProps={register('location')}
+                onPick={(point) =>
+                  setValue('location', formatLocation(point), {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                center={dayStopPlace}
               />
             </>
           )}

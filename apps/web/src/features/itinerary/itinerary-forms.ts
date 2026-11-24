@@ -9,6 +9,7 @@ import {
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { formatDateRange } from '@/shared/lib/format-date';
+import { locationFieldSchema } from '@/features/map/location-field';
 import { optionalMoneyFieldSchema } from '@/shared/lib/money-field';
 
 /*
@@ -32,6 +33,7 @@ export const accommodationFormSchema = z.object({
   url: optionalUrl,
   address: z.string().trim().max(200, t.validation.maxLength(200)),
   vietnameseAddress: z.string().trim().max(200, t.validation.maxLength(200)),
+  location: locationFieldSchema,
 });
 export type AccommodationFormValues = z.infer<typeof accommodationFormSchema>;
 

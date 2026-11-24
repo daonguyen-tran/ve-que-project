@@ -4,6 +4,7 @@ import {
   updateEntity,
   type Accommodation,
   type BookingStatus,
+  type GeoPoint,
   type Money,
   type Stop,
 } from '@ve-que/domain';
@@ -18,6 +19,10 @@ export interface AccommodationInput {
   url: string | null;
   address: string;
   vietnameseAddress: string;
+  /**
+   * Position GPS (M4). `undefined` : on garde celle déjà enregistrée ; `null` : on l'efface.
+   */
+  location?: GeoPoint | null;
 }
 
 /** Cas d'usage des hébergements d'une étape (F-2.2). */
@@ -34,7 +39,7 @@ export class AccommodationService {
           tripId: stop.tripId,
           stopId: stop.id,
           ...this.fields(input),
-          place: this.place(input, null),
+          place: this.place(input, input.location ?? null),
         },
         this.clock(),
       ),
@@ -47,7 +52,13 @@ export class AccommodationService {
     const updated = accommodationSchema.parse(
       updateEntity(
         accommodation,
-        { ...this.fields(input), place: this.place(input, accommodation.place.location) },
+        {
+          ...this.fields(input),
+          place: this.place(
+            input,
+            input.location === undefined ? accommodation.place.location : input.location,
+          ),
+        },
         this.clock(),
       ),
     );

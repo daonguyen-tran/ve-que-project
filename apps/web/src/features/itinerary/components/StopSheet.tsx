@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useMemo, useState } from 'react';
-import { useController, useForm } from 'react-hook-form';
+import { useController, useForm, useWatch } from 'react-hook-form';
 import {
   daysBetween,
   stopAvailability,
@@ -11,6 +11,7 @@ import {
   type Stop,
   type StopColor,
   type Trip,
+  formatLocation,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
 import { Button } from '@/shared/ui/Button';
@@ -20,6 +21,8 @@ import { TextField } from '@/shared/ui/form/fields';
 import { SegmentedField } from '@/shared/ui/form/SegmentedField';
 import { Sheet } from '@/shared/ui/Sheet';
 import { useStopService } from '../hooks/use-stops';
+import { LocationField } from '@/features/map/components/LocationField';
+import { locationFromField, locationToField } from '@/features/map/location-field';
 import { makeStopFormSchema, type StopFormValues } from '../stop-form-schema';
 import { STOP_COLOR_STYLE, STOP_KIND_OPTIONS } from '../stop-style';
 import { StopColorField } from './StopColorField';
@@ -39,6 +42,7 @@ function initialValues(target: StopSheetTarget): StopFormValues {
       arrivalDate: stop.arrivalDate,
       departureDate: stop.departureDate,
       vietnameseName: stop.place.vietnamese,
+      location: locationToField(stop.place.location),
       notes: stop.notes,
     };
   }
@@ -49,6 +53,7 @@ function initialValues(target: StopSheetTarget): StopFormValues {
     arrivalDate: target.arrivalDate ?? '',
     departureDate: target.departureDate ?? '',
     vietnameseName: '',
+    location: '',
     notes: '',
   };
 }
@@ -92,6 +97,7 @@ export function StopSheet({
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<StopFormValues>({
     resolver: zodResolver(schema),
@@ -100,6 +106,7 @@ export function StopSheet({
   // Les deux dates sont pilotées par le calendrier (composant contrôlé), pas par un <input>.
   const arrival = useController({ control, name: 'arrivalDate' });
   const departure = useController({ control, name: 'departureDate' });
+  const locationText = useWatch({ control, name: 'location' });
 
   useEffect(() => {
     if (target) reset(initialValues(target));
@@ -116,6 +123,7 @@ export function StopSheet({
       ...values,
       arrivalDate: toLocalDate(values.arrivalDate),
       departureDate: toLocalDate(values.departureDate),
+      location: locationFromField(values.location),
     };
     try {
       if (editing) await stopService.updateStop(trip, editing, input);
@@ -203,6 +211,18 @@ export function StopSheet({
             autoComplete="off"
             error={errors.vietnameseName?.message}
             {...register('vietnameseName')}
+          />
+          <LocationField
+            value={locationText}
+            error={errors.location?.message}
+            inputProps={register('location')}
+            onPick={(point) =>
+              setValue('location', formatLocation(point), {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+            center={null}
           />
           <TextField
             label={t.stops.notesLabel}

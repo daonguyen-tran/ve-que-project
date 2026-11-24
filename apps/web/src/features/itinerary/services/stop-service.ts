@@ -10,6 +10,7 @@ import {
   type StopColor,
   type StopKind,
   type Trip,
+  type GeoPoint,
 } from '@ve-que/domain';
 import type { Repositories } from '@/infrastructure/repositories';
 
@@ -23,6 +24,10 @@ export interface StopInput {
   /** Nom écrit en vietnamien (« Hội An »), à montrer sur place. */
   vietnameseName: string;
   notes: string;
+  /**
+   * Position GPS (M4). `undefined` : on garde celle déjà enregistrée ; `null` : on l'efface.
+   */
+  location?: GeoPoint | null;
 }
 
 /** Dates refusées par les règles du domaine ; `issues` dit pourquoi. */
@@ -57,7 +62,11 @@ export class StopService {
           color,
           arrivalDate: input.arrivalDate,
           departureDate: input.departureDate,
-          place: { address: '', vietnamese: input.vietnameseName.trim(), location: null },
+          place: {
+            address: '',
+            vietnamese: input.vietnameseName.trim(),
+            location: input.location ?? null,
+          },
           notes: input.notes.trim(),
         },
         this.clock(),
@@ -78,7 +87,11 @@ export class StopService {
           color: input.color ?? stop.color,
           arrivalDate: input.arrivalDate,
           departureDate: input.departureDate,
-          place: { ...stop.place, vietnamese: input.vietnameseName.trim() },
+          place: {
+            ...stop.place,
+            vietnamese: input.vietnameseName.trim(),
+            location: input.location === undefined ? stop.place.location : input.location,
+          },
           notes: input.notes.trim(),
         },
         this.clock(),

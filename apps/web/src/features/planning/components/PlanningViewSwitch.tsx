@@ -1,27 +1,29 @@
 import { Link } from 'react-router';
 import { t } from '@/shared/i18n';
 import { cn } from '@/shared/lib/cn';
+import type { PlanningView } from '../planning-view';
 
 /**
- * Bascule Itinéraire / Jour par jour. Ce sont des liens (la vue vit dans l'URL), présentés
+ * Bascule Itinéraire / Jours / Carte. Ce sont des liens (la vue vit dans l'URL), présentés
  * comme un contrôle segmenté ; `aria-current` indique la vue affichée.
  */
 export function PlanningViewSwitch({
   view,
   className,
 }: {
-  view: 'itinerary' | 'days';
+  view: PlanningView;
   className?: string;
 }) {
   const entries = [
     { key: 'itinerary', to: '/planning', label: t.plan.views.itinerary },
     { key: 'days', to: '/planning?vue=jours', label: t.plan.views.days },
+    { key: 'map', to: '/planning?vue=carte', label: t.plan.views.map },
   ] as const;
   return (
     <nav
       aria-label={t.plan.views.label}
       className={cn(
-        'bg-ground border-line grid grid-cols-2 gap-1 rounded-xl border p-1',
+        'bg-ground border-line grid grid-cols-3 gap-1 rounded-xl border p-1',
         className,
       )}
     >

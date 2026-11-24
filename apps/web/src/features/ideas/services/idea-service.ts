@@ -3,6 +3,7 @@ import {
   groupCost,
   ideaSchema,
   updateEntity,
+  type GeoPoint,
   type Idea,
   type IdeaCategory,
   type LocalDate,
@@ -30,6 +31,10 @@ export interface IdeaInput {
   address: string;
   vietnameseAddress: string;
   notes: string;
+  /**
+   * Position GPS (M4). `undefined` : on garde celle déjà enregistrée ; `null` : on l'efface.
+   */
+  location?: GeoPoint | null;
 }
 
 /**
@@ -51,7 +56,10 @@ export class IdeaService {
 
   async create(trip: Trip, input: IdeaInput): Promise<Idea> {
     const idea = ideaSchema.parse(
-      createEntity<Idea>({ tripId: trip.id, ...this.fields(input, null) }, this.clock()),
+      createEntity<Idea>(
+        { tripId: trip.id, ...this.fields(input, input.location ?? null) },
+        this.clock(),
+      ),
     );
     await this.repositories.ideas.save(idea);
     return idea;
@@ -59,7 +67,11 @@ export class IdeaService {
 
   async update(idea: Idea, input: IdeaInput): Promise<Idea> {
     const updated = ideaSchema.parse(
-      updateEntity(idea, this.fields(input, idea.place.location), this.clock()),
+      updateEntity(
+        idea,
+        this.fields(input, input.location === undefined ? idea.place.location : input.location),
+        this.clock(),
+      ),
     );
     await this.repositories.ideas.save(updated);
     return updated;
@@ -83,6 +95,7 @@ export class IdeaService {
       title: idea.title,
       address: idea.place.address,
       vietnameseAddress: idea.place.vietnamese,
+      location: idea.place.location,
       durationMinutes: idea.durationMinutes,
       estimatedCost: groupCost(idea.pricePerPerson, travellers),
       status: 'planned',
@@ -101,7 +114,6 @@ export class IdeaService {
       indoor: input.indoor,
       priority: input.priority,
       url: input.url?.trim() || null,
-      // La position GPS existante est conservée : elle se choisira sur la carte (lot 8).
       place: {
         address: input.address.trim(),
         vietnamese: input.vietnameseAddress.trim(),

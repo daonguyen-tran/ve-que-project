@@ -6,6 +6,7 @@ import {
   type OpeningRange,
 } from '@ve-que/domain';
 import { t } from '@/shared/i18n';
+import { locationFieldSchema, locationToField } from '@/features/map/location-field';
 import { moneyToField, optionalMoneyFieldSchema } from '@/shared/lib/money-field';
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -42,6 +43,7 @@ export const ideaFormSchema = z
     url: optionalUrl,
     address: z.string().trim().max(200, t.validation.maxLength(200)),
     vietnameseAddress: z.string().trim().max(200, t.validation.maxLength(200)),
+    location: locationFieldSchema,
     notes: z.string().trim().max(500, t.validation.maxLength(500)),
   })
   .superRefine((values, ctx) => {
@@ -94,6 +96,7 @@ export function initialIdeaValues(target: IdeaSheetTarget): IdeaFormValues {
     url: idea?.url ?? '',
     address: idea?.place.address ?? '',
     vietnameseAddress: idea?.place.vietnamese ?? '',
+    location: locationToField(idea?.place.location),
     notes: idea?.notes ?? '',
   };
 }

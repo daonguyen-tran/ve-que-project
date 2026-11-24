@@ -2,7 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import type { Trip } from '@ve-que/domain';
+import { cityKey, formatLocation, type Trip } from '@ve-que/domain';
+import { useStops } from '@/features/itinerary/hooks/use-stops';
+import { LocationField } from '@/features/map/components/LocationField';
+import { locationFromField } from '@/features/map/location-field';
 import { DURATION_OPTIONS } from '@/features/planning/plan-style';
 import { t } from '@/shared/i18n';
 import { formatDuration } from '@/shared/lib/format-date';
@@ -74,6 +77,12 @@ export function IdeaSheet({
 
   const price = useWatch({ control, name: 'price' });
   const hasHours = useWatch({ control, name: 'hasHours' });
+  const locationText = useWatch({ control, name: 'location' });
+  const city = useWatch({ control, name: 'city' });
+  // La carte s'ouvre sur l'étape du même nom que la ville de l'idée, si elle a une position.
+  const cityStop = useStops(trip.id)?.find(
+    (stop) => stop.place.location && cityKey(stop.name) === cityKey(city),
+  );
 
   const close = () => {
     setSaveError(false);
@@ -94,6 +103,7 @@ export function IdeaSheet({
       url: values.url || null,
       address: values.address,
       vietnameseAddress: values.vietnameseAddress,
+      location: locationFromField(values.location),
       notes: values.notes,
     };
     try {
@@ -224,6 +234,18 @@ export function IdeaSheet({
             autoComplete="off"
             error={errors.vietnameseAddress?.message}
             {...register('vietnameseAddress')}
+          />
+          <LocationField
+            value={locationText}
+            error={errors.location?.message}
+            inputProps={register('location')}
+            onPick={(point) =>
+              setValue('location', formatLocation(point), {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+            center={cityStop?.place.location ?? null}
           />
           <TextField
             label={t.ideas.urlLabel}

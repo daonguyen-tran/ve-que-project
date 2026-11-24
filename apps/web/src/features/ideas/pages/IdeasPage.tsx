@@ -1,4 +1,4 @@
-import { Lightbulb, Plus, SearchX } from 'lucide-react';
+import { Lightbulb, Map as MapIcon, Plus, SearchX } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import {
@@ -117,10 +117,21 @@ export function IdeasPage() {
         subtitle={ideas.length > 0 ? t.ideas.count(ideas.length) : undefined}
         action={
           ideas.length > 0 && (
-            <Button variant="quiet" onClick={() => setSheet({ mode: 'create', city: cityName })}>
-              <Plus className="size-5" strokeWidth={2} aria-hidden="true" />
-              {t.ideas.add}
-            </Button>
+            <span className="flex items-center gap-1">
+              {/* Les idées de la ville choisie (ou tout le voyage) sur la carte du planning. */}
+              <ButtonLink
+                variant="quiet"
+                to={`/planning?vue=carte${city === ALL ? '' : `&ville=${encodeURIComponent(city)}`}`}
+                aria-label={t.ideas.showMap}
+                className="w-11 px-0"
+              >
+                <MapIcon className="size-5" strokeWidth={1.9} aria-hidden="true" />
+              </ButtonLink>
+              <Button variant="quiet" onClick={() => setSheet({ mode: 'create', city: cityName })}>
+                <Plus className="size-5" strokeWidth={2} aria-hidden="true" />
+                {t.ideas.add}
+              </Button>
+            </span>
           )
         }
       />
