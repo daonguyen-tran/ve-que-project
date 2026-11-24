@@ -1,10 +1,21 @@
-import { ChevronRight, Plus } from 'lucide-react';
+import { CalendarDays, ChevronRight } from 'lucide-react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { TIME_SLOTS, type Stop, type TimeSlot, type Trip, type TripDay } from '@ve-que/domain';
+import {
+  stopColorOf,
+  TIME_SLOTS,
+  type Stop,
+  type TimeSlot,
+  type Trip,
+  type TripDay,
+} from '@ve-que/domain';
 import { useTransfers } from '@/features/itinerary/hooks/use-itinerary';
+import { STOP_COLOR_STYLE } from '@/features/itinerary/stop-style';
 import { t } from '@/shared/i18n';
+import { cn } from '@/shared/lib/cn';
 import { formatLongDate } from '@/shared/lib/format-date';
+import { DateBlock } from '@/shared/ui/DateBlock';
+import { AddRow, Card, Section } from '@/shared/ui/SectionCard';
 import { usePlannedItems, useTripCalendar } from '../hooks/use-day-plan';
 import { buildColumns, containerId, idsIn, type Columns } from '../plan-board';
 import type { PlannedItemSheetTarget } from '../planned-item-form';
@@ -21,9 +32,17 @@ import { PlannedItemSheet } from './PlannedItemSheet';
  * - Les jours de transition (départ de l'étape précédente, départ vers la suivante) figurent
  *   dans les deux étapes : une activité est rattachée à une date, pas à une étape, donc rien
  *   n'est dupliqué.
- * - Le titre de chaque jour mène au programme du jour dans « Jour par jour ».
+ * - L'en-tête de chaque jour mène au programme du jour dans « Jour par jour ».
  */
-export function StopProgram({ trip, stop }: { trip: Trip; stop: Stop }) {
+export function StopProgram({
+  trip,
+  stop,
+  className,
+}: {
+  trip: Trip;
+  stop: Stop;
+  className?: string;
+}) {
   const calendar = useTripCalendar(trip);
   const items = usePlannedItems(trip.id);
   const transfers = useTransfers(trip.id);
@@ -48,21 +67,24 @@ export function StopProgram({ trip, stop }: { trip: Trip; stop: Stop }) {
   // Au village, on vient d'abord voir la famille : c'est ce qu'« Ajouter » propose.
   const defaultKind = stop.kind === 'village' ? 'family' : 'activity';
 
+  const color = STOP_COLOR_STYLE[stopColorOf(stop)];
+
   return (
-    <section aria-labelledby="stop-program" className="flex flex-col gap-2.5">
-      <div className="flex flex-col gap-0.5 px-1">
-        <h2 id="stop-program" className="m-0 text-lg font-semibold tracking-[-0.01em]">
-          {t.plan.programTitle}
-        </h2>
-        <p className="text-muted m-0 text-[13px]">{t.plan.programHint}</p>
-      </div>
-      <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
+    <Section
+      id="stop-program"
+      icon={CalendarDays}
+      title={t.plan.programTitle}
+      aside={t.common.days(days.length)}
+      className={className}
+    >
+      <ol className="m-0 flex list-none flex-col gap-3 p-0">
         {days.map((day) => (
           <li key={day.date}>
             <ProgramDay
               day={day}
               total={calendar.days.length}
               tag={dayTag(day, stop)}
+              dateClassName={cn(color.tint, color.ink)}
               onAdd={() =>
                 setSheet({
                   mode: 'create',
@@ -78,6 +100,7 @@ export function StopProgram({ trip, stop }: { trip: Trip; stop: Stop }) {
                 columns={columns}
                 itemsById={itemsById}
                 transfers={transfers}
+                accent={stopColorOf(stop)}
                 onOpenSheet={setSheet}
               />
             </ProgramDay>
@@ -90,60 +113,60 @@ export function StopProgram({ trip, stop }: { trip: Trip; stop: Stop }) {
         target={sheet}
         onClose={() => setSheet(null)}
       />
-    </section>
+    </Section>
   );
 }
 
+/**
+ * Un jour du programme, en trois bandes séparées par un filet :
+ * - l'en-tête, lien vers « Jour par jour » : pavé de date à la couleur de l'étape (le repère
+ *   qu'on retrouve en faisant défiler), date en toutes lettres, « Jour 4 sur 21 » ;
+ * - le contenu (trajet, créneaux remplis) ;
+ * - l'action d'ajout, en laque comme toutes les actions.
+ */
 function ProgramDay({
   day,
   total,
   tag,
+  dateClassName,
   onAdd,
   children,
 }: {
   day: TripDay;
   total: number;
   tag: string | undefined;
+  dateClassName: string;
   onAdd: () => void;
   children: ReactNode;
 }) {
   const label = formatLongDate(day.date);
   return (
-    <article
-      aria-label={label}
-      className="border-line bg-surface flex flex-col gap-3 rounded-[var(--radius-card)] border px-4 pt-3 pb-1.5"
-    >
-      <header className="flex items-center justify-between gap-3">
+    <article aria-label={label}>
+      <Card>
         <Link
           to={`/planning/jours/${day.date}`}
-          className="group text-ink flex min-h-11 min-w-0 items-center gap-1 no-underline"
+          className="group hover:bg-ground flex min-h-[76px] items-center gap-3.5 px-3.5 py-3 text-inherit no-underline transition-colors duration-150"
         >
-          <span className="flex flex-col">
-            <span className="text-[15px] font-semibold">{label}</span>
-            <span className="text-muted tabular text-xs">{t.plan.dayOf(day.dayNumber, total)}</span>
+          <DateBlock date={day.date} className={dateClassName} />
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-base leading-snug font-semibold">{label}</span>
+            <span className="text-muted tabular text-[13px]">
+              {t.plan.dayOf(day.dayNumber, total)}
+            </span>
           </span>
+          {tag && (
+            <span className="border-line text-ink-soft shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium">
+              {tag}
+            </span>
+          )}
           <ChevronRight
-            className="text-muted group-hover:text-ink size-4 shrink-0"
-            strokeWidth={2}
+            className="text-muted group-hover:text-ink size-5 shrink-0"
             aria-hidden="true"
           />
         </Link>
-        {tag && (
-          <span className="bg-ground text-ink-soft shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium">
-            {tag}
-          </span>
-        )}
-      </header>
-      {children}
-      <button
-        type="button"
-        onClick={onAdd}
-        aria-label={t.plan.addOn(label.toLowerCase())}
-        className="text-muted hover:text-laque -mx-1 flex min-h-11 items-center gap-1.5 self-start px-1 text-[13px] font-medium transition-colors"
-      >
-        <Plus className="size-4" strokeWidth={2.2} aria-hidden="true" />
-        {t.plan.add}
-      </button>
+        <div className="px-4 py-3.5">{children}</div>
+        <AddRow label={t.plan.add} ariaLabel={t.plan.addOn(label.toLowerCase())} onClick={onAdd} />
+      </Card>
     </article>
   );
 }

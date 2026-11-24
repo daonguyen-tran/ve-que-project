@@ -22,26 +22,28 @@ export const SLOT_OPTIONS = (Object.keys(SLOT_ICON) as TimeSlot[]).map((slot) =>
 }));
 
 /**
- * Apparence de chaque type d'élément. Le temps libre est volontairement « en creux » (fond du
- * jour, bord pointillé) : c'est un espace laissé vide exprès. Les moments en famille reprennent
- * le jade des villages.
+ * Apparence de chaque type d'élément, en ligne sur une surface blanche (`PlanItemRow`).
+ * L'activité est une ligne nue ; le temps libre est « en creux » (bord pointillé) : un espace
+ * laissé vide exprès ; les moments en famille reprennent le jade clair des villages.
  */
-export const KIND_STYLE: Record<
-  PlannedItemKind,
-  { icon: LucideIcon; label: string; card: string }
-> = {
-  activity: { icon: MapPin, label: t.plan.kinds.activity, card: 'bg-surface border-line' },
-  free_time: {
-    icon: Coffee,
-    label: t.plan.kinds.free_time,
-    card: 'bg-ground border-line border-dashed',
-  },
-  family: {
-    icon: Users,
-    label: t.plan.kinds.family,
-    card: 'bg-member-jade-tint border-transparent',
-  },
-};
+export const KIND_STYLE: Record<PlannedItemKind, { icon: LucideIcon; label: string; row: string }> =
+  {
+    activity: {
+      icon: MapPin,
+      label: t.plan.kinds.activity,
+      row: 'hover:bg-ground active:bg-ground',
+    },
+    free_time: {
+      icon: Coffee,
+      label: t.plan.kinds.free_time,
+      row: 'border-line border border-dashed hover:bg-ground active:bg-ground',
+    },
+    family: {
+      icon: Users,
+      label: t.plan.kinds.family,
+      row: 'bg-member-jade-tint hover:brightness-[0.98] active:brightness-[0.97]',
+    },
+  };
 
 export const KIND_OPTIONS = (Object.keys(KIND_STYLE) as PlannedItemKind[]).map((kind) => ({
   value: kind,

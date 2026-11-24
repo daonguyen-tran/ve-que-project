@@ -512,7 +512,6 @@ export const fr = {
     emptyDay: 'Rien de prévu ce jour-là.',
     planInStop: (stop: string) => `Organiser la journée dans la fiche de ${stop}`,
     programTitle: 'Programme',
-    programHint: 'Chaque jour de l’étape, du jour d’arrivée au jour de départ.',
     arrivalDay: 'Arrivée',
     departureDay: 'Départ',
     addOn: (day: string) => `Ajouter une activité le ${day}`,
@@ -535,7 +534,7 @@ export const fr = {
     nextDays: (n: number) => (n > 1 ? `${n} jours suivants` : 'Jour suivant'),
     outsideTrip: 'Ce jour ne fait pas partie du voyage.',
     backToDays: 'Retour aux jours',
-    add: 'Ajouter',
+    add: 'Ajouter une activité',
     kinds: { activity: 'Activité', free_time: 'Temps libre', family: 'En famille' },
     statuses: {
       idea: 'À confirmer',

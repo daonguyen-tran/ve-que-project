@@ -44,14 +44,17 @@ export function DayRecap({
         return (
           <div key={day.date} className="flex min-w-0 flex-col gap-5">
             {showDayHeadings && <DayHeading day={day} total={calendar.days.length} stop={stop} />}
-            <DayContent
-              day={day}
-              calendar={calendar}
-              columns={columns}
-              itemsById={byId}
-              transfers={transfers}
-              onOpenSheet={onOpenSheet}
-            />
+            {/* Même surface que dans la fiche d'une étape : une journée a partout la même allure. */}
+            <div className="border-line bg-surface rounded-[var(--radius-card)] border px-4 py-3.5">
+              <DayContent
+                day={day}
+                calendar={calendar}
+                columns={columns}
+                itemsById={byId}
+                transfers={transfers}
+                onOpenSheet={onOpenSheet}
+              />
+            </div>
             {stop && (
               <Link
                 to={`/planning/etapes/${stop.id}`}

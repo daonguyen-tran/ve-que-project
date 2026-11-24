@@ -7,8 +7,11 @@ import { t } from '@/shared/i18n';
 import { formatTime } from '@/shared/lib/format-date';
 import type { TripCalendar } from '../hooks/use-day-plan';
 
+// Sur la surface blanche d'un jour : une ligne sur fond pierre, distincte des activités.
 const ROW =
-  'border-line bg-surface hover:border-muted flex min-h-14 items-center gap-3 rounded-xl border px-3.5 py-2.5 text-inherit no-underline transition-colors';
+  'bg-ground hover:bg-line-soft flex min-h-14 items-center gap-3 rounded-xl px-3 py-2.5 text-inherit no-underline transition-colors duration-150';
+const ICON_PILL =
+  'bg-surface border-line flex size-8 shrink-0 items-center justify-center rounded-full border';
 
 /**
  * Trajets qui partent ou arrivent ce jour-là, rappelés en tête du programme : ils dictent
@@ -57,9 +60,11 @@ export function TransferNote({
         return (
           <li key={transfer.id}>
             <Link to={`/planning/etapes/${transfer.toStopId}`} className={ROW}>
-              <Icon className="text-muted size-5 shrink-0" strokeWidth={1.9} aria-hidden="true" />
+              <span className={ICON_PILL}>
+                <Icon className="text-ink-soft size-4" strokeWidth={1.9} aria-hidden="true" />
+              </span>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="truncate text-[15px] font-medium">
+                <span className="text-[15px] font-medium [overflow-wrap:anywhere]">
                   {t.transfers.route(stopName(transfer.fromStopId), stopName(transfer.toStopId))}
                 </span>
                 <span className="text-muted tabular text-[13px]">{times.join(' ')}</span>

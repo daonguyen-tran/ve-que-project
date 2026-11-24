@@ -248,9 +248,19 @@ Bloc calendrier à gauche (jour abrégé, numéro en `date-block`, mois), nom su
 
 Entre deux étapes de la liste : pastille ronde avec l'icône du moyen de transport, « Avion · 4 juil. · 10:30 → 11:50 », lune et « arrivée le 8 juil. » pour un trajet de nuit, puis le statut. Sans trajet : un lien discret « + Ajouter le trajet vers Hoi An ».
 
+### Fiche d'une étape (rubriques)
+
+Une grammaire en trois niveaux, la même pour chaque rubrique (`shared/ui/SectionCard`) :
+
+- **Rubrique** (`Section`) : icône au trait + titre 18 px gras, posés sur le fond, avec un repère court à droite (« 5 jours ») ; 32 px au-dessus, 12 px en dessous.
+- **Contenu** (`Card`) : surface blanche à filets internes. Jamais de carte dans une carte : ce qu'elle contient, ce sont des lignes.
+- **Action** (`AddRow`) : pied de carte pleine largeur, « + verbe » en laque semi-gras. Toute action d'ajout a cette forme ; le contenu reste en encre.
+
+La couleur de l'étape sert de repère sur sa fiche : le nom « À montrer sur place » sur la teinte de l'étape, et le pavé de date de chaque jour du programme. Sur PC, logistique et notes à gauche (340 px), programme à droite.
+
 ### Programme d'un jour (créneaux)
 
-Trois créneaux, chacun annoncé par son icône (lever de soleil, soleil, lune) et son nom. Les éléments sont des cartes avec une **poignée** à gauche, seule zone qui déclenche le glisser (on fait défiler la page en touchant la carte, et la toucher ouvre l'édition). L'heure précise, quand il y en a une, précède le titre en chiffres tabulaires (« 19 h 30 »). « Prévu » est l'état normal et n'a pas de pastille ; « Réservé » est en jade avec une coche, « À confirmer » et « Annulé » en contour neutre. Le **temps libre** est une carte « en creux » (fond du jour, bord pointillé) : un espace laissé vide exprès ; les moments **en famille** prennent le jade clair des villages. Un créneau vide est une zone pointillée qui porte directement deux ajouts en un geste (temps libre, activité ; « en famille » d'abord au village). Pendant le glisser, la carte d'origine reste en fantôme et une copie ombrée suit le pointeur ; sur PC, trois jours côte à côte permettent de glisser d'un jour à l'autre.
+Une journée est une carte en trois bandes : l'en-tête (pavé de date `DateBlock` à la couleur de l'étape, date en toutes lettres, « Jour 4 sur 21 », pastille « Arrivée » / « Départ » à contour neutre, lien vers « Jour par jour »), le contenu, puis « + Ajouter une activité ». Le contenu a la même allure partout (`DayContent`) : le trajet du jour sur fond pierre, puis seulement les créneaux remplis. Le **créneau** est un intercalaire : icône + nom en capitales 12 px grises espacées, prolongé d'un filet ; il est volontairement plus petit et plus pâle que les éléments. Les **éléments** sont des lignes en encre 15 px, avec à gauche une colonne de repère calée contre le titre : l'heure en chiffres tabulaires (« 19 h 30 ») ou une pastille à la couleur de l'étape ; la colonne ne s'élargit que si un élément du jour a une heure. « Prévu » est l'état normal et n'a pas de pastille ; « Réservé » est en jade avec une coche, « À confirmer » et « Annulé » en contour neutre (titre barré pour l'annulé). Le **temps libre** est une ligne « en creux » (bord pointillé) ; les moments **en famille** prennent le jade clair des villages. Toucher un élément ouvre sa fiche (modifier, changer de jour ou de créneau).
 
 ### Banque d'idées
 
